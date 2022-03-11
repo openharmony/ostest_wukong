@@ -143,7 +143,6 @@ namespace OHOS {
 
             if (result == OHOS::ERR_OK) {
                 result = RunAsExecCommand();
-                result = OHOS::ERR_OK;
                 resultReceiver_.append(STRING_WUKONG_INFO_OK);
             } else {
                 resultReceiver_.append(STRING_WUKONG_INFO_NG);
@@ -313,8 +312,6 @@ namespace OHOS {
         {
             sptr<IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
             std::vector<BundleInfo> bundleInfos;
-            std::string mainEntryName = "";
-            std::string mainAbilityName = "";
             bool getInfoResult = bundleMgrProxy->GetBundleInfos(BundleFlag::GET_BUNDLE_DEFAULT, bundleInfos, userId);
             if (!getInfoResult) {
                 return OHOS::ERR_INVALID_VALUE;
