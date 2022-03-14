@@ -100,10 +100,11 @@ namespace OHOS {
         {
             APP_LOGI("%{public}s start", __func__);
             int result = OHOS::ERR_OK;
-            int option = -1;
+            
             int counter = 0;
 
             while (true) {
+				int option = -1;
                 counter++;
                 option = getopt_long(argc_, argv_, SHORT_OPTIONS.c_str(), LONG_OPTIONS, nullptr);
 
