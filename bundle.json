@@ -1,0 +1,43 @@
+{
+  "name": "@ohos/wukong",
+  "version": "3.1",
+  "description": "Automatic Stability Test Tool",
+  "publishAs": "code-segment",
+  "license": "Apache 2.0",
+  "segment": {
+    "destPath": "test/wukong"
+  },
+  "component": {
+    "name": "wukong_tool",
+    "subsystem": "test",
+    "syscap": [
+      "SystemCapability.Test.WuKong"
+    ],
+    "features": [],
+    "adapted_system_type": [
+      "standard"
+    ],
+    "rom": "100KB",
+    "ram": "100KB",
+    "deps": {
+      "components": [
+        "ability_base",
+        "ability_runtime",
+        "bundle_framework",
+        "hiviewdfx_hilog_native",
+        "ipc",
+        "resmgr_standard",
+        "samgr_standard",
+        "utils_base"
+      ],
+      "third_party": []
+    },
+    "build": {
+      "sub_component": [
+        "//wukong:tools_wukong"
+      ],
+      "inner_kits": [],
+      "test": []
+    }
+  }
+}
