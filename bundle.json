@@ -8,7 +8,7 @@
     "destPath": "test/wukong"
   },
   "component": {
-    "name": "wukong_tool",
+    "name": "wukong",
     "subsystem": "test",
     "syscap": [
       "SystemCapability.Test.WuKong"
@@ -34,7 +34,7 @@
     },
     "build": {
       "sub_component": [
-        "//wukong:tools_wukong"
+        "//test/wukong:wukong"
       ],
       "inner_kits": [],
       "test": []
