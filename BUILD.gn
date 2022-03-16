@@ -11,103 +11,77 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import("//build/ohos.gni")
-import("//foundation/appexecfwk/standard/appexecfwk.gni")
-import("//foundation/multimodalinput/input/multimodalinput_mini.gni")
 
-config("tools_wukong_config") {
-  visibility = [ ":*" ]
+wukong_root = "//test/wukong"
+aafwk_root = "//foundation/aafwk/standard"
 
-  include_dirs = [
-    "event_handle/include",
-    "module_loader/include",
-    "${aafwk_path}/interfaces/innerkits/want/include",
-    "${aafwk_path}/interfaces/innerkits/base/include",
-    "${aafwk_path}/interfaces/innerkits/want/include/ohos/aafwk/content",
-    "${aafwk_path}/services/abilitymgr/include",
-    "${aafwk_path}/services/common/include",
-    "${aafwk_path}/tools/aa/include",
-    "${appexecfwk_path}/common/log/include",
-    "${appexecfwk_path}/interfaces/innerkits/libeventhandler/include",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy/include",
-    "//foundation/distributedschedule/dmsfwk/services/dtbschedmgr/include",
-    "//foundation/multimodalinput/input/interfaces/native/innerkits/common/include",
-    "//foundation/multimodalinput/input/interfaces/native/innerkits/event/include",
-    "//foundation/multimodalinput/input/interfaces/native/innerkits/proxy/include",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core/include",
-    "//foundation/appexecfwk/standard/interfaces/innerkits/appexecfwk_core/include/appmgr",
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager/include",
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
-    "//base/hiviewdfx/hisysevent/adapter/native/idl/include",
-    "//utils/native/base/include",
-    "//utils/system/safwk/native/include",
-    "//third_party/json/include",
-    "include",
-  ]
-
-  configs = [ "${appexecfwk_path}/services/bundlemgr:bundlemgr_common_config" ]
+config("wukong_common_config") {
+  include_dirs = [ "//third_party/json/single_include/nlohmann" ]
+  cflags = [ "-D__OHOS__" ]
 }
 
-ohos_source_set("tools_wukong_source_set") {
-  sources = [
-    "${aafwk_path}/tools/aa/src/shell_command.cpp",
-    "src/wukong_main.cpp",
-    "src/wukong_command.cpp",
-    "src/wukong_app_manager.cpp",
-    "src/wukong_event_manager.cpp",
-    "src/wukong_exception_manager.cpp",
-    "src/wukong_sysevent_listener.cpp",
-  ]
-
-  public_configs = [
-    "${aafwk_path}/tools/aa:ability_command_config",
-    "//foundation/aafwk/standard/services/abilitymgr:abilityms_config",
-    "//foundation/aafwk/standard/services/common:common_config",
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:hisyseventmanager_config",
-    ":tools_wukong_config",
-  ]
-
-  cflags = []
-  if (target_cpu == "arm") {
-    cflags += [ "-DBINDER_IPC_32BIT" ]
-  }
-
-  deps = [
-    "${aafwk_path}/interfaces/innerkits/want:want",
-    "${aafwk_path}/services/abilitymgr:abilityms",
-    "${aafwk_path}/interfaces/innerkits/ability_manager:ability_manager",
-    "${appexecfwk_path}/common:libappexecfwk_common",
-    "${appexecfwk_path}/interfaces/innerkits/appexecfwk_base:appexecfwk_base",
-    "${appexecfwk_path}/interfaces/innerkits/appexecfwk_core:appexecfwk_core",
-    "${mmi_path}/frameworks/proxy:libmmi-client",
-    "${mmi_path}/frameworks/util:libmmi-util",
-    "//foundation/aafwk/standard/interfaces/innerkits/base:base",
-    "//foundation/aafwk/standard/interfaces/innerkits/want:want",
-    "//foundation/aafwk/standard/services/abilitymgr:abilityms",
-    "//foundation/communication/ipc/interfaces/innerkits/ipc_core:ipc_core",
-    "//foundation/distributedschedule/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-    "//utils/native/base:utils",
-    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
-  ]
-
-  external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
-    "hisysevent_native:libhisysevent"
-  ]
-}
+accessibility_include_dirs = [
+  "//base/accessibility/frameworks/aafwk/include",
+  "//foundation/appexecfwk/standard/common/log/include",
+  "//foundation/multimodalinput/input/interfaces/native/innerkits/common/include",
+  "//foundation/multimodalinput/input/interfaces/native/innerkits/event/include",
+  "//foundation/multimodalinput/input/interfaces/native/innerkits/proxy/include",
+  "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager/include",
+  "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
+  "//base/hiviewdfx/hisysevent/adapter/native/idl/include",
+  "//utils/native/base/include",
+  "//utils/system/safwk/native/include",
+  "//third_party/json/include",
+  "include",
+]
 
 ohos_executable("wukong") {
-  deps = [ ":tools_wukong_source_set" ]
+  configs = [ ":wukong_common_config" ]
+  sources = [
+    "${aafwk_root}/tools/aa/src/shell_command.cpp",
+    "${wukong_root}/src/wukong_main.cpp",
+    "${wukong_root}/src/wukong_command.cpp",
+    "${wukong_root}/src/wukong_app_manager.cpp",
+    "${wukong_root}/src/wukong_event_manager.cpp",
+    "${wukong_root}/src/wukong_exception_manager.cpp",
+    "${wukong_root}/src/wukong_sysevent_listener.cpp",
+  ]
 
+  include_dirs = [
+    "${wukong_root}/include",
+  ]
+
+  include_dirs += accessibility_include_dirs
+
+  deps = ["//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager"]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:runtime",
+    "accessibility:accessibilityclient",
+    "accessibility:accessibleability",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "ces_standard:cesfwk_core",
+    "ces_standard:cesfwk_innerkits"
+    "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
+    "multimodalinput_base:libmmi-client",
+    "samgr_standard:samgr_proxy",
+    "hiviewdfx_hilog_native:libhilog",
+    "multimedia_image_standard:image_native",
+    "window_manager:libdm",
+    "window_manager:libwm",
+  ]
   install_enable = false
-
-  subsystem_name = "appexecfwk"
-  part_name = "appexecfwk_standard"
-}
-
-group("tools_wukong") {
-  deps = [ ":wukong" ]
+  
+  subsystem_name = "test"
+  part_name = "wukong"
+  output_name = "wukong"
+  defines = ["LOG_TAG=\"WuKong\""]
 }
 

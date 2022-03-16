@@ -98,7 +98,6 @@ namespace OHOS {
 
         ErrCode WuKongCommand::RunAsParseCommand()
         {
-            APP_LOGI("%{public}s start", __func__);
             int result = OHOS::ERR_OK;
             
             int counter = 0;
@@ -108,16 +107,9 @@ namespace OHOS {
                 counter++;
                 option = getopt_long(argc_, argv_, SHORT_OPTIONS.c_str(), LONG_OPTIONS, nullptr);
 
-                APP_LOGI("option: %{public}d, optopt: %{public}d, optarg: %{public}s, optind: %{public}d",
-                         option, optopt, optarg, optind);
-
                 // process error
                 if (optind < 0 || optind > argc_) {
                     return OHOS::ERR_INVALID_VALUE;
-                }
-
-                for (int i = 0; i < argc_; i++) {
-                    APP_LOGI("argv_[%{public}d]: %{public}s", i, argv_[i]);
                 }
 
                 // process error
@@ -125,7 +117,6 @@ namespace OHOS {
                     if (counter == 1 && strcmp(argv_[optind], cmd_.c_str()) == 0) {
                         // 'wukong exec' with no option: wukong exec
                         // 'wukong exec' with a wrong argument: wukong exec xxx
-                        APP_LOGE("'wukong exec' with no option.");
                         resultReceiver_.append(HELP_MSG_NO_OPTION + "\n");
                         result = OHOS::ERR_INVALID_VALUE;
                     }
@@ -148,14 +139,11 @@ namespace OHOS {
             } else {
                 resultReceiver_.append(STRING_WUKONG_INFO_NG);
             }
-            APP_LOGI("%{public}s ends", __func__);
             return result;
         }
 
         ErrCode WuKongCommand::HandleUnknownOption(const char optopt)
         {
-            APP_LOGI("%{public}s start", __func__);
-
             int result = OHOS::ERR_OK;
             switch (optopt) {
                 case 'a':
@@ -183,13 +171,11 @@ namespace OHOS {
                     break;
                 }
             }
-            APP_LOGI("%{public}s ends", __func__);
             return result;
         }
 
         ErrCode WuKongCommand::HandleNormalOption(const int option)
         {
-            APP_LOGI("%{public}s start", __func__);
             int result = OHOS::ERR_OK;
             switch (option) {
                 case 'a': {
@@ -261,7 +247,6 @@ namespace OHOS {
                     g_commandTouch = true;
                     break;
             }
-            APP_LOGI("%{public}s ends", __func__);
             return result;
         }
 
@@ -427,7 +412,6 @@ namespace OHOS {
             }
             WuKongExceptionManager::GetInstance()->StopCatching();
 
-            APP_LOGI("%{public}s ends", __func__);
             return result;
         }
 
@@ -519,7 +503,6 @@ namespace OHOS {
                 return nullptr;
             }
 
-            APP_LOGI("get bundle manager proxy success.");
             return iface_cast<IBundleMgr>(remoteObject);
         }
     }
