@@ -2,7 +2,6 @@
 ## 工具介绍
 
 OpenHarmony稳定性测试自动化工具，通过模拟无序的用户行为，对OpenHarmony系统及应用进行稳定性压力测试。
-当前版本号：V 1.0.0
 
 ## 支持功能
 
@@ -90,7 +89,6 @@ wukong exec 为主命令，-s 参数设置随机种子，10为种子值；-i 参
 hdc_std shell mount -o rw,remount /
 hdc_std file send wukong /
 hdc_std shell chmod a+x /wukong
-hdc_std shell chown shell:root wukong
 hdc_std shell mv /wukong /bin/
 ```
 
