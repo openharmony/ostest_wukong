@@ -74,18 +74,6 @@ wukong exec 为主命令，-s 参数设置随机种子，10为种子值；-i 参
 
 ---
 
-## 执行样例
-
-1. touch&appswitch
-
-![image.png](./img/exec_example_1.png)
-
-
-2. motion
-
-![image.png](./img/exec_example_2.png)
-
-
 ## 推送wukong至设备
 
 > 稳定性测试自动化工具wukong暂时不随版本编译，使用时需自行编译后推送至被测OpenHarmony设备
