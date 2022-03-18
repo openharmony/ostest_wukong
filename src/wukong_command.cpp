@@ -492,14 +492,14 @@ namespace OHOS {
             sptr<ISystemAbilityManager> systemAbilityManager =
                     SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
             if (!systemAbilityManager) {
-                APP_LOGE("failed to get system ability mgr.");
+                std::cout << "failed to get system ability mgr." << std::endl;
                 return nullptr;
             }
 
             sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(
                 BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
             if (!remoteObject) {
-                APP_LOGE("failed to get bundle manager proxy.");
+                std::cout << "failed to get bundle manager proxy." << std::endl;
                 return nullptr;
             }
 
