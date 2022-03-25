@@ -14,7 +14,7 @@
  */
 
 #include "wukong_event_manager.h"
-#include "multimodal_event_handler.h"
+#include "input_manager.h"
 #include <unistd.h>
 
 namespace OHOS {
