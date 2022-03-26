@@ -14,8 +14,8 @@
  */
 
 #include "wukong_event_manager.h"
-#include "input_manager.h"
 #include <unistd.h>
+#include "input_manager.h"
 
 namespace OHOS {
     namespace AppExecFwk {
