@@ -82,7 +82,7 @@ namespace OHOS {
             std::string bundleNameArgs = "";
             std::vector<std::string> bundleList;
             std::vector<std::string> abilityList;
-            std::vector<std::string> visibleList;
+            
             int countArgs = 10;
             int intervalArgs = 1500;
             int seedArgs = -1;
