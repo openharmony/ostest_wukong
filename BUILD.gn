@@ -2,9 +2,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,21 +40,19 @@ ohos_executable("wukong") {
   configs = [ ":wukong_common_config" ]
   sources = [
     "${aafwk_root}/tools/aa/src/shell_command.cpp",
-    "${wukong_root}/src/wukong_main.cpp",
-    "${wukong_root}/src/wukong_command.cpp",
     "${wukong_root}/src/wukong_app_manager.cpp",
+    "${wukong_root}/src/wukong_command.cpp",
     "${wukong_root}/src/wukong_event_manager.cpp",
     "${wukong_root}/src/wukong_exception_manager.cpp",
+    "${wukong_root}/src/wukong_main.cpp",
     "${wukong_root}/src/wukong_sysevent_listener.cpp",
   ]
 
-  include_dirs = [
-    "${wukong_root}/include",
-  ]
+  include_dirs = [ "${wukong_root}/include" ]
 
   include_dirs += accessibility_include_dirs
 
-  deps = ["//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager"]
+  deps = [ "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager" ]
 
   external_deps = [
     "ability_base:want",
@@ -68,20 +66,19 @@ ohos_executable("wukong") {
     "bundle_framework:appexecfwk_core",
     "ces_standard:cesfwk_core",
     "ces_standard:cesfwk_innerkits",
+    "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
-    "ipc:ipc_core",
     "input:libmmi-client",
-    "samgr_standard:samgr_proxy",
-	"hisysevent_native:libhisysevent",
+    "ipc:ipc_core",
     "multimedia_image_standard:image_native",
+    "samgr_standard:samgr_proxy",
     "window_manager:libdm",
     "window_manager:libwm",
   ]
   install_enable = false
-  
+
   subsystem_name = "test"
   part_name = "wukong"
   output_name = "wukong"
-  defines = ["LOG_TAG=\"WuKong\""]
+  defines = [ "LOG_TAG=\"WuKong\"" ]
 }
-
