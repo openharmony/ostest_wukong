@@ -74,10 +74,7 @@ namespace OHOS {
             ErrCode HandleUnknownOption(const char optopt);
             ErrCode HandleNormalOption(const int option);
             ErrCode PrintResultOfStartAbility(const ErrCode result, int index);
-            ErrCode WriteWuKongBundleInfo(sptr<IBundleMgr> bundleMgrProxy, const std::vector<BundleInfo> bundleInfos);
-
-            sptr<IBundleMgr> GetBundleMgrProxy() const;
-
+            
             int FindElement(std::vector<std::string> bundleList, std::string key);
 
             int getAbilityIndex();

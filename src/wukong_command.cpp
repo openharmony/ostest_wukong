@@ -22,6 +22,7 @@
 #include "ability_manager_client.h"
 #include "system_ability_definition.h"
 #include "iservice_registry.h"
+#include "launcher_service.h"
 
 #include <iostream>
 #include <getopt.h>
@@ -255,10 +256,8 @@ namespace OHOS {
             int result = GetAllAppInfo();
             if (result == OHOS::ERR_OK) {
                 for (unsigned index = 0; index < bundleList.size(); index++) {
-                    if (visibleList[index] == "true") {
-                        std::cout << "BundleName:  " << bundleList[index] << std::endl;
-                        std::cout << "AbilityName:  " << abilityList[index] << std::endl;
-                    }
+                    std::cout << "BundleName:  " << bundleList[index] << std::endl;
+                    std::cout << "AbilityName:  " << abilityList[index] << std::endl;
                 }
             } else {
                 result = OHOS::ERR_INVALID_VALUE;
@@ -266,45 +265,17 @@ namespace OHOS {
             return result;
         }
 
-        ErrCode WuKongCommand::WriteWuKongBundleInfo(sptr<IBundleMgr> bundleMgrProxy,
-                                                     const std::vector<BundleInfo> bundleInfos)
-        {
-            std::string visible = "";
-            const int abilityIndex = 1000;
-            for (auto &bundleIter : bundleInfos) {
-                BundleInfo bundleInfo;
-                bool result = bundleMgrProxy->GetBundleInfo(bundleIter.name, BundleFlag::GET_BUNDLE_WITH_ABILITIES,
-                                                            bundleInfo, userId);
-                if (!result) {
-                    std::cout << "WriteWuKongBundleInfo getBundleInfo result " << result << std::endl;
-                    break;
-                }
-                for (auto &abilityIter : bundleInfo.abilityInfos) {
-                    if ((abilityIter.name.find(".MainAbility") > 0 &&
-                        abilityIter.name.find(".MainAbility") < abilityIndex) ||
-                        (abilityIter.name.find(".default") > 0 &&
-                        abilityIter.name.find(".default") < abilityIndex)) {
-                        visible = abilityIter.visible ? "true" : "false";
-                        bundleList.push_back(abilityIter.bundleName);
-                        abilityList.push_back(abilityIter.name);
-                        visibleList.push_back(visible);
-                    }
-                }
-            }
-            return OHOS::ERR_OK;
-        }
-
         ErrCode WuKongCommand::GetAllAppInfo()
         {
-            sptr<IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
-            std::vector<BundleInfo> bundleInfos;
-            bool getInfoResult = bundleMgrProxy->GetBundleInfos(BundleFlag::GET_BUNDLE_DEFAULT, bundleInfos, userId);
-            if (!getInfoResult) {
-                return OHOS::ERR_INVALID_VALUE;
+            LauncherService launcherservice;
+            int32_t userId = 100;
+            std::vector<LauncherAbilityInfo> launcherAbilityInfos;
+            launcherservice.GetAllLauncherAbilityInfos(userId, launcherAbilityInfos);
+            for(auto want item : launcherAbilityInfos) {
+                bundleList.push_back(item.elementName.getBundleName());
+                abilityList.push_back(item.elementName.getAbilityName());
             }
-            ErrCode result = WriteWuKongBundleInfo(bundleMgrProxy, bundleInfos);
-
-            return result;
+            return OHOS::ERR_OK;
         }
 
         ErrCode WuKongCommand::RunAsExecCommand()
@@ -451,9 +422,6 @@ namespace OHOS {
                 index = FindElement(bundleList, bundleNameArgs);
             } else {
                 index = rand() % bundleList.size();
-                while (visibleList[index] == "false") {
-                    index = rand() % bundleList.size();
-                }
             }
             return index;
         }
@@ -485,25 +453,6 @@ namespace OHOS {
                 return distance(bundleList.begin(), it);
             }
             return -1;
-        }
-
-        sptr<IBundleMgr> WuKongCommand::GetBundleMgrProxy() const
-        {
-            sptr<ISystemAbilityManager> systemAbilityManager =
-                    SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-            if (!systemAbilityManager) {
-                std::cout << "failed to get system ability mgr." << std::endl;
-                return nullptr;
-            }
-
-            sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(
-                BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-            if (!remoteObject) {
-                std::cout << "failed to get bundle manager proxy." << std::endl;
-                return nullptr;
-            }
-
-            return iface_cast<IBundleMgr>(remoteObject);
         }
     }
 }
