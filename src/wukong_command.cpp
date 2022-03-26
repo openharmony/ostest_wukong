@@ -271,7 +271,7 @@ namespace OHOS {
             int32_t userId = 100;
             std::vector<LauncherAbilityInfo> launcherAbilityInfos;
             launcherservice.GetAllLauncherAbilityInfos(userId, launcherAbilityInfos);
-            for(auto item : launcherAbilityInfos) {
+            for(auto item:launcherAbilityInfos) {
                 bundleList.push_back(item.elementName.GetBundleName());
                 abilityList.push_back(item.elementName.GetAbilityName());
             }
