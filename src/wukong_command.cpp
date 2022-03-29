@@ -104,7 +104,7 @@ namespace OHOS {
             int counter = 0;
 
             while (true) {
-				int option = -1;
+                int option = -1;
                 counter++;
                 option = getopt_long(argc_, argv_, SHORT_OPTIONS.c_str(), LONG_OPTIONS, nullptr);
 
