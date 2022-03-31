@@ -68,7 +68,7 @@ ohos_executable("wukong") {
     "ces_standard:cesfwk_innerkits",
     "hisysevent_native:libhisysevent",
     "hiviewdfx_hilog_native:libhilog",
-    "input:libmmi-client",
+    "multimodalinput_base:libmmi-client",
     "ipc:ipc_core",
     "multimedia_image_standard:image_native",
     "samgr_standard:samgr_proxy",
