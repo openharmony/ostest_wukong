@@ -76,7 +76,31 @@ wukong exec 为主命令，-s 参数设置随机种子，10为种子值；-i 参
 
 ## 推送wukong至设备
 
-> 稳定性测试自动化工具wukong暂时不随版本编译，使用时需自行编译后推送至被测OpenHarmony设备
+> 稳定性测试自动化工具wukong 3.1Release版本暂时不随版本编译，使用时需自行编译后推送至被测OpenHarmony设备。后续随版本编译后，直接使用版本即可。
+
+
+### 下载代码
+
+在工程test目录下执行如下命令下载wukong仓代码。
+
+```shell
+git clone https://gitee.com/openharmony/wukong.git -b OpenHarmony-3.1-Release
+```
+### 编译修改
+
+修改build仓中subsystem_config.json文件，增加如下字段。
+
+```shell
+"wukong": {
+    "path": "test/wukong",
+    "name": "wukong"
+  },
+```
+修改productdefine_common仓中rk3568.json文件，增加如下字段。
+```shell
+"wukong:wukong":{},
+```
+
 
 ### 构建方式
 
