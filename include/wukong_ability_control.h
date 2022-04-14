@@ -11,8 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * Description: to get and control the white/black list of the app.
  */
 
 #ifndef WUKONG_WUKONG_ABILITY_CONTROL_H

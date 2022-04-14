@@ -11,8 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * Description: the management of Wukong exception catching
  */
 
 #ifndef WUKONG_WUKONG_EXCEPTION_MANAGER_H
@@ -29,10 +27,11 @@ namespace OHOS {
     namespace AppExecFwk {
         class WuKongExceptionManager : public DelayedSingleton<WuKongExceptionManager> {
         public:
-        // Start the catching process and write down the information of the exception, to put the information of csvFile into toollistener.
+        // Start the catching process and write down the information of the exception
+        // to put the information of csvFile into toollistener.
         bool StartCatching();
 
-        //Stop the catching process and export the location of the result file.
+        // Stop the catching process and export the location of the result file.
         void StopCatching();
 
         /**

@@ -11,8 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * Description: to listen Wukong process and catch the exception information of the process.
  */
 
 #ifndef WUKONG_WUKONG_SYSEVENT_LISTENER_H
@@ -48,7 +46,7 @@ namespace OHOS {
             void OnServiceDied() override;
             ~WuKongSysEventListener() override {}
         private:
-            //the file that save the information when exceptions occur. 
+            // the file that save the information when exceptions occur. 
             std::ofstream& csvFile;
         };
     } // namespace AppExecFwk

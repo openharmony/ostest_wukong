@@ -13,12 +13,11 @@
  * limitations under the License.
  */
 
-#include "wukong_sysevent_listener.h"
-
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include "wukong_csv_utils.h"
 #include "hisysevent.h"
+#include "wukong_sysevent_listener.h"
 
 namespace OHOS {
     namespace AppExecFwk {

@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-#include "wukong_event_manager.h"
+
 #include <unistd.h>
-#include <iostream>
 #include "input_manager.h"
+#include "wukong_event_manager.h"
 
 namespace OHOS {
     namespace AppExecFwk {
@@ -189,7 +189,7 @@ namespace OHOS {
             keyKeyBoardEvent->SetKeyCode(keycode);
             keyKeyBoardEvent->SetKeyAction(MMI::KeyEvent::KEY_ACTION_DOWN);
             keyKeyBoardEvent->AddPressedKeyItems(item);
-            if (true == keyKeyBoardEvent->IsValid()) {
+            if (keyKeyBoardEvent->IsValid() == true) {
                 MMI::InputManager::GetInstance()->SimulateInputEvent(keyKeyBoardEvent);
             } else {
                 std::cout << "keyevent down is invalid" << std::endl;
@@ -202,7 +202,7 @@ namespace OHOS {
             keyKeyBoardEvent->SetKeyCode(keycode);
             keyKeyBoardEvent->SetKeyAction(MMI::KeyEvent::KEY_ACTION_UP);
             keyKeyBoardEvent->AddPressedKeyItems(item);
-            if (true == keyKeyBoardEvent->IsValid()) {
+            if (keyKeyBoardEvent->IsValid() == true) {
                 MMI::InputManager::GetInstance()->SimulateInputEvent(keyKeyBoardEvent);
             } else {
                 std::cout << "keyevent up is invalid" << std::endl;
@@ -304,16 +304,18 @@ namespace OHOS {
             int childcounts = elementInfo.GetChildCount();
             map<string, string> action = {{ACTION_ARGU_HTML_ELEMENT,HTML_ITEM_BUTTON}};
 
-            for (int index= 0;index < childcounts ; index++) {
+            for (int index= 0; index < childcounts ; index++) {
                 AccessibilityElementInfo childElement;
                 elementInfo.GetChild(index, childElement);
                 if (childElement.GetChildCount() > 0) {
                     GetChildElement(childElement);
                 } else {
                     const auto rect = childElement.GetRectInScreen();
-                    const auto rootBounds = Rect{rect.GetLeftTopXScreenPostion(), rect.GetRightBottomXScreenPostion(),
-                                                    rect.GetLeftTopYScreenPostion(), rect.GetRightBottomYScreenPostion()};
-                    if (true == childElement.IsClickable() ) {
+                    const auto rootBounds = Rect{rect.GetLeftTopXScreenPostion(), 
+                                                 rect.GetRightBottomXScreenPostion(),
+                                                 rect.GetLeftTopYScreenPostion(), 
+                                                 rect.GetRightBottomYScreenPostion()};
+                    if (childElement.IsClickable() == true) {
                         childElement.ExecuteAction(ACCESSIBILITY_ACTION_CLICK, action);
                     }
                 }
@@ -321,11 +323,15 @@ namespace OHOS {
         }
         void WuKongEventManager::KeyCodeInit()
         {
-            for(int i = OHOS::MMI::KeyEvent::KEYCODE_FN; i <= OHOS::MMI::KeyEvent::KEYCODE_ENDCALL; i++) {
+            for(int i = OHOS::MMI::KeyEvent::KEYCODE_FN; 
+                i <= OHOS::MMI::KeyEvent::KEYCODE_ENDCALL; 
+                i++) {
                 keycodelist_.push_back(i);
             }
 
-            for(int j = OHOS::MMI::KeyEvent::KEYCODE_0; j <= OHOS::MMI::KeyEvent::KEYCODE_NUMPAD_RIGHT_PAREN; j++) {
+            for(int j = OHOS::MMI::KeyEvent::KEYCODE_0; 
+                j <= OHOS::MMI::KeyEvent::KEYCODE_NUMPAD_RIGHT_PAREN; 
+                j++) {
                 keycodelist_.push_back(j);
             }
         }

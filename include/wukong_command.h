@@ -63,8 +63,8 @@ namespace OHOS {
             ~WuKongCommand() override
             {};
         private:
-            //id of inject eventtype 
-            enum EventTypeID{
+            // id of inject eventtype 
+            enum EventTypeID {
                 EVENTTYPE_TOUCHEVENT,
                 EVENTTYPE_MOTIONEVENT,
                 EVENTTYPE_MOUSEEVENT,
@@ -109,7 +109,7 @@ namespace OHOS {
              * @param eventlist the list of eventid
              * @return
              */
-           void RandomShuffle( std::vector<int> &eventlist);
+           void RandomShuffle(std::vector<int> &eventlist);
 
             /**
              * @brief split the -b parameters with & c and  check the validity of parameters
@@ -134,14 +134,14 @@ namespace OHOS {
             int intervalArgs = 1500;
             int seedArgs = -1;
 
-            //default percentage of event
+            // default percentage of event
             float touchPercentDefult = 0.20;
             float mousePercentDefult = 0.20;
             float keyboardPercentDefult = 0.20;
             float motionPercentDefult = 0.20;
             float appswitchPercentDefult = 0.20;
 
-            //percentage of event
+            // percentage of event
             float touchPercent = -1;
             float mousePercent = -1;
             float keyboardPercent = -1;
@@ -153,20 +153,20 @@ namespace OHOS {
             int xDstPosi = 0;
             int yDstPosi = 0;
 
-            //motion position
+            // motion position
             int xSrcPosition;
             int ySrcPosition;
             int xDstPosition;
             int yDstPosition;
 
-            //mouse position
+            // mouse position
             int xClickPosition;
             int yClickPosition;
 
-            //init enent type id
+            // init enent type id
             int eventTypeId = EVENTTYPE_INVALIDEVENT;
 
-            //count of event
+            // count of event
             int touchCount = 0;
             int mouseCount = 0;
             int keyboardCount = 0;
@@ -175,13 +175,13 @@ namespace OHOS {
 
             const int userId = 100;
 
-            //count of mouse event
+            // count of mouse event
             const int MOUSETYPECOUNT = 3;
 
-            //total event count
+            // total event count
             int total = 10;
 
-            //eventlist
+            // eventlist
             std::vector<int> eventlist;
         };
     }

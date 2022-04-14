@@ -11,8 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * Description: define the csvfile's layout and export data into csvfile in this layout.
  */
 
 
@@ -39,7 +37,8 @@ public:
         uint64_t spanId;
         uint64_t pspanId;
         uint64_t traceFlag;
-    };//all those are the properties of the csvfile.
+    };
+    //all those are the properties of the csvfile.
 
     /**
      * @brief writeheader of csvFile

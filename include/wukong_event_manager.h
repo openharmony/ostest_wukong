@@ -11,8 +11,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * Description: assign different events.
  */
 
 #ifndef WUKONG_WUKONG_EVENT_MANAGER_H
@@ -89,25 +87,25 @@ namespace OHOS {
              */
             ErrCode ElementEvent();
 
-             /**
+            /**
              * @brief connect to AAMS.
              * @return true: connect successful; false: connect fail.
              */
             bool ConnectToSysAbility();
 
             // get childelement and inject event .
-            void GetChildElement( OHOS::Accessibility::AccessibilityElementInfo &elementInfo);
+            void GetChildElement(OHOS::Accessibility::AccessibilityElementInfo &elementInfo);
 
-            //keycode list init
+            // keycode list init
             void KeyCodeInit();
 
-            //get keycode list
+            // get keycode list
             void GetKeycodeList(std::vector<int> & keycodelist);
         private:
-            //judge connected
+            // judge connected
             bool connected = false;
 
-            //keycodelist
+            // keycodelist
             std::vector<int> keycodelist_;
         };
 
