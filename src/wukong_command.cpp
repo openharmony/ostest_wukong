@@ -13,16 +13,6 @@
  * limitations under the License.
  */
 
-#include "wukong_command.h"
-#include "wukong_app_manager.h"
-#include "wukong_event_manager.h"
-#include "wukong_exception_manager.h"
-#include "bundle_mgr_proxy.h"
-
-#include "ability_manager_client.h"
-#include "system_ability_definition.h"
-#include "iservice_registry.h"
-#include "launcher_service.h"
 
 #include <iostream>
 #include <getopt.h>
@@ -30,6 +20,18 @@
 #include <chrono>
 #include <thread>
 #include <unistd.h>
+
+#include "wukong_app_manager.h"
+#include "wukong_event_manager.h"
+#include "wukong_exception_manager.h"
+#include "bundle_mgr_proxy.h"
+#include "ability_manager_client.h"
+#include "system_ability_definition.h"
+#include "iservice_registry.h"
+#include "launcher_service.h"
+
+#include "wukong_command.h"
+
 
 using namespace OHOS::AAFwk;
 
@@ -39,6 +41,7 @@ namespace OHOS {
             bool g_commandSEEDENABLE = false;
             bool g_commandCOUNTENABLE = false;
             bool g_commandBUNDLEENABLE = false;
+            bool g_commandELEMENTSEARCH = false;
             bool g_commandHELPENABLE = false;
             bool g_commandVERSIONENABLE = false;
             bool g_commandAPPSWITCHENABLE = false;
@@ -48,29 +51,35 @@ namespace OHOS {
             bool g_commandXENABLE = false;
             bool g_commandYENABLE = false;
             bool g_commandTouch = false;
+            bool g_commandMOUSE = false;
+            bool g_commandKEYBOARD = false;
+            bool g_commandTIME = false;
 
-
-            const std::string SHORT_OPTIONS = "a:b:c:hi:s:t:vkl:x:y:m:n:";
+            const std::string SHORT_OPTIONS = "a:b:c:ehi:s:t:vkl:x:y:m:n:o:p:T";
             const struct option LONG_OPTIONS[] = {
                 {"appswitch", required_argument, nullptr, 'a'},
                 {"bundle", required_argument, nullptr, 'b'},
                 {"count", required_argument, nullptr, 'c'},
+                {"element_search", no_argument, nullptr, 'e'},
                 {"help", no_argument, nullptr, 'h'},
                 {"interval", required_argument, nullptr, 'i'},
                 {"seed", required_argument, nullptr, 's'},
                 {"touch", required_argument, nullptr, 't'},
                 {"version", no_argument, nullptr, 'v'},
-                {"spec_insomnia", no_argument, nullptr, 'k'},
+                {"wake_sleep", no_argument, nullptr, 'k'},
                 {"motion", required_argument, nullptr, 'l'},
                 {"xSrc", required_argument, nullptr, 'x'},
                 {"ySrc", required_argument, nullptr, 'y'},
                 {"xDst", required_argument, nullptr, 'm'},
+                {"mouse", required_argument, nullptr, 'o'},
+                {"keyboard", required_argument, nullptr, 'p'},
                 {"yDst", required_argument, nullptr, 'n'},
                 {"touch_pos", no_argument, nullptr, 'u'},
+                {"time", no_argument, nullptr, 'T'},
             };
         }
 
-        WuKongCommand::WuKongCommand(int argc, char *argv[]) : ShellCommand(argc, argv, WUKONG_TOOL_NAME)
+        WuKongCommand::WuKongCommand(int argc, char *argv[]) : ShellCommand(argc, argv, WUKONG_TOOL_NAME), eventlist(100, EVENTTYPE_INVALIDEVENT)
         {}
 
         ErrCode WuKongCommand::init()
@@ -129,10 +138,10 @@ namespace OHOS {
                     result = HandleUnknownOption(optopt);
                     break;
                 }
-
                 // process correct
                 result = HandleNormalOption(option);
             }
+            result = InitEventCount();
 
             if (result == OHOS::ERR_OK) {
                 result = RunAsExecCommand();
@@ -156,6 +165,8 @@ namespace OHOS {
                 case 'x':
                 case 'y':
                 case 'u':
+                case 'o':
+                case 'p':
                     resultReceiver_.append("error: option '");
                     resultReceiver_.append(argv_[optind - 1]);
                     resultReceiver_.append("' requires a value.\n");
@@ -181,17 +192,27 @@ namespace OHOS {
             switch (option) {
                 case 'a': {
                     g_commandAPPSWITCHENABLE = true;
-                    abilityPercent = std::stof(optarg);
+                    appswitchPercent = std::stof(optarg);
                     break;
                 }
                 case 'b': {
-                    bundleNameArgs = optarg;
-                    g_commandBUNDLEENABLE = true;
+                    if (optarg) {
+                        std::cout << "get bundleNameArgs =" << optarg << std::endl;
+                        SplitString(optarg, bundleNameArgs, ",");
+                    }
+                    if (bundleNameArgs.size() >= 0) {
+                        g_commandBUNDLEENABLE = true;
+                    }
                     break;
                 }
                 case 'c': {
                     countArgs = std::stoi(optarg);
                     g_commandCOUNTENABLE = true;
+                    total = countArgs;
+                    break;
+                }
+                case 'e': {
+                    g_commandELEMENTSEARCH = true;
                     break;
                 }
                 case 'h': {
@@ -222,6 +243,7 @@ namespace OHOS {
                 }
                 case 'l': {
                     g_commandMOTIONENABLE = true;
+                    motionPercent = std::stof(optarg);
                     break;
                 }
                 case 'x': {
@@ -244,9 +266,25 @@ namespace OHOS {
                     yDstPosi = std::stoi(optarg);
                     break;
                 }
-                case 'u':
+                case 'u': {
                     g_commandTouch = true;
                     break;
+                }
+                case 'o': {
+                    g_commandMOUSE = true;
+                    mousePercent = std::stof(optarg);
+                    break;
+                }
+                case 'p': {
+                    g_commandKEYBOARD = true;
+                    keyboardPercent = std::stof(optarg);
+                    break;
+                }
+                case 'T': {
+                    total = 100;
+                    g_commandTIME = true;
+                    break;
+                }
             }
             return result;
         }
@@ -299,15 +337,18 @@ namespace OHOS {
                 srand((unsigned int)time(nullptr));
                 seedArgs = (int)time(nullptr);
             }
-
             if (g_commandTouch) {
                 checkPosition(windowsWidth, windowsHeight);
                 int result = RunTouchCommand();
                 return result;
             }
+
+            if(g_commandELEMENTSEARCH) {
+                int result = RunElementCommand();
+                return result;
+            }
             int result = GetAllAppInfo();
 
-            float randomPercent = -1.0;
             int index = -1;
             int touchX = -1;
             int touchY = -1;
@@ -320,14 +361,14 @@ namespace OHOS {
             int defaultMotionPressure = 5;
             int sleepAwakeChangeInterval = 2;
             int oneMs = 1000;
-            bool singleAppFlag = false;
 
             bool startReuslt = WuKongExceptionManager::GetInstance()->StartCatching();
             if (!startReuslt) {
                 std::cerr << "[Error] failed to start catching" << std::endl;
                 return OHOS::ERR_NO_INIT;
             }
-            for (int i = 1; i <= countArgs; i++) {
+
+            for (int i = 1; i <= total; i++) {
                 if (g_commandINSOMNIAENABLE) {
                     result = WuKongEventManager::GetInstance()->PowerOnAndOffEvent();
                     usleep(intervalArgs * oneMs);
@@ -357,28 +398,119 @@ namespace OHOS {
                         slideDirection = true;
                     }
                     usleep(intervalArgs * oneMs);
+                } else if (g_commandTIME == true) {
+                    RandomInject();
                 } else {
-                    int maxPercent = 100;
-                    randomPercent = (float)(rand() % maxPercent) / maxPercent;
-                    if ((randomPercent < touchPercent) || singleAppFlag) {
-                        touchX = rand() % windowsWidth;
-                        touchY = rand() % windowsHeight;
-                        std::cout << "touch: (" << touchX << ", " << touchY << ")" << std::endl;
-                        result = WuKongEventManager::GetInstance()->TouchEvent(touchX, touchY);
-                        usleep(intervalArgs * oneMs);
-                        continue;
+                    int eventTypeListIndex = rand()%eventTypeList.size();
+                    eventTypeId = eventTypeList[eventTypeListIndex];
+
+                    switch (eventTypeId) {
+                        case EVENTTYPE_TOUCHEVENT:
+                            if (touchCount > 0) {
+                                touchCount --;
+                                std::cout << "touch remain count :" << touchCount << std::endl;
+                                if (touchCount < 1) {
+                                    eventTypeList.erase (eventTypeList.begin() + eventTypeListIndex);
+                                }
+
+                                touchX = rand() % windowsWidth;
+                                touchY = rand() % windowsHeight;
+
+                                result = WuKongEventManager::GetInstance()->TouchEvent(touchX, touchY);
+                                std::cout << "touch: (" << touchX 
+                                          << ", " << touchY << ")" <<  std::endl;
+                                usleep(intervalArgs * oneMs);
+                            }
+                            break;
+                        case EVENTTYPE_MOTIONEVENT:
+                            if (motionCount > 0) {
+                                motionCount --;
+                                std::cout << "motion remain count :" << motionCount << std::endl;
+                                if (motionCount < 1) {
+                                    eventTypeList.erase (eventTypeList.begin() + eventTypeListIndex);
+                                }
+
+                                xSrcPosition = rand() % windowsWidth;
+                                ySrcPosition = rand() % windowsHeight;
+                                xDstPosition = rand() % windowsWidth;
+                                yDstPosition = rand() % windowsHeight;
+
+                                result = WuKongEventManager::GetInstance()->MotionEvent(
+                                    xSrcPosition, ySrcPosition, xDstPosition, yDstPosition);
+                                std::cout << "motion: (" << xSrcPosition << ", " << ySrcPosition << ")" 
+                                          << "->" << "(" << xDstPosition << ", " << yDstPosition << ")"  <<  std::endl;
+                                usleep(intervalArgs * oneMs);
+                            }
+                            break;
+                        case EVENTTYPE_MOUSEEVENT:
+                            if (mouseCount > 0) {
+                                mouseCount --;
+                                std::cout << "mouse remain count :" << mouseCount << std::endl;
+                                if (mouseCount < 1) {
+                                    eventTypeList.erase (eventTypeList.begin() + eventTypeListIndex);
+                                }
+
+                                int type = rand() % MOUSETYPECOUNT;
+                                xClickPosition = rand() % windowsWidth;
+                                yClickPosition = rand() % windowsHeight;
+
+                                result = WuKongEventManager::GetInstance()->MouseEvent(xClickPosition, yClickPosition, type);
+                                std::cout << "mouse: (" << xClickPosition << ", " 
+                                                        << yClickPosition << ")" << ", type:" << type <<  std::endl;
+                                usleep(intervalArgs * oneMs);
+                            }
+                            break;
+                        case EVENTTYPE_KEYBOARDEVENT:
+                            if (keyboardCount > 0) {
+                                keyboardCount --;
+                                std::cout << "keyboard remain count :" << keyboardCount << std::endl;
+                                if (keyboardCount < 1) {
+                                    eventTypeList.erase (eventTypeList.begin() + eventTypeListIndex);
+                                }
+                                std::vector<int> keycodelist;
+                                WuKongEventManager::GetInstance()->GetKeycodeList(keycodelist);
+                                if (keycodelist.size() > 0) {
+                                    int keycode = keycodelist[rand() % keycodelist.size()];
+                                    result = WuKongEventManager::GetInstance()->KeyBoardEvent(keycode);
+                                    std::cout << "keycode: " << keycode << std::endl;
+                                }
+                                usleep(intervalArgs * oneMs);
+                            }
+                            break;
+                        case EVENTTYPE_APPSWITCHEVENT:
+                            if (appswitchCount > 0) {
+                                appswitchCount --;
+                                std::cout << "appswitch remain count:" << appswitchCount << std::endl;
+                                if (appswitchCount < 1) {
+                                    eventTypeList.erase (eventTypeList.begin() + eventTypeListIndex);
+                                }
+                                if (g_commandBUNDLEENABLE == true && bundleNameArgs.size() > 0) {
+                                    for (unsigned int bundleIndex = 0; 
+                                         bundleIndex < bundleNameArgs.size(); 
+                                         bundleIndex++) {
+                                        GetAllAppInfo();
+                                        int index = FindElement(bundleList, bundleNameArgs[bundleIndex]);
+                                    result = WuKongAppManager::GetInstance()->StartAbilityByBundleInfo(
+                                                                                    abilityList[index],
+                                                                                    bundleList[index]);
+                                    result = PrintResultOfStartAbility(result, index);
+                                    }
+                                } else {
+                                    index = getAbilityIndex();
+                                    if (index == -1) {
+                                        std::cout << "Not Found  bundle, please check bundle name!" << std::endl;
+                                        result = OHOS::ERR_INVALID_VALUE;
+                                        break;
+                                    }
+                                    result = WuKongAppManager::GetInstance()->StartAbilityByBundleInfo(
+                                                                                    abilityList[index],
+                                                                                    bundleList[index]);
+                                    result = PrintResultOfStartAbility(result, index);
+                                }
+                                usleep(intervalArgs * oneMs);
+                            }
+                            break;
                     }
-                    singleAppFlag = g_commandBUNDLEENABLE;
-                    index = getAbilityIndex();
-                    if (index == -1) {
-                        std::cout << "Not Found " << bundleNameArgs << ", please check bundle name!" << std::endl;
-                        result = OHOS::ERR_INVALID_VALUE;
-                        break;
-                    }
-                    result = WuKongAppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index],
-                                                                                       bundleList[index]);
-                    result = PrintResultOfStartAbility(result, index);
-                    usleep(intervalArgs * oneMs);
                 }
             }
             WuKongExceptionManager::GetInstance()->StopCatching();
@@ -417,11 +549,16 @@ namespace OHOS {
 
         int WuKongCommand::getAbilityIndex()
         {
-            int index;
-            if (g_commandBUNDLEENABLE) {
-                index = FindElement(bundleList, bundleNameArgs);
-            } else {
-                index = rand() % bundleList.size();
+            int index = -1;
+            
+            if (bundleList.size() != 0) {
+                if (g_commandBUNDLEENABLE) {
+                    if (bundleNameArgs.size() != 0) {
+                        index = FindElement(bundleList, bundleNameArgs.at(rand() % bundleNameArgs.size()));
+                    }
+                } else {
+                    index = rand() % bundleList.size();
+                }
             }
             return index;
         }
@@ -436,6 +573,12 @@ namespace OHOS {
         {
             resultReceiver_ = WUKONG_HELP_MSG;
             return OHOS::ERR_OK;
+        }
+
+        ErrCode WuKongCommand::RunElementCommand()
+        {
+            int result = WuKongEventManager::GetInstance()->ElementEvent();
+            return result;
         }
 
         ErrCode WuKongCommand::GetWuKongVersion()
@@ -453,6 +596,284 @@ namespace OHOS {
                 return distance(bundleList.begin(), it);
             }
             return -1;
+        }
+
+        void WuKongCommand::SplitString(const std::string& optarg, 
+                                        std::vector<std::string> &bundleNameArgs, 
+                                        const std::string& c)
+        {
+            std::string::size_type start, end;
+            end = optarg.find(c);
+            start = 0;
+            while (std::string::npos != end) {
+                if (end != start) {
+                    auto found = std::find(bundleNameArgs.begin(), bundleNameArgs.end(), optarg.substr(start, end-start));
+                    if (bundleNameArgs.end() != found) {
+                        std::cout<<"repeat bundle name"<<std::endl;
+                        break;
+                    }
+                    bundleNameArgs.push_back(optarg.substr(start, end-start));
+                    std::cout<<optarg.substr(start, end-start)<<std::endl;
+                    
+                    start = end + c.size();
+                    end = optarg.find(c, start);
+                } else {
+                    std::cout<<"empty item"<<std::endl;
+
+                    start = end + c.size();
+                    end = optarg.find(c, start);
+                }
+            }
+            if (start != optarg.length()) {
+                auto found =std::find(bundleNameArgs.begin(), bundleNameArgs.end(), optarg.substr(start));
+                if (bundleNameArgs.end() != found) {
+                    std::cout<<"repeat bundle name"<<std::endl;
+                } else {
+                    bundleNameArgs.push_back(optarg.substr(start));
+                }
+            } 
+
+            GetAllAppInfo();
+
+            for (unsigned int i = 0; i < bundleNameArgs.size(); i++) {
+                std::cout<<"search for "<<bundleNameArgs[i]<<std::endl;
+                
+                int index = FindElement(bundleList, bundleNameArgs[i]);
+
+                std::cout<<"index = "<<index<<std::endl;
+                if (-1 != index) {
+                    std::cout<<"has "<<bundleNameArgs[i]<<std::endl;
+                    continue;
+                }
+                std::cout<<"delete "<<bundleNameArgs[i]<<std::endl;
+                bundleNameArgs.erase(find(bundleNameArgs.begin(), bundleNameArgs.end(), bundleNameArgs.at(i)));
+            }
+
+            std::cout<<"final get -b para with "<<bundleNameArgs.size()<<" items"<<std::endl;
+
+        }
+
+        ErrCode WuKongCommand::InitEventCount()
+        {
+            WuKongEventManager::GetInstance()->KeyCodeInit();
+            float sumPercent = 0.0;
+            int sumCount = 0;
+            if (touchPercent > 0) {
+                eventTypeList.push_back(EVENTTYPE_TOUCHEVENT);
+                sumPercent += touchPercent;
+                touchPercentDefult = 0;
+                touchCount = (int)(touchPercent * total);
+                sumCount +=  touchCount;
+            }
+            if (appswitchPercent > 0) {
+                eventTypeList.push_back(EVENTTYPE_APPSWITCHEVENT);
+                sumPercent += appswitchPercent;
+                appswitchPercentDefult = 0;
+                appswitchCount = (int)(appswitchPercent * total);
+                sumCount +=  appswitchCount;
+            }
+            if (motionPercent > 0) {
+                eventTypeList.push_back(EVENTTYPE_MOTIONEVENT);
+                sumPercent += motionPercent;
+                motionPercentDefult = 0;
+                motionCount = (int)(motionPercent * total);
+                sumCount +=  motionCount;
+            }
+            if (mousePercent > 0) {
+                eventTypeList.push_back(EVENTTYPE_MOUSEEVENT);
+                sumPercent += mousePercent;
+                mousePercentDefult = 0;
+                mouseCount = (int)(mousePercent * total);
+                sumCount +=  mouseCount;
+            }
+            if (keyboardPercent > 0) {
+                eventTypeList.push_back(EVENTTYPE_KEYBOARDEVENT);
+                sumPercent += keyboardPercent;
+                keyboardPercentDefult = 0;
+                keyboardCount = (int)(keyboardPercent * total);
+                sumCount +=  keyboardCount;
+            }
+            if (sumPercent > 1) {
+                std::cout << "total percentage is over 1, please reset parameters!" << std::endl;
+                return OHOS::ERR_INVALID_VALUE;
+            }
+
+            float defaultPercent = touchPercentDefult + appswitchPercentDefult + 
+                                   motionPercentDefult + mousePercentDefult + 
+                                   keyboardPercentDefult;
+
+            if (defaultPercent > 0 && defaultPercent <= 1 && sumPercent < 1) {
+                int lostCount = total - sumCount;
+                if (touchPercentDefult > 0) {
+                    eventTypeList.push_back(EVENTTYPE_TOUCHEVENT);
+                    touchCount = (int)((touchPercentDefult / defaultPercent) * lostCount);
+                }
+                if (appswitchPercentDefult > 0) {
+                    eventTypeList.push_back(EVENTTYPE_APPSWITCHEVENT);
+                    appswitchCount = (int)((appswitchPercentDefult / defaultPercent) * lostCount);
+                }
+                if (motionPercentDefult > 0) {
+                    eventTypeList.push_back(EVENTTYPE_MOTIONEVENT);
+                    motionCount = (int)((motionPercentDefult / defaultPercent) * lostCount);
+                }
+                if (mousePercentDefult > 0) {
+                    eventTypeList.push_back(EVENTTYPE_MOUSEEVENT);
+                    mouseCount = (int)((mousePercentDefult / defaultPercent) * lostCount);
+                }
+                if (keyboardPercentDefult > 0) {
+                    eventTypeList.push_back(EVENTTYPE_KEYBOARDEVENT);
+                    keyboardCount = (int)((keyboardPercentDefult / defaultPercent) * lostCount);
+                }
+            }
+            if ((total - (keyboardCount + mouseCount + motionCount + touchCount + appswitchCount )) > 0) {
+                touchCount += total - (keyboardCount + mouseCount + motionCount + touchCount + appswitchCount);
+            }
+            std::cout  << "keyboardCount :" << keyboardCount 
+                       << ", mouseCount :" << mouseCount 
+                       << ", motionCount :" << motionCount 
+                       << ", touchCount :" << touchCount 
+                       << ", appswitchCount :" << appswitchCount << std::endl;
+            return OHOS::ERR_OK;
+        }
+
+        ErrCode WuKongCommand::RandomInject()
+        {
+            int result = OHOS::ERR_OK;
+            const int windowsWidth = 720;
+            const int windowsHeight = 1080;
+            int touchX = -1;
+            int touchY = -1;
+            int oneMs = 1000;
+            int touchcount = 0;
+            int motioncount = 0;
+            int mousecount = 0;
+            int appswitchcount = 0;
+            int  keyboardcount = 0;
+            int sumcount = 0;
+            for (int index = 0; index < 100; index++) {
+                if (touchCount > 0) {
+                    eventlist[index] = EVENTTYPE_TOUCHEVENT;
+                    touchCount --;
+                    std::cout << "touchCount:" << touchCount << std::endl;
+                } else if (appswitchCount > 0) {
+                    eventlist[index] = EVENTTYPE_APPSWITCHEVENT;
+                    appswitchCount --;
+                    std::cout << "appswitchCount:" << appswitchCount << std::endl;
+                } else if (motionCount > 0) {
+                    eventlist[index] = EVENTTYPE_MOTIONEVENT;
+                    motionCount --;
+                    std::cout << "motionCount:" << motionCount << std::endl;
+                } else if (mouseCount > 0) {
+                    eventlist[index] = EVENTTYPE_MOUSEEVENT;
+                    mouseCount --;
+                    std::cout << "mouseCount:" << mouseCount << std::endl;
+                } else if (keyboardCount > 0) {
+                    eventlist[index] = EVENTTYPE_KEYBOARDEVENT;
+                    keyboardCount --;
+                    std::cout << "keyboardCount:" << keyboardCount << std::endl;
+                }
+                std::cout << "index:" << index <<  "eventlist.at(index):" << eventlist.at(index) << std::endl;
+            }
+            RandomShuffle(eventlist);
+            for (auto it = eventlist.begin(); it != eventlist.end(); ++it) {
+                std::cout  << *it ;
+            }
+            while (1) {
+                sumcount++;
+                std::cout << "sumcount: " << sumcount  <<  std::endl;
+                int eventindex = rand() % 100;
+                eventTypeId = eventlist.at(eventindex);
+                int index = 0;
+                switch (eventTypeId) {
+                    case EVENTTYPE_TOUCHEVENT: {
+                        touchX = rand() % windowsWidth;
+                        touchY = rand() % windowsHeight;
+                        result = WuKongEventManager::GetInstance()->TouchEvent(touchX, touchY);
+                        std::cout << "touch: (" << touchX << ", " << touchY << ")" <<  std::endl;
+                        touchcount ++;
+                        std::cout << "touchcount: " << touchcount  <<  std::endl;
+                        float touchpercent = (float)touchcount / sumcount;
+                        std::cout << "touchpercent: " << touchpercent  <<  std::endl;
+                        usleep(intervalArgs * oneMs);
+                        break;
+                    }
+                    case EVENTTYPE_MOTIONEVENT: {
+                        xSrcPosition = rand() % windowsWidth;
+                        ySrcPosition = rand() % windowsHeight;
+                        xDstPosition = rand() % windowsWidth;
+                        yDstPosition = rand() % windowsHeight;
+
+                        result = WuKongEventManager::GetInstance()->MotionEvent(
+                            xSrcPosition, ySrcPosition, xDstPosition, yDstPosition);
+                        std::cout << "motion: (" << xSrcPosition << ", " << ySrcPosition << ")" 
+                                  << "->" << "(" << xDstPosition << ", " << yDstPosition << ")"  <<  std::endl;
+                        motioncount ++;
+                        std::cout << "motioncount: " << motioncount  <<  std::endl;
+                        float motionpercent = (float)motioncount / sumcount;
+                        std::cout << "motionpercent: " << motionpercent  <<  std::endl;
+                        usleep(intervalArgs * oneMs);
+                        break;
+                    }
+                    case EVENTTYPE_MOUSEEVENT: {
+                        int type = rand() % MOUSETYPECOUNT;
+                        xClickPosition = rand() % windowsWidth;
+                        yClickPosition = rand() % windowsHeight;
+
+                        result = WuKongEventManager::GetInstance()->MouseEvent(xClickPosition, 
+                                                                               yClickPosition, 
+                                                                               type);
+                        std::cout << "mouse: (" << xClickPosition << ", "
+                                                << yClickPosition << ")" << ", type:" << type <<  std::endl;
+                        mousecount ++;
+                        float mousepercent = (float)mousecount / sumcount;
+                        std::cout << "mousepercent: " << mousepercent  <<  std::endl;
+                        std::cout << "mousecount: " << mousecount  <<  std::endl;
+                        usleep(intervalArgs * oneMs);
+                        break;
+                    }
+                    case EVENTTYPE_KEYBOARDEVENT: {
+                        std::vector<int> keycodelist;
+                        WuKongEventManager::GetInstance()->GetKeycodeList(keycodelist);
+                        std::cout << "keyboard size :" << keycodelist.size() << std::endl;
+                        if (keycodelist.size() > 0) {
+                            int keycode = keycodelist[rand() % keycodelist.size()];
+                            result = WuKongEventManager::GetInstance()->KeyBoardEvent(keycode);
+                            std::cout << "keycode: " << keycode << std::endl;
+                            keyboardcount ++;
+                            std::cout << "keyboardcount: " << keyboardcount  <<  std::endl;
+                            float keyboardpercent = (float)keyboardcount / sumcount;
+                            std::cout << "keyboardpercent: " << keyboardpercent  <<  std::endl;
+                            usleep(intervalArgs * oneMs);
+                        }
+                        break;
+                    }
+                    case EVENTTYPE_APPSWITCHEVENT: {
+                        index = getAbilityIndex();
+                        if (index == -1) {
+                            std::cout << "Not Found  bundle, please check bundle name!" << std::endl;
+                            result = OHOS::ERR_INVALID_VALUE;
+                            break;
+                        }
+                        result = WuKongAppManager::GetInstance()->StartAbilityByBundleInfo(
+                                                                        abilityList[index],
+                                                                        bundleList[index]);
+                        result = PrintResultOfStartAbility(result, index);
+                        appswitchcount ++;
+                        std::cout << "appswitchcount: " << appswitchcount  <<  std::endl;
+                        float appswitchpercent = (float)appswitchcount / sumcount;
+                        std::cout << "appswitchpercent: " << appswitchpercent  <<  std::endl;
+                        usleep(intervalArgs * oneMs);
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
+        void WuKongCommand::RandomShuffle( std::vector<int> &eventlist)
+        {
+            for (int i = eventlist.size() - 1 ; i > 0; --i) {
+                std::swap(eventlist[i], eventlist[std::rand() % (i+1)]);
+            }
         }
     }
 }

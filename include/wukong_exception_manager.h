@@ -27,23 +27,47 @@ namespace OHOS {
     namespace AppExecFwk {
         class WuKongExceptionManager : public DelayedSingleton<WuKongExceptionManager> {
         public:
+        // Start the catching process and write down the information of the exception
+        // to put the information of csvFile into toollistener.
         bool StartCatching();
+
+        // Stop the catching process and export the location of the result file.
         void StopCatching();
+
+        /**
+         * @brief if wukong exception manager has the ability to catch cpp crash.
+         * @param isEnable
+         * @return -
+         */
         void SetCppCrashCatching(bool isEnable)
         {
             enableCppCrashCatching = isEnable;
         }
 
+        /**
+         * @brief if wukong exception manager has the ability to catch js crash.
+         * @param isEnable
+         * @return -
+         */
         void SetJsCrashCatching(bool isEnable)
         {
             enableJsCrashCatching = isEnable;
         }
 
+        /**
+         * @brief if wukong exception manager has the ability to catch App's freeze.
+         * @param isEnable
+         * @return -
+         */ 
         void SetAppFreezeCatching(bool isEnable)
         {
             enableAppFreezeCatching = isEnable;
         }
 
+        /**
+         * @brief to get the path of the current csvfile.
+         * @return the path of the current csvfile.
+         */
         std::string GetCurrentCsvFilePath()
         {
             return currentCsvFilePath;

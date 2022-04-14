@@ -20,6 +20,7 @@
 
 namespace OHOS {
     namespace AppExecFwk {
+        // start ability by bundleInfo's entryHapName and entryHap->mainAbility。
         ErrCode WuKongAppManager::StartAbilityByBundleInfo(std::string AbilityNameArgs, std::string BundleNameArgs)
         {
             Want want;

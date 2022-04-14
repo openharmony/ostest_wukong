@@ -13,12 +13,17 @@
  * limitations under the License.
  */
 
-#include "wukong_event_manager.h"
+
 #include <unistd.h>
+#include <iostream>
 #include "input_manager.h"
+#include "wukong_event_manager.h"
 
 namespace OHOS {
     namespace AppExecFwk {
+        using namespace OHOS::Accessibility;
+        using namespace OHOS;
+        using namespace std;
         ErrCode WuKongEventManager::TouchEvent(int xPosition, int yPosition, int touchTime, int pressure)
         {
             auto pointerEvent = MMI::PointerEvent::Create();
@@ -129,6 +134,212 @@ namespace OHOS {
             keyPowerEvent->RemoveReleasedKeyItems(item);
 
             return OHOS::ERR_OK;
+        }
+
+        ErrCode WuKongEventManager::ElementEvent()
+        {
+            if (ConnectToSysAbility()) {
+                auto ability = AccessibilityUITestAbility::GetInstance();
+                std::optional<AccessibilityElementInfo > elementInfo;
+                ability->GetRootElementInfo(elementInfo);
+                if (elementInfo.has_value()) {
+                    GetChildElement(elementInfo.value());
+                }
+                return OHOS::ERR_OK;
+            } else {
+                std::cout << "Connect to AAMS failed" << std::endl;
+                return OHOS::ERR_NO_INIT;
+            }
+        }
+
+        ErrCode WuKongEventManager::MouseEvent(int xPosition, int yPosition, int type, int touchTime, int pressure)
+        {
+            auto pointerEvent = MMI::PointerEvent::Create();
+            MMI::PointerEvent::PointerItem item;
+
+            item.SetPointerId(0);
+            item.SetGlobalX(xPosition);
+            item.SetGlobalY(yPosition);
+            item.SetPressure(pressure);
+            pointerEvent->AddPointerItem(item);
+
+            pointerEvent->SetPointerAction(MMI::PointerEvent::POINTER_ACTION_DOWN);
+            pointerEvent->SetSourceType(type);
+            pointerEvent->SetPointerId(0);
+
+            MMI::InputManager::GetInstance()->SimulateInputEvent(pointerEvent);
+
+            pointerEvent->SetPointerAction(MMI::PointerEvent::POINTER_ACTION_UP);
+            pointerEvent->SetSourceType(type);
+            pointerEvent->SetPointerId(0);
+
+            MMI::InputManager::GetInstance()->SimulateInputEvent(pointerEvent);
+
+            return OHOS::ERR_OK;
+        }
+
+        ErrCode WuKongEventManager::KeyBoardEvent(int keycode, int touchTime, int pressure)
+        {
+            auto keyKeyBoardEvent = OHOS::MMI::KeyEvent::Create();
+
+            int32_t downTime = 100;
+            MMI::KeyEvent::KeyItem item;
+            item.SetKeyCode(keycode);
+            item.SetPressed(true);
+            item.SetDownTime(downTime);
+            keyKeyBoardEvent->SetKeyCode(keycode);
+            keyKeyBoardEvent->SetKeyAction(MMI::KeyEvent::KEY_ACTION_DOWN);
+            keyKeyBoardEvent->AddPressedKeyItems(item);
+            if (keyKeyBoardEvent->IsValid() == true) {
+                MMI::InputManager::GetInstance()->SimulateInputEvent(keyKeyBoardEvent);
+            } else {
+                std::cout << "keyevent down is invalid" << std::endl;
+                return OHOS::ERR_NO_INIT;
+            }
+            keyKeyBoardEvent->RemoveReleasedKeyItems(item);
+            item.SetKeyCode(keycode);
+            item.SetPressed(false);
+            item.SetDownTime(downTime);
+            keyKeyBoardEvent->SetKeyCode(keycode);
+            keyKeyBoardEvent->SetKeyAction(MMI::KeyEvent::KEY_ACTION_UP);
+            keyKeyBoardEvent->AddPressedKeyItems(item);
+            if (keyKeyBoardEvent->IsValid() == true) {
+                MMI::InputManager::GetInstance()->SimulateInputEvent(keyKeyBoardEvent);
+            } else {
+                std::cout << "keyevent up is invalid" << std::endl;
+                return OHOS::ERR_NO_INIT;
+            }
+            keyKeyBoardEvent->RemoveReleasedKeyItems(item);
+
+            return OHOS::ERR_OK;
+        }
+
+        void UiEventMonitor::SetOnAbilityConnectCallback(std::function<void()> onConnectCb)
+        {
+            onConnectCallback_ = std::move(onConnectCb);
+        }
+
+        void UiEventMonitor::SetOnAbilityDisConnectCallback(std::function<void()> onDisConnectCb)
+        {
+            onDisConnectCallback_ = std::move(onDisConnectCb);
+        }
+
+        void UiEventMonitor::OnAbilityConnected()
+        {
+            if (onConnectCallback_ != nullptr) {
+                onConnectCallback_();
+            }
+        }
+
+        void UiEventMonitor::OnAbilityDisconnected()
+        {
+            if (onDisConnectCallback_ != nullptr) {
+                onDisConnectCallback_();
+            }
+        }
+
+        void UiEventMonitor::OnAccessibilityEvent(const AccessibilityEventInfo &eventInfo)
+        {
+            std::cout << "OnAccessibilityEvent Start" << eventInfo.GetEventType() << std::endl;
+        }
+
+        uint64_t UiEventMonitor::GetLastEventMillis()
+        {
+            if (lastEventMillis_.load() <= 0) {
+                lastEventMillis_.store(1);
+            }
+            return lastEventMillis_.load();
+        }
+
+        bool UiEventMonitor::WaitEventIdle(uint32_t idleThresholdMs, uint32_t timeoutMs)
+        {
+            const auto currentMs = 1;
+            if (lastEventMillis_.load() <= 0) {
+                lastEventMillis_.store(currentMs);
+            }
+            if (currentMs - lastEventMillis_.load() >= idleThresholdMs) {
+                return true;
+            }
+            static constexpr auto sliceMs = 10;
+            return WaitEventIdle(idleThresholdMs, timeoutMs - sliceMs);
+        }
+
+        bool WuKongEventManager::ConnectToSysAbility()
+        {
+            if (connected == true) {
+                return true;
+            }
+            std::mutex mtx;
+            unique_lock<mutex> uLock(mtx);
+            std::shared_ptr<UiEventMonitor> g_monitorInstance_ = std::make_shared<UiEventMonitor>();
+            std::condition_variable condition;
+            auto onConnectCallback = [&condition]() {
+                std::cout <<"Success connect to AAMS"<< std::endl;
+                condition.notify_all();
+            };
+
+            if (g_monitorInstance_ == nullptr) {
+                g_monitorInstance_ = std::make_shared<UiEventMonitor>();
+            }
+            g_monitorInstance_->SetOnAbilityConnectCallback(onConnectCallback);
+            auto ability = AccessibilityUITestAbility::GetInstance();
+            if (!ability->RegisterListener(g_monitorInstance_)) {
+                std::cout <<"Failed to register UiEventMonitor"<< std::endl;
+                return false;
+            }
+            std::cout <<   "Start connect to AAMS" << std::endl;
+            if (!ability->Connect()) {
+                std::cout <<  "Failed to connect to AAMS" << std::endl;
+                return false;
+            }
+            const auto timeout = chrono::milliseconds(500);
+            if (condition.wait_for(uLock, timeout) == cv_status::timeout) {
+                std::cout <<"Wait connection to AAMS timed out"<< std::endl;
+                return  false;
+            }
+            connected = true;
+            return true;
+        }
+        void WuKongEventManager::GetChildElement(AccessibilityElementInfo &elementInfo)
+        {
+            int childcounts = elementInfo.GetChildCount();
+            map<string, string> action = {{ACTION_ARGU_HTML_ELEMENT,HTML_ITEM_BUTTON}};
+
+            for (int index= 0; index < childcounts ; index++) {
+                AccessibilityElementInfo childElement;
+                elementInfo.GetChild(index, childElement);
+                if (childElement.GetChildCount() > 0) {
+                    GetChildElement(childElement);
+                } else {
+                    const auto rect = childElement.GetRectInScreen();
+                    const auto rootBounds = Rect{rect.GetLeftTopXScreenPostion(), 
+                                                 rect.GetRightBottomXScreenPostion(),
+                                                 rect.GetLeftTopYScreenPostion(), 
+                                                 rect.GetRightBottomYScreenPostion()};
+                    if (childElement.IsClickable() == true) {
+                        childElement.ExecuteAction(ACCESSIBILITY_ACTION_CLICK, action);
+                    }
+                }
+            }
+        }
+        void WuKongEventManager::KeyCodeInit()
+        {
+            for(int i = OHOS::MMI::KeyEvent::KEYCODE_FN; 
+                i <= OHOS::MMI::KeyEvent::KEYCODE_ENDCALL; 
+                i++) {
+                keycodelist_.push_back(i);
+            }
+
+            for(int j = OHOS::MMI::KeyEvent::KEYCODE_0; 
+                j <= OHOS::MMI::KeyEvent::KEYCODE_NUMPAD_RIGHT_PAREN; 
+                j++) {
+                keycodelist_.push_back(j);
+            }
+        }
+
+        void WuKongEventManager::GetKeycodeList(std::vector<int> & keycodelist)
+        {
+            keycodelist = keycodelist_;
         }
     }
 }
