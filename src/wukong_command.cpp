@@ -20,6 +20,11 @@
 #include <chrono>
 #include <thread>
 #include <unistd.h>
+#include <ctime>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <regex>
+#include <typeinfo>
 
 #include "wukong_app_manager.h"
 #include "wukong_event_manager.h"
