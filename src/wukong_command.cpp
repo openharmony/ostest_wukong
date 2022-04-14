@@ -77,6 +77,147 @@ namespace OHOS {
                 {"touch_pos", no_argument, nullptr, 'u'},
                 {"time", no_argument, nullptr, 'T'},
             };
+
+            std::string DEAFULT_DIR = "/data/local/wukong";
+            std::ofstream outFile;
+            int64_t timeTemp = -1;
+
+            int64_t GetMillisTime() {
+                auto timeNow = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+                auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(timeNow.time_since_epoch());
+                return tmp.count();
+            }
+
+            class TestUtils {
+            public:
+                TestUtils() = default;
+                virtual ~TestUtils() = default;
+                static std::vector<std::string> split(const std::string &in, const std::string &delim) {
+                    std::regex reg(delim);
+                    std::vector<std::string> res = {
+                        std::sregex_token_iterator(in.begin(), in.end(), reg, -1), std::sregex_token_iterator()};
+                    return res;
+                }
+            };
+
+
+            class touchEventInfo
+            {
+                public:
+                struct eventData {
+                    int xPosi;
+                    int yPosi;
+                    int interval = 1;
+                };
+
+
+                static void WriteEventHead(std::ofstream &outFile) {
+                    outFile << "x" << ',';
+                    outFile << "y" << ',';
+                    outFile << "interval" << std::endl;
+                }
+
+                static void WriteEventData(std::ofstream &outFile, const eventData &data) {
+                    outFile << data.xPosi << ',';
+                    outFile << data.yPosi << ',';
+                    outFile << data.interval << std::endl;
+                }
+
+                static void ReadEventLine(std::ifstream &inFile) {
+                    char buffer[50];
+                    int xPosi = -1;
+                    int yPosi = -1;
+                    int interval = -1
+                    bool jumpFlag = true;
+                    while (!inFile.eof()) {
+                        inFile >> buffer;
+                        if (jumpFlag) {
+                            jumpFlag = !jumpFlag;
+                            continue;
+                        }
+                        jumpFlag = !jumpFlag;
+                        std::string delim = ",";
+                        auto caseInfo = TestUtils::split(buffer, delim);
+                        xPosi = std::stoi(caseInfo[0]);
+                        yPosi = std::stoi(caseInfo[1]);
+                        interval = std::stoi(caseInfo[2]);
+
+                        std::cout << xPosi << ";"
+                                  << yPosi << ";"
+                                  << interval << std::endl;
+                        int result = WuKongEventManager::GetInstance()->TouchEvent(xPosi, yPosi);
+                        usleep(interval * 1000);
+                        result += 1;
+                    }
+                }
+            };
+
+            bool InitReportFolder()
+            {
+                DIR *rootDir = nullptr;
+                if ((rootDir = opendir(DEFAULT_DIR.c_str())) == nullptr) {
+                    int ret = mkdir(DEFAULT_DIR.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
+                    if (ret != 0) {
+                        std::cerr << "failed to create dir: " << DEFAULT_DIR << std::endl;
+                        return false;
+                    }
+                }
+            return true;
+            }
+
+            bool InitEventRecordFile(std::ofstream &outFile) {
+                if (!InitReportFolder()) {
+                    return false;
+                }
+                std::string filePath = DEAFULT_DIR + "/EventRecord" + ".csv";
+                outFile.open(filePath, std::ios_base::out | std::ios_base::trunc);
+                if (!outFile) {
+                    std::cerr << "Failed to create csv file at:" << filePath << std::endl;
+                    return false;
+                }
+                touchEventInfo::WriteEventHead(outFile);
+                std::cout << "The result will be written in csv file at location: " << filePath << std::endl;
+                return true;
+            }
+        }
+
+        class InputEventCallback : public IInputEventConsumer {
+        public:
+            virtual void OnInputEvent(std::shared_ptr<KeyEvent> keyEvent) const override
+            {
+                std::cout << "keyCode" << keyEvent->GetKeyCode() << std::endl;
+            }
+            virtual void OnInputEvent(std::shared_ptr<PointerEvent> pointerEvent) const override
+            {
+                MMI::PointerEvent::PointerItem item;
+                bool result = pointerEvent->GetPointerItem(PointerEvent->GetPointerId(), item);
+                if (!result) {
+                    std::cout << "GetPointerItem Fail" << std::endl;
+                }
+                touchEventInfo::eventData data {};
+                int64_t currentTime = GetMillisTime();
+                if (timeTemp == -1) {
+                    timeTemp = currentTime;
+                    data.interval = 1000;
+                } else {
+                    data.interval = currentTime - timeTemp;
+                    timeTemp = currentTime;
+                }
+                data.xPosi = item.GetGlobalX();
+                data.yPosi = item.GetGlobalY();
+                touchEventInfo::WriteEventData(outFile, data);
+                std::cout << " PointerEvent received."
+                          << " interval: " << data.interval
+                          << " xPosi:" << data.xPosi
+                          << " yPosi:" << data.yPosi << std::endl;
+            }
+            virtual void OnInputEvent(std::shared_ptr<AxisEvent> axisEvent) const override {}
+            static std::shared_ptr<InputEventCallback> GetPtr();
+        };
+
+        std::shared_ptr<InputEventCallback> InputEventCallback::GetPtr()
+        {
+            return std::make_shared<InputEventCallback>();
         }
 
         WuKongCommand::WuKongCommand(int argc, char *argv[]) : ShellCommand(argc, argv, WUKONG_TOOL_NAME), eventlist(100, EVENTTYPE_INVALIDEVENT)
@@ -87,6 +228,26 @@ namespace OHOS {
             return OHOS::ERR_OK;
         }
 
+        ErrCode WuKongCommand::StartRecord()
+        {
+            if (!InitEventRecordFile(outFile)) {
+                return OHOS::ERR_INVALID_VALUE;
+            }
+            auto callBackPtr = InputEventCallback::GetPtr();
+            int32_t id1 = MMI::InputManager::GetInstance()->AddMonitor(callBackPtr);
+            std::cout << id1 << std::endl;
+            int flag = getc(stdin);
+            std::cout << flag << std::endl;
+            return OHOS::ERR_OK;
+        }
+
+        ErrCode WuKongCommand::StartReplay()
+        {
+            std::ifstream inFile(DEFAULT_DIR + "/EventRecord" + ".csv");
+            touchEventInfo::ReadEventLine(inFile);
+            return OHOS::ERR_OK;
+        }
+
         ErrCode WuKongCommand::CreateCommandMap()
         {
             commandMap_ = {
@@ -94,6 +255,8 @@ namespace OHOS {
                     {"help", std::bind(&WuKongCommand::RunAsHelpCommand, this)},
                     {"exec", std::bind(&WuKongCommand::RunAsParseCommand, this)},
                     {"appinfo", std::bind(&WuKongCommand::ShowAllAppInfo, this)},
+                    {"record", std::bind(&WuKongCommand::StartRecord, this)},
+                    {"replay", std::bind(&WuKongCommand::StartReplay, this)},
             };
             return OHOS::ERR_OK;
         }

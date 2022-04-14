@@ -98,6 +98,8 @@ namespace OHOS {
             ErrCode PrintResultOfStartAbility(const ErrCode result, int index);
             ErrCode InitEventCount();
 
+            ErrCode StartRecord();
+            ErrCode StartReplay();
             /**
              * @brief according to probability to  inject event
              * @return NO_ERROR: successful; otherwise is failed.
