@@ -83,7 +83,7 @@ namespace OHOS {
                 {"time", no_argument, nullptr, 'T'},
             };
 
-            std::string DEAFULT_DIR = "/data/local/wukong";
+            std::string DEFAULT_DIR = "/data/local/wukong";
             std::ofstream outFile;
             int64_t timeTemp = -1;
 
@@ -132,7 +132,7 @@ namespace OHOS {
                     char buffer[50];
                     int xPosi = -1;
                     int yPosi = -1;
-                    int interval = -1
+                    int interval = -1;
                     bool jumpFlag = true;
                     while (!inFile.eof()) {
                         inFile >> buffer;
@@ -174,7 +174,7 @@ namespace OHOS {
                 if (!InitReportFolder()) {
                     return false;
                 }
-                std::string filePath = DEAFULT_DIR + "/EventRecord" + ".csv";
+                std::string filePath = DEFAULT_DIR + "/EventRecord" + ".csv";
                 outFile.open(filePath, std::ios_base::out | std::ios_base::trunc);
                 if (!outFile) {
                     std::cerr << "Failed to create csv file at:" << filePath << std::endl;
@@ -186,16 +186,16 @@ namespace OHOS {
             }
         }
 
-        class InputEventCallback : public IInputEventConsumer {
+        class InputEventCallback : public MMI::IInputEventConsumer {
         public:
-            virtual void OnInputEvent(std::shared_ptr<KeyEvent> keyEvent) const override
+            virtual void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override
             {
                 std::cout << "keyCode" << keyEvent->GetKeyCode() << std::endl;
             }
-            virtual void OnInputEvent(std::shared_ptr<PointerEvent> pointerEvent) const override
+            virtual void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override
             {
                 MMI::PointerEvent::PointerItem item;
-                bool result = pointerEvent->GetPointerItem(PointerEvent->GetPointerId(), item);
+                bool result = pointerEvent->GetPointerItem(pointerEvent->GetPointerId(), item);
                 if (!result) {
                     std::cout << "GetPointerItem Fail" << std::endl;
                 }
@@ -216,7 +216,7 @@ namespace OHOS {
                           << " xPosi:" << data.xPosi
                           << " yPosi:" << data.yPosi << std::endl;
             }
-            virtual void OnInputEvent(std::shared_ptr<AxisEvent> axisEvent) const override {}
+            virtual void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override {}
             static std::shared_ptr<InputEventCallback> GetPtr();
         };
 
