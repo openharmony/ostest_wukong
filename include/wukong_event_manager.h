@@ -109,7 +109,7 @@ namespace OHOS {
             std::vector<int> keycodelist_;
         };
 
-        class UiEventMonitor final : public Accessibility::IAccessibleUITestAbilityListener {
+        class UiEventMonitor final : public Accessibility::AccessibleAbilityListener {
         public:
             virtual ~UiEventMonitor() = default;
 
@@ -123,12 +123,10 @@ namespace OHOS {
 
             void SetOnAbilityDisConnectCallback(std::function<void()> onDisConnectCb);
 
-            bool OnKeyPressEvent(const std::shared_ptr<MMI::KeyEvent> &keyEvent, const int sequence) override
+            bool OnKeyPressEvent(const std::shared_ptr<MMI::KeyEvent> &keyEvent) override
             {
                 return false;
             }
-
-            void OnGestureSimulateResult(const int sequence, const bool completedSuccessfully) override {}
 
             uint64_t GetLastEventMillis();
 
