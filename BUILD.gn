@@ -60,8 +60,6 @@ ohos_executable("wukong") {
     "ability_runtime:ability_context_native",
     "ability_runtime:ability_manager",
     "ability_runtime:abilitykit_native",
-    "ability_runtime:runtime",
-    "accessibility:accessibilityclient",
     "accessibility:accessibleability",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",

@@ -140,10 +140,9 @@ namespace OHOS {
         {
             if (ConnectToSysAbility()) {
                 auto ability = AccessibilityUITestAbility::GetInstance();
-                std::optional<AccessibilityElementInfo > elementInfo;
-                ability->GetRootElementInfo(elementInfo);
-                if (elementInfo.has_value()) {
-                    GetChildElement(elementInfo.value());
+                AccessibilityElementInfo elementInfo {};
+                if (ability->GetRoot(elementInfo)) {
+                    GetChildElement(elementInfo);
                 }
                 return OHOS::ERR_OK;
             } else {
@@ -283,7 +282,7 @@ namespace OHOS {
             }
             g_monitorInstance_->SetOnAbilityConnectCallback(onConnectCallback);
             auto ability = AccessibilityUITestAbility::GetInstance();
-            if (!ability->RegisterListener(g_monitorInstance_)) {
+            if (!ability->RegisterAbilityListener(g_monitorInstance_)) {
                 std::cout <<"Failed to register UiEventMonitor"<< std::endl;
                 return false;
             }
@@ -305,9 +304,10 @@ namespace OHOS {
             int childcounts = elementInfo.GetChildCount();
             map<string, string> action = {{ACTION_ARGU_HTML_ELEMENT,HTML_ITEM_BUTTON}};
 
+            auto ability = AccessibilityUITestAbility::GetInstance();
             for (int index= 0; index < childcounts ; index++) {
                 AccessibilityElementInfo childElement;
-                elementInfo.GetChild(index, childElement);
+                (void)ability->GetChildElementInfo(index, elementInfo, childElement);
                 if (childElement.GetChildCount() > 0) {
                     GetChildElement(childElement);
                 } else {
@@ -317,7 +317,7 @@ namespace OHOS {
                                                  rect.GetLeftTopYScreenPostion(), 
                                                  rect.GetRightBottomYScreenPostion()};
                     if (childElement.IsClickable() == true) {
-                        childElement.ExecuteAction(ACCESSIBILITY_ACTION_CLICK, action);
+                        (void)ability->ExecuteAction(childElement, ACCESSIBILITY_ACTION_CLICK, action);
                     }
                 }
             }
