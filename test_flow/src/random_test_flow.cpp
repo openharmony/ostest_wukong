@@ -29,7 +29,7 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -h, --help                 random test help\n"
     "   -a, --appswitch            appswitch event percent\n"
     "   -b, --bundle               the bundle name of whitelist\n"
-    "   -p, --prohibit             the bundle name of blacklist\n"
+    "   -p, --prohibit             the bundle name of blocklist\n"
     "   -t, --touch                touch event percent\n"
     "   -c, --count                test count\n"
     "   -i, --interval             interval\n"
@@ -162,7 +162,8 @@ ErrCode RandomTest::EnvInit()
     if (g_commandSEEDENABLE) {
         srand(seedArgs_);
     } else {
-        (void)srand((unsigned int)time(nullptr));
+        time_t tempSeed = time(nullptr);
+        srand((unsigned int)tempSeed);
         seedArgs_ = (int)time(nullptr);
     }
     TEST_RUN_LOG(("Seed: " + std::to_string(seedArgs_)).c_str());

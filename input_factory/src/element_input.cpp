@@ -20,20 +20,16 @@
 namespace OHOS {
 namespace WuKong {
 ElementInput::ElementInput() : InputAction() {}
-
 ElementInput::~ElementInput() {}
-
 ErrCode ElementInput::OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
     return OHOS::ERR_OK;
 }
-
 ErrCode ElementInput::RandomInput()
 {
     ErrCode result = OHOS::ERR_OK;
     return result;
 }
-
 ErrCode ElementInput::GetInputInfo()
 {
     return OHOS::ERR_OK;

@@ -18,37 +18,30 @@
 namespace OHOS {
 namespace WuKong {
 SceneDelegate::SceneDelegate() {}
-
 SceneDelegate::~SceneDelegate() {}
-
 ErrCode SceneDelegate::CommpareTwoTreeNodeCount()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
-
 ErrCode SceneDelegate::CompareTwoTreeHeight()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
-
 ErrCode SceneDelegate::CompareTwoWidth()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
-
 ErrCode SceneDelegate::ChooseScene()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
-
 ErrCode SceneDelegate::GetTreeChangedDetailInfo()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
-
 ErrCode SceneDelegate::GetSceneFindElementWay()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
 
 }  // namespace WuKong

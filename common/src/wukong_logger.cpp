@@ -172,9 +172,7 @@ bool Logger::PrinterThread::Run()
                 printer << "Logger::PrinterThread::Run wait end" << std::endl;
             }
         }
-        // read queue buffer to thread buffer.
-        self->mtxQueue_.lock();
-
+        self->mtxQueue_.lock(); // read queue buffer to thread buffer.
         // the buffer queue is empty and main wait stop, retrun this thread.
         if (self->bufferQueue_.empty() && !self->printerRunning_) {
             break;
@@ -184,7 +182,6 @@ bool Logger::PrinterThread::Run()
             self->bufferQueue_.pop();
         }
         self->mtxQueue_.unlock();
-
         // print log to file and std::cout and hilog
         while (!tmpBuffer.empty()) {
             auto logInfo = tmpBuffer.front();
@@ -198,7 +195,7 @@ bool Logger::PrinterThread::Run()
                 continue;
             }
             // output STDOUT
-            if (self->outputType_ & STD_OUTPUT && self->outputLevel_ > LOG_LEVEL_TRACK) {
+            if ((self->outputType_ & STD_OUTPUT) && (self->outputLevel_ > LOG_LEVEL_TRACK)) {
                 std::cout << logInfo.logStr_ << std::endl;
             }
             // output HILOG

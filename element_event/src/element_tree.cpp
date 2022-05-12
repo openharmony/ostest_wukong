@@ -21,19 +21,34 @@
 namespace OHOS {
 namespace WuKong {
 ElementTree::ElementTree() : WuKongTree() {}
-
 ElementTree::~ElementTree() {}
-
-ErrCode ElementTree::GetInjectTimes() { return OHOS::ERR_OK; }
-
-ErrCode ElementTree::GetSupportEvents() { return OHOS::ERR_OK; }
-
-ErrCode ElementTree::AddInjectEventInfoList() { return OHOS::ERR_OK; }
-
-ErrCode ElementTree::GetRoot() { return OHOS::ERR_OK; }
-
-ErrCode ElementTree::SetChildList() { return OHOS::ERR_OK; }
-ErrCode ElementTree::GetChildList() { return OHOS::ERR_OK; }
-ErrCode ElementTree::PreOrderList() { return OHOS::ERR_OK; }
+ErrCode ElementTree::GetInjectTimes()
+{
+    return OHOS::ERR_OK;
+}
+ErrCode ElementTree::GetSupportEvents()
+{
+    return OHOS::ERR_OK;
+}
+ErrCode ElementTree::AddInjectEventInfoList()
+{
+    return OHOS::ERR_OK;
+}
+ErrCode ElementTree::GetRoot()
+{
+    return OHOS::ERR_OK;
+}
+ErrCode ElementTree::SetChildList()
+{
+    return OHOS::ERR_OK;
+}
+ErrCode ElementTree::GetChildList()
+{
+    return OHOS::ERR_OK;
+}
+ErrCode ElementTree::PreOrderList()
+{
+    return OHOS::ERR_OK;
+}
 }  // namespace WuKong
 }  // namespace OHOS

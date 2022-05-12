@@ -59,7 +59,7 @@ bool g_commandPOWERENABLE = false;
 bool g_commandGOBACKENABLE = false;
 bool g_commandCOUNTENABLE = false;
 
-static int NUMBER_TWO = 2;
+static unsigned int NUMBER_TWO = 2;
 }  // namespace
 using namespace std;
 

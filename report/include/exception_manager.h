@@ -40,14 +40,20 @@ public:
         enableCppCrashCatching = isEnable;
     }
 
-    void SetJsCrashCatching(bool isEnable) { enableJsCrashCatching = isEnable; }
+    void SetJsCrashCatching(bool isEnable)
+    {
+        enableJsCrashCatching = isEnable;
+    }
 
     void SetAppFreezeCatching(bool isEnable)
     {
         enableAppFreezeCatching = isEnable;
     }
 
-    std::string GetCurrentCsvFilePath() { return currentCsvFilePath; }
+    std::string GetCurrentCsvFilePath()
+    {
+        return currentCsvFilePath;
+    }
 
 private:
     std::shared_ptr<SysEventListener> toolListener;

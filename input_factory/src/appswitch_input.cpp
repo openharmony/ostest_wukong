@@ -31,9 +31,9 @@ ErrCode AppswitchInput::RandomInput()
     int index = -1;
     Util::GetInstance()->GetBundleList(bundleList, abilityList);
     index = GetAbilityIndex(bundleList);
-    //start ability through bundle information
+    // start ability through bundle information
     result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
-    //print the result of start event
+    // print the result of start event
     PrintResultOfStartAbility(result, index);
 
     return result;
@@ -52,7 +52,10 @@ ErrCode AppswitchInput::PrintResultOfStartAbility(const ErrCode result, int inde
     return OHOS::ERR_OK;
 }
 
-ErrCode AppswitchInput::GetInputInfo() { return OHOS::ERR_OK; }
+ErrCode AppswitchInput::GetInputInfo()
+{
+    return OHOS::ERR_OK;
+}
 
 int AppswitchInput::GetAbilityIndex(std::vector<std::string> &bundlelist)
 {
@@ -66,7 +69,7 @@ int AppswitchInput::GetAbilityIndex(std::vector<std::string> &bundlelist)
             index = Util::GetInstance()->FindElement(bundlelist, whitelist.at(rand() % whitelist.size()));
         } else if (validlist.size() > 0) {
             index = Util::GetInstance()->FindElement(bundlelist, validlist.at(rand() % validlist.size()));
-        }else{
+        } else {
             index = rand() % bundlelist.size();
         }
     }

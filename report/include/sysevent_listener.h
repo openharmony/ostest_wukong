@@ -36,7 +36,7 @@ public:
     void OnHandle(const std::string& domain, const std::string& eventName,
                   const int eventType, const std::string& eventDetail) override;
     void OnServiceDied() override;
-    ~SysEventListener() override{}
+    ~SysEventListener() override {}
 
 private:
     std::ofstream& csvFile;

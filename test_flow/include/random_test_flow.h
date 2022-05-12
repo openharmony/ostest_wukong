@@ -23,7 +23,6 @@
 
 namespace OHOS {
 namespace WuKong {
-
 class RandomTest : public TestFlow {
 public:
     RandomTest(WuKongShellCommand &shellcommand);

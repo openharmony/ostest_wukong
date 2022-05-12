@@ -37,14 +37,17 @@ const std::string WUKONG_HELP_MSG =
     "These are common wukong command list:\n"
     "   -h/help                    wukong help information\n"
     "   -v/--version               wukong version\n"
-    "   exec                       run random test\n"  
+    "   exec                       run random test\n "  
     "   special                    run special test\n"
     "   appinfo                    show all app information\n";
 }  // namespace
 
 WuKongShellCommand::WuKongShellCommand(int argc, char *argv[]) : ShellCommand(argc, argv, WUKONG_TOOL_NAME) {}
 
-ErrCode WuKongShellCommand::init() { return OHOS::ERR_OK; }
+ErrCode WuKongShellCommand::init()
+{
+    return OHOS::ERR_OK;
+}
 
 ErrCode WuKongShellCommand::CreateCommandMap()
 {
@@ -124,11 +127,20 @@ ErrCode WuKongShellCommand::RunAsHelpCommand()
     return OHOS::ERR_OK;
 }
 
-char **WuKongShellCommand::GetArgv() { return argv_; }
+char **WuKongShellCommand::GetArgv()
+{
+    return argv_;
+}
 
-int WuKongShellCommand::GetArgc() { return argc_; }
+int WuKongShellCommand::GetArgc()
+{
+    return argc_;
+}
 
-void WuKongShellCommand::ResultReceiverAppend(const std::string receiver) { resultReceiver_.append(receiver); }
+void WuKongShellCommand::ResultReceiverAppend(const std::string receiver)
+{
+    resultReceiver_.append(receiver);
+}
 
 ErrCode WuKongShellCommand::ShowAllAppInfo()
 {

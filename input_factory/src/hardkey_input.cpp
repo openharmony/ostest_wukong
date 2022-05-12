@@ -43,6 +43,9 @@ ErrCode HardkeyInput::RandomInput()
     return result;
 }
 
-ErrCode HardkeyInput::GetInputInfo() { return OHOS::ERR_OK; }
+ErrCode HardkeyInput::GetInputInfo()
+{
+    return OHOS::ERR_OK;
+}
 }  // namespace WuKong
 }  // namespace OHOS

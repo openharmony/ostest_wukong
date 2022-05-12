@@ -34,7 +34,6 @@ public:
     static std::shared_ptr<TestFlow> GetTestFlow(
         WuKongShellCommand& shellCommand, std::string& command);
 };
-
 }  // namespace WuKong
 }  // namespace OHOS
 

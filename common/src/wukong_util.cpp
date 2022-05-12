@@ -33,7 +33,7 @@ Util::Util()
     TRACK_LOG_STD();
     const int timeBufsize = 32;
     char fileNameBuf[timeBufsize] = {0};
-    time_t currentTime = time(0);
+    time_t currentTime = (time_t)time(0);
 
     int res = strftime(fileNameBuf, timeBufsize, "%Y%m%d_%H%M%S", localtime(&currentTime));
     if (res > 0) {
@@ -48,7 +48,10 @@ Util::Util()
 /**
  * @brief: release util
  */
-Util::~Util() { TRACK_LOG_STD(); }
+Util::~Util()
+{
+    TRACK_LOG_STD();
+}
 
 ErrCode Util::GetAllAppInfo()
 {
@@ -64,7 +67,7 @@ ErrCode Util::GetAllAppInfo()
         if (isInBlackList != -1) {
             continue;
         }
-        // store the list of bundle names except for blacklist
+        // store the list of bundle names except for block list
         validBundleList_.push_back(bundleName);
         validAbilityList_.push_back(item.elementName.GetAbilityName());
     }
@@ -121,7 +124,6 @@ ErrCode Util::SetWhiteList(const std::string &optarg)
     ErrCode result = OHOS::ERR_OK;
     SplitStr(optarg, ",", whiteList_);
     result = CheckArgumentList(whiteList_);
-
     if (result == OHOS::ERR_OK) {
         // delete repeat argument
         DelRepeatArguments(whiteList_);
@@ -153,11 +155,20 @@ void Util::DelRepeatArguments(std::vector<std::string> &argumentlist)
     argumentlist.assign(s.begin(), s.end());
 }
 
-void Util::GetWhiteList(std::vector<std::string> &whiteList) { whiteList = whiteList_; }
+void Util::GetWhiteList(std::vector<std::string> &whiteList)
+{
+    whiteList = whiteList_;
+}
 
-void Util::GetBlackList(std::vector<std::string> &blackList) { blackList = blackList_; }
+void Util::GetBlackList(std::vector<std::string> &blackList)
+{
+    blackList = blackList_;
+}
 
-void Util::GetValidBundleList(std::vector<std::string> &validbundlelist) { validbundlelist = validBundleList_; }
+void Util::GetValidBundleList(std::vector<std::string> &validbundlelist)
+{
+    validbundlelist = validBundleList_;
+}
 
 void Util::SetAllAppInfo(std::vector<std::string> &bundleList, std::vector<std::string> &abilityList)
 {

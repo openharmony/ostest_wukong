@@ -18,14 +18,19 @@
 namespace OHOS {
 namespace WuKong {
 NormalScene::NormalScene() {}
-
 NormalScene::~NormalScene() {}
-
-ErrCode NormalScene::GetNextOperateNodeByRandom() { return OHOS::ERR_OK; }
-
-ErrCode NormalScene::GetNextOperateNodeOrder() { return OHOS::ERR_OK; }
-
-ErrCode NormalScene::JudegJump() { return OHOS::ERR_OK; }
+ErrCode NormalScene::GetNextOperateNodeByRandom()
+{
+	return OHOS::ERR_OK;
+}
+ErrCode NormalScene::GetNextOperateNodeOrder()
+{
+	return OHOS::ERR_OK;
+}
+ErrCode NormalScene::JudegJump()
+{
+	return OHOS::ERR_OK;
+}
 
 }  // namespace WuKong
 }  // namespace OHOS

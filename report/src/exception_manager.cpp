@@ -96,7 +96,6 @@ void ExceptionManager::StopCatching()
         csvFile.close();
     }
     TEST_RUN_LOG("catching stopped");
-
 }
 }  // namespace WuKong
 }  // namespace OHOS

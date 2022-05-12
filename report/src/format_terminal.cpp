@@ -18,10 +18,11 @@
 namespace OHOS {
 namespace WuKong {
 FormatTerminal::FormatTerminal() : Format() {}
-
 FormatTerminal::~FormatTerminal() {}
-
-ErrCode FormatTerminal::FormatDetail() { return OHOS::ERR_OK; }
+ErrCode FormatTerminal::FormatDetail()
+{
+	return OHOS::ERR_OK;
+}
 
 }  // namespace WuKong
 }  // namespace OHOS

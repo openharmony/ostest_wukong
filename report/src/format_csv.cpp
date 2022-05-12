@@ -18,12 +18,10 @@
 namespace OHOS {
 namespace WuKong {
 FormatCSV::FormatCSV() : Format() {}
-
 FormatCSV::~FormatCSV() {}
-
 ErrCode FormatCSV::FormatDetail()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
 
 }  // namespace WuKong

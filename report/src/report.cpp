@@ -31,14 +31,17 @@ Report &Report::GetInstance()
     return instance;
 }
 
-ErrCode Report::Init() {
+ErrCode Report::Init()
+{
     ExceptionManager::GetInstance()->StartCatching();
     return OHOS::ERR_OK;
 }
 
-ErrCode Report::Finish() {
+ErrCode Report::Finish()
+{
     ExceptionManager::GetInstance()->StopCatching();
     return OHOS::ERR_OK;
 }
+
 }  // namespace WuKong
 }  // namespace OHOS

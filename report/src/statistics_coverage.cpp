@@ -18,12 +18,10 @@
 namespace OHOS {
 namespace WuKong {
 StatisticsCoverage::StatisticsCoverage() : Statistics() {}
-
 StatisticsCoverage::~StatisticsCoverage() {}
-
 ErrCode StatisticsCoverage::StatisticsDetail()
 {
-	return ERR_OK;
+    return ERR_OK;
 }
 
 }  // namespace WuKong

@@ -23,7 +23,7 @@
 
 using namespace OHOS::WuKong;
 
-static int NUMBER_TWO = 2;
+static unsigned int NUMBER_TWO = 2;
 
 static void WuKongMutexFile()
 {

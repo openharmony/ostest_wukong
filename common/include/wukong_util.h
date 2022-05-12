@@ -59,10 +59,10 @@ public:
     void GetWhiteList(std::vector<std::string> &whitelist);
 
     /**
-     * @brief Get the Black List of the test.
-     * @param blackList the black list.
+     * @brief Get the block List of the test.
+     * @param blockList the block list.
      */
-    void GetBlackList(std::vector<std::string> &blackList);
+    void GetBlackList(std::vector<std::string> & blockList);
 
     /**
      * @brief get the bundlelist and ability list.
@@ -79,8 +79,8 @@ public:
     void GetBundleList(std::vector<std::string> &bundlelist, std::vector<std::string> &abilitylist);
 
     /**
-     * @brief Get the list of the bundle list except for blacklist.
-     * @param validbundlelist  the list except for blacklist
+     * @brief Get the list of the bundle list except for blockList.
+     * @param validbundlelist  the list except for blockList
      */
     void GetValidBundleList(std::vector<std::string> &validbundlelist);
 
@@ -95,7 +95,10 @@ public:
      * @brief get start run time string for report, log etc.
      * @return start run time string.
      */
-    std::string GetStartRunTime() { return startRunTime_; }
+    std::string GetStartRunTime()
+    {
+        return startRunTime_;
+    }
 
     DECLARE_DELAYED_SINGLETON(Util);
 
@@ -127,7 +130,6 @@ private:
     std::vector<std::string> blackList_;
     int32_t screenWidth_ = -1;
     int32_t screenHeight_ = -1;
-
     std::string startRunTime_;
 };
 

@@ -23,12 +23,9 @@ namespace {
 const int singleCodePercent = 30;
 const int oneHundredPercent = 100;
 const int downtime = 100;
-
 }  // namespace
 KeyboardInput::KeyboardInput() : InputAction() {}
-
 KeyboardInput::~KeyboardInput() {}
-
 ErrCode KeyboardInput::RandomInput()
 {
     ErrCode result = OHOS::ERR_OK;
@@ -48,6 +45,9 @@ ErrCode KeyboardInput::RandomInput()
     return result;
 }
 
-ErrCode KeyboardInput::GetInputInfo() { return OHOS::ERR_OK; }
+ErrCode KeyboardInput::GetInputInfo()
+{
+    return OHOS::ERR_OK;
+}
 }  // namespace WuKong
 }  // namespace OHOS

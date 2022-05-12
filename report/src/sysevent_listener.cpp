@@ -52,7 +52,7 @@ void SysEventListener::OnHandle(const std::string& domain, const std::string& ev
     TRACK_LOG_STR("eventType: %s", std::to_string(eventType).c_str());
     TRACK_LOG_STR("eventDetail: %s", eventDetail.c_str());
     TRACK_LOG("------------------------------------");
-    CsvUtils::OneLineData data{ };
+    CsvUtils::OneLineData data{};
     data.domain = domain;
     data.name = eventName;
     switch (eventType) {
@@ -75,7 +75,6 @@ void SysEventListener::OnHandle(const std::string& domain, const std::string& ev
     json jsonData = json::parse(eventDetail, nullptr, false);
     if (jsonData == json::value_t::discarded) {
         ERROR_LOG_STR("event detail parse error, the content: %s", eventDetail.c_str());
-        ;
     } else {
         ValueGet<uint64_t>(jsonData, "time_", data.time);
         ValueGet<std::string>(jsonData, "tz_", data.timeZone);
@@ -89,7 +88,6 @@ void SysEventListener::OnHandle(const std::string& domain, const std::string& ev
     }
     CsvUtils::WriteOneLine(csvFile, data);
 }
-
 void SysEventListener::OnServiceDied()
 {
     ERROR_LOG("Listener service Died");

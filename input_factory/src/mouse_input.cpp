@@ -49,7 +49,8 @@ ErrCode MouseInput::RandomInput()
     } else {
         mouseType = MMI::PointerEvent::MOUSE_BUTTON_LEFT;
     }
-    INFO_LOG_STR("Mouse: (%d, %d) Mouse Type: (%s)", xClickPosition, yClickPosition, MouseTypeToString(mouseType).c_str());
+    INFO_LOG_STR("Mouse: (%d, %d) Mouse Type: (%s)",
+                xClickPosition, yClickPosition, MouseTypeToString(mouseType).c_str());
     auto multiinput = MultimodeManager::GetInstance();
     result =
         multiinput->PointerInput(xClickPosition, yClickPosition, mouseType, MMI::PointerEvent::POINTER_ACTION_DOWN);
@@ -57,7 +58,10 @@ ErrCode MouseInput::RandomInput()
     return result;
 }
 
-ErrCode MouseInput::GetInputInfo() { return OHOS::ERR_OK; }
+ErrCode MouseInput::GetInputInfo()
+{
+    return OHOS::ERR_OK;
+}
 
 std::string MouseInput::MouseTypeToString(int mousetype)
 {

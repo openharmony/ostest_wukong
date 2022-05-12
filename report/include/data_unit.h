@@ -21,8 +21,7 @@
 
 namespace OHOS {
 namespace WuKong {
-enum DataType
-{
+enum DataType {
     IntType = 0,
     StringType
 };

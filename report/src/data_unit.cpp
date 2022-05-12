@@ -19,6 +19,9 @@ namespace OHOS {
 namespace WuKong {
 DataUnit::DataUnit() {}
 DataUnit::~DataUnit() {}
-ErrCode DataUnit::AddData(std::string key, std::string value, DataType dataType) { return OHOS::ERR_OK; }
+ErrCode DataUnit::AddData(std::string key, std::string value, DataType dataType)
+{
+    return OHOS::ERR_OK;
+}
 }  // namespace WuKong
 }  // namespace OHOS

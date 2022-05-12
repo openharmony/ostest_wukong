@@ -22,8 +22,8 @@ namespace OHOS {
 namespace WuKong {
 class SpcialTestObject {
 public:
-    SpcialTestObject(){};
-    virtual ~SpcialTestObject(){};
+    SpcialTestObject() {};
+    virtual ~SpcialTestObject() {};
     // convert coordinates to string
     virtual std::string toString()
     {
@@ -59,8 +59,8 @@ public:
 };
 class TouchParam : public SpcialTestObject {
 public:
-    TouchParam(){};
-    virtual ~TouchParam(){};
+    TouchParam() {};
+    virtual ~TouchParam() {};
     virtual std::string toString()
     {
         char buffer[50];

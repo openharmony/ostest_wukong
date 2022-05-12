@@ -18,10 +18,11 @@
 namespace OHOS {
 namespace WuKong {
 FilterCategory::FilterCategory() : Filter() {}
-
 FilterCategory::~FilterCategory() {}
-
-ErrCode FilterCategory::FilterDetail() { return OHOS::ERR_OK; }
+ErrCode FilterCategory::FilterDetail()
+{
+	return OHOS::ERR_OK;
+}
 
 }  // namespace WuKong
 }  // namespace OHOS

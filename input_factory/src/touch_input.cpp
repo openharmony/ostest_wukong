@@ -14,9 +14,6 @@
  */
 
 #include "touch_input.h"
-
-#include <string>
-
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
@@ -64,6 +61,9 @@ ErrCode TouchInput::RandomInput()
     return result;
 }
 
-ErrCode TouchInput::GetInputInfo() { return OHOS::ERR_OK; }
+ErrCode TouchInput::GetInputInfo()
+{
+    return OHOS::ERR_OK;
+}
 }  // namespace WuKong
 }  // namespace OHOS

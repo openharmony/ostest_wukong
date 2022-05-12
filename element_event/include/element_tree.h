@@ -22,7 +22,6 @@
 #include "wukong_tree.h"
 namespace OHOS {
 namespace WuKong {
-
 class ElementTree : public WuKongTree, public OHOS::Accessibility::AccessibilityElementInfo {
 public:
     ElementTree();
@@ -35,7 +34,6 @@ public:
     ErrCode SetChildList();
     ErrCode GetChildList();
     ErrCode PreOrderList();
-
 private:
     int64_t componentId_ = 0;
 };

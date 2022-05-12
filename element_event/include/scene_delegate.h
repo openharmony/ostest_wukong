@@ -18,7 +18,6 @@
 #include "wukong_define.h"
 
 namespace OHOS {
-
 namespace WuKong {
 class SceneDelegate {
 public:
@@ -31,7 +30,6 @@ public:
     ErrCode GetTreeChangedDetailInfo();
     ErrCode GetSceneFindElementWay();
 };
-
 }  // namespace WuKong
 }  // namespace OHOS
 #endif  // TEST_WUKONG_SCENE_DELEGATE_H

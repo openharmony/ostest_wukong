@@ -37,7 +37,7 @@ bool AppManager::BlackAbilityController::AllowAbilityStart(const AAFwk::Want &wa
     Util::GetInstance()->GetBlackList(blacklist);
     DEBUG_LOG_STR("BundleName: %s", bundleName.c_str());
 
-    // if bundleName in the blacklist to unallow ability start.
+    // if bundleName in the block list to unallow ability start.
     auto it = find(blacklist.begin(), blacklist.end(), bundleName);
     if (it != blacklist.end()) {
         DEBUG_LOG("bundle start prohibition");
@@ -48,7 +48,10 @@ bool AppManager::BlackAbilityController::AllowAbilityStart(const AAFwk::Want &wa
 }
 
 // turn to background
-bool AppManager::BlackAbilityController::AllowAbilityBackground(const std::string &bundleName) { return false; }
+bool AppManager::BlackAbilityController::AllowAbilityBackground(const std::string &bundleName)
+{
+    return false;
+}
 
 ErrCode AppManager::StartAbilityByBundleInfo(std::string abilityName, std::string bundleName)
 {

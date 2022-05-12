@@ -17,31 +17,24 @@
 
 namespace OHOS {
 namespace WuKong {
-
 using namespace std;
 PageTree::PageTree() : WuKongTree() {}
-
 PageTree::~PageTree() {}
-
 ErrCode PageTree::GetId()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
-
 ErrCode PageTree::GetRoot()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
-
 ErrCode PageTree::AddChild()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
-
 ErrCode PageTree::PreOrderList()
 {
-	return OHOS::ERR_OK;
+    return OHOS::ERR_OK;
 }
-
 }  // namespace WuKong
 }  // namespace OHOS

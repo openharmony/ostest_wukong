@@ -48,8 +48,8 @@ ErrCode MultimodeManager::SingleKeyCodeInput(int keycode, int downtime)
     keyKeyboardEvent->SetKeyCode(keycode);
     keyKeyboardEvent->SetKeyAction(MMI::KeyEvent::KEY_ACTION_DOWN);
     keyKeyboardEvent->AddPressedKeyItems(item);
-    //check if KeyEvent is valid
-    if (true == keyKeyboardEvent->IsValid()) {
+    // check if KeyEvent is valid
+    if (keyKeyboardEvent->IsValid()) {
         MMI::InputManager::GetInstance()->SimulateInputEvent(keyKeyboardEvent);
     } else {
         WARN_LOG("keyevent down is invalid");
@@ -62,8 +62,8 @@ ErrCode MultimodeManager::SingleKeyCodeInput(int keycode, int downtime)
     keyKeyboardEvent->SetKeyCode(keycode);
     keyKeyboardEvent->SetKeyAction(MMI::KeyEvent::KEY_ACTION_UP);
     keyKeyboardEvent->AddPressedKeyItems(item);
-    //check if KeyEvent is valid
-    if (true == keyKeyboardEvent->IsValid()) {
+    // check if KeyEvent is valid
+    if (keyKeyboardEvent->IsValid()) {
         MMI::InputManager::GetInstance()->SimulateInputEvent(keyKeyboardEvent);
     } else {
         WARN_LOG("keyevent up is invalid");
@@ -90,7 +90,10 @@ ErrCode MultimodeManager::MultiKeyCodeInput(int downtime)
     return result;
 }
 
-void MultimodeManager::GetKeycodeList(std::vector<int> &keycodelist) { keycodelist = keycodelist_; }
+void MultimodeManager::GetKeycodeList(std::vector<int> &keycodelist)
+{
+    keycodelist = keycodelist_;
+}
 
 ErrCode MultimodeManager::PointerInput(int x, int y, int pointertype, int actiontype)
 {
