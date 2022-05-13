@@ -70,7 +70,7 @@ ErrCode TestFlow::CheckVaildityCmd()
         AppManager::GetInstance()->SetAbilityController();
         result = EnvInit();
         if (result == OHOS::ERR_OK) {
-            Util::GetInstance()->GetAllAppInfo();
+            WuKongUtil::GetInstance()->GetAllAppInfo();
         } else {
             ERROR_LOG("event init failed");
         }

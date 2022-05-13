@@ -24,9 +24,9 @@ std::shared_ptr<TestFlow> TestFlowFactory::GetTestFlow(WuKongShellCommand& shell
 {
     std::shared_ptr<TestFlow> testFlow = nullptr;
     if (command.compare("exec") == 0) {
-        testFlow = std::make_shared<RandomTest>(shellCommand);
+        testFlow = std::make_shared<RandomTestFlow>(shellCommand);
     } else if (command.compare("special") == 0) {
-        testFlow = std::make_shared<SpecialTest>(shellCommand);
+        testFlow = std::make_shared<SpecialTestFlow>(shellCommand);
     }
     return testFlow;
 }

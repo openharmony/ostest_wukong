@@ -24,6 +24,7 @@
 
 #include "singleton.h"
 #include "thread_ex.h"
+
 namespace OHOS {
 namespace WuKong {
 enum LOG_LEVEL {

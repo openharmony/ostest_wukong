@@ -32,6 +32,7 @@
 
 #include "wukong_util.h"
 #include "wukong_define.h"
+#include "securec.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -117,8 +118,9 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
     /* format output content */
     va_list args;
     va_start(args, format);
-    int ret = vsnprintf(writeBuf, LOG_CONTENT_LENGTH, format, args);
+    int ret = vsnprintf_s(writeBuf, LOG_CONTENT_LENGTH, LOG_CONTENT_LENGTH, format, args);
     if (ret < 0) {
+		va_end(args);
         return;
     }
     va_end(args);
@@ -210,6 +212,5 @@ bool WuKongLogger::PrinterThread::Run()
     printer.close();
     return false;
 }
-
 }  // namespace WuKong
 }  // namespace OHOS

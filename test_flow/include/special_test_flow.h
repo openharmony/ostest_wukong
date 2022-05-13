@@ -24,10 +24,10 @@
 
 namespace OHOS {
 namespace WuKong {
-class SpecialTest : public TestFlow {
+class SpecialTestFlow : public TestFlow {
 public:
-    SpecialTest(WuKongShellCommand &shellcommand);
-    virtual ~SpecialTest();
+    SpecialTestFlow(WuKongShellCommand &shellcommand);
+    virtual ~SpecialTestFlow();
 
     /**
      * @brief set the params of special test to special object
@@ -46,6 +46,13 @@ public:
 private:
     virtual ErrCode HandleUnknownOption(const char optopt) override;
     virtual ErrCode HandleNormalOption(const int option) override;
+
+    /**
+     * @brief check if the '-c' and 'T' is exist at the same time
+     * @param option command letter.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode CheckArgument(const int option);
 
     /**
      * @brief registered timer to monitor test time

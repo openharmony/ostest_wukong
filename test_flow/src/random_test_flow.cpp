@@ -28,7 +28,7 @@ const std::string RANDOM_TEST_HELP_MSG =
     "These are wukong exec arguments list:\n"
     "   -h, --help                 random test help\n"
     "   -a, --appswitch            appswitch event percent\n"
-    "   -b, --bundle               the bundle name of whitelist\n"
+    "   -b, --bundle               the bundle name of allowlist\n"
     "   -p, --prohibit             the bundle name of blocklist\n"
     "   -t, --touch                touch event percent\n"
     "   -c, --count                test count\n"
@@ -77,7 +77,7 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
     {'S', INPUTTYPE_SWAPINPUT},       // input swap event
     {'m', INPUTTYPE_MOUSEINPUT},      // input mouse event
     {'t', INPUTTYPE_TOUCHINPUT},      // input touch event
-    {'H', INPUTTYPE_HARDKEYINPUT}     // input power event
+    {'H', INPUTTYPE_HARDKEYINPUT}     // input hardkey event
 };
 
 const int ONE_HUNDRED_PERCENT = 100;
@@ -90,12 +90,12 @@ bool g_commandCOUNTENABLE = false;
 }  // namespace
 using namespace std;
 
-RandomTest::RandomTest(WuKongShellCommand &shellcommand)
+RandomTestFlow::RandomTestFlow(WuKongShellCommand &shellcommand)
     : TestFlow(shellcommand), inputPercent_(INPUTTYPE_INVALIDINPUT, 0)
 {
 }
 
-RandomTest::~RandomTest()
+RandomTestFlow::~RandomTestFlow()
 {
     if (timer_ != nullptr) {
         timer_->Shutdown();
@@ -104,7 +104,7 @@ RandomTest::~RandomTest()
     }
 }
 
-ErrCode RandomTest::InitEventPercent()
+ErrCode RandomTestFlow::InitEventPercent()
 {
     int sumPercent = 0;
     int sumLastDefaultPercent = ONE_HUNDRED_PERCENT;
@@ -153,7 +153,7 @@ ErrCode RandomTest::InitEventPercent()
     return OHOS::ERR_OK;
 }
 
-ErrCode RandomTest::EnvInit()
+ErrCode RandomTestFlow::EnvInit()
 {
     // init event list percent.
     InitEventPercent();
@@ -178,7 +178,7 @@ ErrCode RandomTest::EnvInit()
     return OHOS::ERR_OK;
 }
 
-ErrCode RandomTest::SetInputPercent(const int option)
+ErrCode RandomTestFlow::SetInputPercent(const int option)
 {
     InputType inputType = INPUTTYPE_INVALIDINPUT;
     auto it = OPTION_INPUT_PERCENT.find(option);
@@ -211,7 +211,7 @@ ErrCode RandomTest::SetInputPercent(const int option)
     return OHOS::ERR_OK;
 }
 
-ErrCode RandomTest::RunStep()
+ErrCode RandomTestFlow::RunStep()
 {
     // control the count test flow
     if (g_commandCOUNTENABLE == true) {
@@ -232,7 +232,7 @@ ErrCode RandomTest::RunStep()
     return result;
 }
 
-ErrCode RandomTest::HandleNormalOption(const int option)
+ErrCode RandomTestFlow::HandleNormalOption(const int option)
 {
     ErrCode result = OHOS::ERR_OK;
     switch (option) {
@@ -246,21 +246,12 @@ ErrCode RandomTest::HandleNormalOption(const int option)
             break;
         }
         case 'b': {
-            result = Util::GetInstance()->SetWhiteList(optarg);
+            result = WuKongUtil::GetInstance()->SetAllowList(optarg);
             break;
         }
         case 'c': {
             // check if the '-c' and 'T' is exist at the same time
-            if (g_commandTIMEENABLE == false) {
-                g_commandCOUNTENABLE = true;
-                countArgs_ = std::stoi(optarg);
-                DEBUG_LOG_STR("Count: (%d)", countArgs_);
-                totalCount_ = countArgs_;
-            } else {
-                DEBUG_LOG(PARAM_COUNT_TIME_ERROR);
-                shellcommand_.ResultReceiverAppend(std::string(PARAM_COUNT_TIME_ERROR) + "\n");
-                result = OHOS::ERR_INVALID_VALUE;
-            }
+            CheckArgument(option);
             break;
         }
         case 'h': {
@@ -281,6 +272,41 @@ ErrCode RandomTest::HandleNormalOption(const int option)
         }
         case 'T': {
             // check if the '-c' and 'T' is exist at the same time
+            CheckArgument(option);
+            break;
+        }
+        case 'p': {
+            result = WuKongUtil::GetInstance()->SetBlockList(optarg);
+            break;
+        }
+        default: {
+            result = OHOS::ERR_INVALID_VALUE;
+            break;
+        }
+    }
+    return result;
+}
+
+ErrCode RandomTestFlow::CheckArgument(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    switch (option) {
+        case 'c': {
+            // check if the '-c' and 'T' is exist at the same time
+            if (g_commandTIMEENABLE == false) {
+                g_commandCOUNTENABLE = true;
+                countArgs_ = std::stoi(optarg);
+                DEBUG_LOG_STR("Count: (%d)", countArgs_);
+                totalCount_ = countArgs_;
+            } else {
+                DEBUG_LOG(PARAM_COUNT_TIME_ERROR);
+                shellcommand_.ResultReceiverAppend(std::string(PARAM_COUNT_TIME_ERROR) + "\n");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
+            break;
+        }
+        case 'T': {
+            // check if the '-c' and 'T' is exist at the same time
             if (g_commandCOUNTENABLE == false) {
                 totalTime_ = std::stof(optarg);
                 DEBUG_LOG_STR("Time: (%ld)", totalTime_);
@@ -292,10 +318,6 @@ ErrCode RandomTest::HandleNormalOption(const int option)
             }
             break;
         }
-        case 'p': {
-            result = Util::GetInstance()->SetBlackList(optarg);
-            break;
-        }
         default: {
             result = OHOS::ERR_INVALID_VALUE;
             break;
@@ -304,14 +326,14 @@ ErrCode RandomTest::HandleNormalOption(const int option)
     return result;
 }
 
-ErrCode RandomTest::GetOptionArguments(std::string &shortOpts, const struct option *opts)
+ErrCode RandomTestFlow::GetOptionArguments(std::string &shortOpts, const struct option *opts)
 {
     shortOpts = SHORT_OPTIONS;
     opts = LONG_OPTIONS;
     return OHOS::ERR_OK;
 }
 
-ErrCode RandomTest::HandleUnknownOption(const char optopt)
+ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
 {
     ErrCode result = OHOS::ERR_OK;
     switch (optopt) {
@@ -349,27 +371,26 @@ ErrCode RandomTest::HandleUnknownOption(const char optopt)
     return result;
 }
 
-void RandomTest::RandomShuffle(std::vector<int> &eventlist)
+void RandomTestFlow::RandomShuffle(std::vector<int> &eventlist)
 {
     for (int i = eventList_.size() - 1; i > 0; --i) {
         std::swap(eventList_[i], eventList_[std::rand() % (i + 1)]);
     }
 }
 
-void RandomTest::RegisterTimer()
+void RandomTestFlow::RegisterTimer()
 {
     if (timer_ == nullptr) {
         timer_ = std::make_shared<Utils::Timer>("wukong");
-        timerId_ = timer_->Register(std::bind(&RandomTest::TestTimeout, this), totalTime_ * oneMinute, true);
+        timerId_ = timer_->Register(std::bind(&RandomTestFlow::TestTimeout, this), totalTime_ * oneMinute, true);
         timer_->Setup();
     }
 }
 
-void RandomTest::TestTimeout()
+void RandomTestFlow::TestTimeout()
 {
     g_commandTIMEENABLE = false;
     isFinished_ = true;
 }
-
 }  // namespace WuKong
 }  // namespace OHOS

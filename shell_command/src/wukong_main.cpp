@@ -102,25 +102,25 @@ static bool IsRunning(OHOS::NamedSemaphore& sem)
 
 int main(int argc, char* argv[])
 {
-    std::shared_ptr<Logger> logger = Logger::GetInstance();
+    std::shared_ptr<WuKongLogger> WuKonglogger = WuKongLogger::GetInstance();
     // first start logger
-    logger->SetLevel(LOG_LEVEL_INFO);
+    WuKonglogger->SetLevel(LOG_LEVEL_INFO);
     bool isStop = false;
     for (int index = argc - 1; index >= 1; index--) {
         std::string arg = argv[index];
         if (arg == "--track") {
             argv[index][0] = '\0';
-            logger->SetLevel(LOG_LEVEL_TRACK);
+            WuKonglogger->SetLevel(LOG_LEVEL_TRACK);
         }
         if (arg == "--debug") {
             argv[index][0] = '\0';
-            logger->SetLevel(LOG_LEVEL_DEBUG);
+            WuKonglogger->SetLevel(LOG_LEVEL_DEBUG);
         }
         if (arg == "stop") {
             isStop = true;
         }
     }
-    if (!logger->Start()) {
+    if (!WuKonglogger->Start()) {
         return 1;
     }
 
@@ -144,6 +144,6 @@ int main(int argc, char* argv[])
             semRun.Close();
         }
     }
-    logger->Stop();
+    WuKonglogger->Stop();
     return 0;
 }

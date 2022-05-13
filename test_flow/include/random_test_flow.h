@@ -23,10 +23,10 @@
 
 namespace OHOS {
 namespace WuKong {
-class RandomTest : public TestFlow {
+class RandomTestFlow : public TestFlow {
 public:
-    RandomTest(WuKongShellCommand &shellcommand);
-    virtual ~RandomTest();
+    RandomTestFlow(WuKongShellCommand &shellcommand);
+    virtual ~RandomTestFlow();
 
     /**
      * @brief to confirm the input of event percent is vaild or not
@@ -46,6 +46,13 @@ private:
     virtual ErrCode GetOptionArguments(std::string &shortOpts, const struct option *opts) override;
     ErrCode HandleUnknownOption(const char optopt) override;
     ErrCode HandleNormalOption(const int option) override;
+
+    /**
+     * @brief check if the '-c' and 'T' is exist at the same time
+     * @param option command letter.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode CheckArgument(const int option);
 
     /**
      * @brief init event list percent.

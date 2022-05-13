@@ -63,9 +63,9 @@ static unsigned int NUMBER_TWO = 2;
 }  // namespace
 using namespace std;
 
-SpecialTest::SpecialTest(WuKongShellCommand &shellcommand) : TestFlow(shellcommand) {}
+SpecialTestFlow::SpecialTestFlow(WuKongShellCommand &shellcommand) : TestFlow(shellcommand) {}
 
-SpecialTest::~SpecialTest()
+SpecialTestFlow::~SpecialTestFlow()
 {
     if (timer_ != nullptr) {
         timer_->Shutdown();
@@ -74,7 +74,7 @@ SpecialTest::~SpecialTest()
     }
 }
 
-ErrCode SpecialTest::EnvInit()
+ErrCode SpecialTestFlow::EnvInit()
 {
     ErrCode result = OHOS::ERR_OK;
     const std::string paramError = "param is incorrect";
@@ -118,7 +118,7 @@ ErrCode SpecialTest::EnvInit()
     return result;
 }
 
-ErrCode SpecialTest::RunStep()
+ErrCode SpecialTestFlow::RunStep()
 {
     // control the count test flow
     if (g_commandCOUNTENABLE == true) {
@@ -141,7 +141,7 @@ ErrCode SpecialTest::RunStep()
     return result;
 }
 
-InputType SpecialTest::DistrbuteInputType()
+InputType SpecialTestFlow::DistrbuteInputType()
 {
     InputType iputType = INPUTTYPE_INVALIDINPUT;
 
@@ -155,14 +155,14 @@ InputType SpecialTest::DistrbuteInputType()
     return iputType;
 }
 
-ErrCode SpecialTest::GetOptionArguments(std::string &shortOpts, const struct option *opts)
+ErrCode SpecialTestFlow::GetOptionArguments(std::string &shortOpts, const struct option *opts)
 {
     shortOpts = SHORT_OPTIONS;
     opts = LONG_OPTIONS;
     return OHOS::ERR_OK;
 }
 
-ErrCode SpecialTest::HandleUnknownOption(const char optopt)
+ErrCode SpecialTestFlow::HandleUnknownOption(const char optopt)
 {
     ErrCode result = OHOS::ERR_OK;
     switch (optopt) {
@@ -192,7 +192,7 @@ ErrCode SpecialTest::HandleUnknownOption(const char optopt)
     return result;
 }
 
-ErrCode SpecialTest::HandleNormalOption(const int option)
+ErrCode SpecialTestFlow::HandleNormalOption(const int option)
 {
     ErrCode result = OHOS::ERR_OK;
     switch (option) {
@@ -205,16 +205,7 @@ ErrCode SpecialTest::HandleNormalOption(const int option)
             break;
         }
         case 'c': {
-            if (g_commandTIMEENABLE == false) {
-                g_commandCOUNTENABLE = true;
-                countArgs_ = std::stoi(optarg);
-                DEBUG_LOG_STR("Count: (%d)", countArgs_);
-                totalCount_ = countArgs_;
-            } else {
-                DEBUG_LOG(PARAM_COUNT_TIME_ERROR);
-                shellcommand_.ResultReceiverAppend(std::string(PARAM_COUNT_TIME_ERROR) + "\n");
-                result = OHOS::ERR_INVALID_VALUE;
-            }
+            CheckArgument(option);
             break;
         }
         case 'h': {
@@ -229,15 +220,7 @@ ErrCode SpecialTest::HandleNormalOption(const int option)
             break;
         }
         case 'T': {
-            if (g_commandCOUNTENABLE == false) {
-                totalTime_ = std::stof(optarg);
-                DEBUG_LOG_STR("Time: (%ld)", totalTime_);
-                g_commandTIMEENABLE = true;
-            } else {
-                DEBUG_LOG(PARAM_TIME_COUNT_ERROR);
-                shellcommand_.ResultReceiverAppend(std::string(PARAM_TIME_COUNT_ERROR) + "\n");
-                result = OHOS::ERR_INVALID_VALUE;
-            }
+            CheckArgument(option);
             break;
         }
         case 't': {
@@ -253,13 +236,11 @@ ErrCode SpecialTest::HandleNormalOption(const int option)
         }
         case 's': {
             SplitStr(optarg, ",", swapStartPoint_);
-            // check if param is valid
             result = CheckPosition(swapStartPoint_);
             break;
         }
         case 'e': {
             SplitStr(optarg, ",", swapEndPoint_);
-            // check if param is valid
             result = CheckPosition(swapEndPoint_);
             break;
         }
@@ -267,22 +248,61 @@ ErrCode SpecialTest::HandleNormalOption(const int option)
     return result;
 }
 
-void SpecialTest::RegisterTimer()
+ErrCode SpecialTestFlow::CheckArgument(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    switch (option) {
+        case 'c': {
+            // check if the '-c' and 'T' is exist at the same time
+            if (g_commandTIMEENABLE == false) {
+                g_commandCOUNTENABLE = true;
+                countArgs_ = std::stoi(optarg);
+                DEBUG_LOG_STR("Count: (%d)", countArgs_);
+                totalCount_ = countArgs_;
+            } else {
+                DEBUG_LOG(PARAM_COUNT_TIME_ERROR);
+                shellcommand_.ResultReceiverAppend(std::string(PARAM_COUNT_TIME_ERROR) + "\n");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
+            break;
+        }
+        case 'T': {
+            // check if the '-c' and 'T' is exist at the same time
+            if (g_commandCOUNTENABLE == false) {
+                totalTime_ = std::stof(optarg);
+                DEBUG_LOG_STR("Time: (%ld)", totalTime_);
+                g_commandTIMEENABLE = true;
+            } else {
+                DEBUG_LOG(PARAM_TIME_COUNT_ERROR);
+                shellcommand_.ResultReceiverAppend(std::string(PARAM_TIME_COUNT_ERROR) + "\n");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
+            break;
+        }
+        default: {
+            result = OHOS::ERR_INVALID_VALUE;
+            break;
+        }
+    }
+    return result;
+}
+
+void SpecialTestFlow::RegisterTimer()
 {
     if (timer_ == nullptr) {
         timer_ = std::make_shared<Utils::Timer>("wukong");
-        timerId_ = timer_->Register(std::bind(&SpecialTest::TestTimeout, this), totalTime_ * oneMintue, true);
+        timerId_ = timer_->Register(std::bind(&SpecialTestFlow::TestTimeout, this), totalTime_ * oneMintue, true);
         timer_->Setup();
     }
 }
 
-void SpecialTest::TestTimeout()
+void SpecialTestFlow::TestTimeout()
 {
     g_commandTIMEENABLE = false;
     isFinished_ = true;
 }
 
-ErrCode SpecialTest::CheckPosition(std::vector<std::string> argumentlist)
+ErrCode SpecialTestFlow::CheckPosition(std::vector<std::string> argumentlist)
 {
     ErrCode result = OHOS::ERR_OK;
     int32_t screenWidth = -1;
@@ -290,7 +310,7 @@ ErrCode SpecialTest::CheckPosition(std::vector<std::string> argumentlist)
     std::string paramError = "the param of position is incorrect";
 
     // get the size of screen
-    Util::GetInstance()->GetScreenSize(screenWidth, screenHeight);
+    WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
     if (argumentlist.size() > 0) {
         if (stoi(argumentlist[0]) > screenWidth || stoi(argumentlist[1]) > screenHeight || stoi(argumentlist[0]) < 0 ||
             stoi(argumentlist[1]) < 0) {

@@ -26,6 +26,7 @@
 #include "shell_command.h"
 #include "wukong_define.h"
 #include "wukong_util.h"
+#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {

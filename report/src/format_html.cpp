@@ -23,6 +23,5 @@ ErrCode FormatHTML::FormatDetail()
 {
     return OHOS::ERR_OK;
 }
-
 }  // namespace WuKong
 }  // namespace OHOS

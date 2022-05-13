@@ -19,6 +19,8 @@
 #include <string>
 #include <cstdio>
 
+#include "securec.h"
+
 namespace OHOS {
 namespace WuKong {
 class SpcialTestObject {
@@ -42,9 +44,9 @@ public:
         char buffer[50];
         int result = -1;
         if (isBack_) {
-            result = snprintf(buffer, sizeof(buffer), "Swap: (%d, %d) -> (%d, %d)", endX_, endY_, startX_, startY_);
+            result = sprintf_s(buffer, sizeof(buffer), "Swap: (%d, %d) -> (%d, %d)", endX_, endY_, startX_, startY_);
         } else {
-            result = snprintf(buffer, sizeof(buffer), "Swap: (%d, %d) -> (%d, %d)", startX_, startY_, endX_, endY_);
+            result = sprintf_s(buffer, sizeof(buffer), "Swap: (%d, %d) -> (%d, %d)", startX_, startY_, endX_, endY_);
         }
         if (result < 0) {
             return SpcialTestObject::toString();
@@ -65,7 +67,7 @@ public:
     virtual std::string toString()
     {
         char buffer[50];
-        int result = snprintf(buffer, sizeof(buffer), "Point: (%d, %d)", x_, y_);
+        int result = sprintf_s(buffer, sizeof(buffer), "Point: (%d, %d)", x_, y_);
         if (result < 0) {
             return SpcialTestObject::toString();
         }

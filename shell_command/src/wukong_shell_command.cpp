@@ -37,7 +37,7 @@ const std::string WUKONG_HELP_MSG =
     "These are common wukong command list:\n"
     "   -h/help                    wukong help information\n"
     "   -v/--version               wukong version\n"
-    "   exec                       run random test\n "  
+    "   exec                       run random test\n"
     "   special                    run special test\n"
     "   appinfo                    show all app information\n";
 }  // namespace
@@ -145,11 +145,11 @@ void WuKongShellCommand::ResultReceiverAppend(const std::string receiver)
 ErrCode WuKongShellCommand::ShowAllAppInfo()
 {
     TRACK_LOG_STD();
-    ErrCode result = Util::GetInstance()->GetAllAppInfo();
+    ErrCode result = WuKongUtil::GetInstance()->GetAllAppInfo();
     std::vector<std::string> bundleList;
     std::vector<std::string> abilityList;
 
-    Util::GetInstance()->GetBundleList(bundleList, abilityList);
+    WuKongUtil::GetInstance()->GetBundleList(bundleList, abilityList);
     if (result != OHOS::ERR_OK) {
         result = OHOS::ERR_INVALID_VALUE;
     }
