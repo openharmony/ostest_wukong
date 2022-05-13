@@ -120,7 +120,7 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
     va_start(args, format);
     int ret = vsnprintf_s(writeBuf, LOG_CONTENT_LENGTH, LOG_CONTENT_LENGTH, format, args);
     if (ret < 0) {
-		va_end(args);
+	    va_end(args);
         return;
     }
     va_end(args);

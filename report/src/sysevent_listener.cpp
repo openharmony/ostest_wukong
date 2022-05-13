@@ -52,7 +52,7 @@ void SysEventListener::OnHandle(const std::string& domain, const std::string& ev
     TRACK_LOG_STR("eventType: %s", std::to_string(eventType).c_str());
     TRACK_LOG_STR("eventDetail: %s", eventDetail.c_str());
     TRACK_LOG("------------------------------------");
-    CsvUtils::OneLineData data{};
+    CsvUtils::OneLineData data;
     data.domain = domain;
     data.name = eventName;
     switch (eventType) {
@@ -88,6 +88,9 @@ void SysEventListener::OnHandle(const std::string& domain, const std::string& ev
     }
     CsvUtils::WriteOneLine(csvFile, data);
 }
-void SysEventListener::OnServiceDied() { ERROR_LOG("Listener service Died"); }
+void SysEventListener::OnServiceDied()
+{
+    ERROR_LOG("Listener service Died");
+}
 }  // namespace WuKong
 }  // namespace OHOS

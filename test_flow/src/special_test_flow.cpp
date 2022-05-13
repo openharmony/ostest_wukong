@@ -204,7 +204,8 @@ ErrCode SpecialTestFlow::HandleNormalOption(const int option)
             g_commandPOWERENABLE = true;
             break;
         }
-        case 'c': {
+        case 'c':
+		case 'T': {
             CheckArgument(option);
             break;
         }
@@ -217,10 +218,6 @@ ErrCode SpecialTestFlow::HandleNormalOption(const int option)
         case 'i': {
             intervalArgs_ = std::stoi(optarg);
             DEBUG_LOG_STR("Interval: (%ld)", intervalArgs_);
-            break;
-        }
-        case 'T': {
-            CheckArgument(option);
             break;
         }
         case 't': {
