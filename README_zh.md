@@ -16,13 +16,14 @@ OpenHarmony稳定性测试自动化工具，通过模拟无序的用户行为，
 - 支持查询应用拉起bundle名、ability名
 - 支持注入随机事件
   - Touch事件注入
-  - Motion事件注入
+  - Swap事件注入
   - Mouse事件注入
   - Keyboard事件注入
+  - Hardkey事件注入
 - 支持wukong运行日志打印
-- 支持屏蔽unvisible应用启动
 - 支持休眠唤醒专项测试
 - 支持应用白名单
+- 支持应用黑名单
 ---
 
 ## 使用方式
@@ -42,33 +43,53 @@ wukong exec 为主命令，-s 参数设置随机种子，10为种子值；-i 参
 
 ## 命令说明
 
-| 命令           | 功能                                           |
-| :------------- | :--------------------------------------------- |
-| wukong version | 查询WuKong版本号                               |
-| wukong help    | 查询WuKong帮助信息                             |
-| wukong appinfo | 查询支持拉起应用entryName和对应的mainAbility名 |
-| wukong exec    | 执行WuKong测试命令，和选项配合使用             |
 
----
 
-## 选项说明
+| 命令           | 说明                                           | 备注          |
+| -------------- | ---------------------------------------------- | ------------- |
+| wukong version | 获取wukong版本信息                             | -v, --version |
+| wukong help    | 获取wukong帮助信息                             | -h, --help    |
+| wukong appinfo | 查询支持拉起应用entryName和对应的mainAbility名 |               |
+| wukong special | 悟空专项测试                                   |               |
+| wukong exec    | 悟空随机测试                                   |               |
 
-| 短选项 | 长选项          | 功能                         | 备注     |
-| :----- | --------------- | :--------------------------- | :------- |
-| -v     | --version       | 查询WuKong版本号             |          |
-| -k     | --spec_insomnia | 设置休眠唤醒专项测试         |          |
-| -h     | --help          | 查询WuKong帮助信息           |          |
-| -u     | --touch_pos     | 设置单次touch事件            |          |
-| -s     | --seed          | 设置随机种子                 | 随机值   |
-| -i     | --interval      | 设置执行间隔                 | 单位ms   |
-| -c     | --count         | 设置执行次数                 | 单位次数 |
-| -b     | --bundle        | 设置应用白名单              | 被测应用以逗号隔开 |
-| -a     | --appswitch     | 设置所有应用随机拉起测试比例 | 百分比   |
-| -t     | --touch         | 设置屏幕随机touch测试比例    | 百分比   |
-| -l     | --motion          |  设置屏幕随机motion测试比例           | 百分比     |
-| -o     | --mouse       |  设置屏幕随机mouse测试比例         | 百分比     |
-| -p    | --keyboard         |  设置屏幕随机keyboard测试比例          | 百分比     |
-| -T    | --time         |  设置测试总时间（目前不支持）          |          |
+----
+## 命令选项描述
+
+### wukong special描述
+
+| 命令                | 功能                   | 必选 | 备注                |
+| :------------------ | ---------------------- | ---- | :------------------ |
+| -h, --help          | 获取当前测试的帮助信息 | 否   | 专项测试帮助信息    |
+| -k, --spec_insomnia | 休眠唤醒专项测试       | 否   | -                   |
+| -c, --count         | 设置执行次数           | 否   | 默认10次            |
+| -i, --interval      | 设置执行间隔           | 否   | 单位ms，默认1500ms  |
+| -S, --swap          | 滑动测试               | 否   | -                   |
+| -s, --start[x,y]    | 设置滑动测试起点坐标   | 否   | -                   |
+| -e, --end[x,y]      | 设置滑动测试终点坐标   | 否   | -                   |
+| -b, --bilateral     | 设置往返滑动           | 否   | 默认不往返滑动      |
+| -t, --touch[x,y]    | 点击测试               | 否   | -                   |
+| -T, --time          | 设置测试总时间         | 否   | 单位分钟，默认10分钟 |
+| -C, --component     | 控件顺序遍历测试       | 否   | 暂不支持            |
+
+### wukong random描述
+
+| 命令            | 功能                                 | 必选 | 备注                                     |
+| --------------- | ------------------------------------ | ---- | ---------------------------------------- |
+| -h,--help       | 获取当前测试的帮助信息               | 否   | 随机测试帮助信息                         |
+| -c,--count      | 设置执行次数                         | 否   | 单位次数，默认10次                       |
+| -i,--interval   | 设置执行间隔                         | 否   | 单位ms，默认1500ms                       |
+| -s,--seed       | 设置随机种子                         | 否   | 配置相同随机种子，会生成相同随机事件序列 |
+| -b,--bundle[bundlename,……,bundlename]     | 设置本次测试的允许应用名单，与-p冲突 | 否   | 默认测试当前设备所有应用(应用名称用逗号隔开)                 |
+| -p,--prohibit[bundlename,……,bundlename]   | 设置本次测试的禁止应用名单，与-b冲突 | 否   | 默认不禁止任何应用(应用名称用逗号隔开)                       |
+| -a,--appswitch  | 设置应用随机拉起测试比例             | 否   | 默认10%                                  |
+| -t,--touch      | 设置屏幕随机touch测试比例            | 否   | 默认10%                                  |
+| -S,--swap       | 设置屏幕随机swap测试比例             | 否   | 默认3%                                   |
+| -m,--mouse      | 设置屏幕随机mouse测试比例            | 否   | 默认1%                                   |
+| -k,--keyboard   | 设置屏幕随机keyboard测试比例         | 否   | 默认2%                                   |
+| -H,--hardkey    | 设置随机hardkey测试比例              | 否   | 默认4%                                   |
+| -C, --component | 设置随机控件测试比例                 | 否   | 默认70%（暂不支持）                      |
+| -T,--time       | 设置测试总时间                       | 否   | 单位分钟，默认10分钟                      |
 
 > 备注：配置相同随机种子，会生成相同随机事件序列
 
@@ -80,13 +101,13 @@ wukong exec 为主命令，-s 参数设置随机种子，10为种子值；-i 参
 
 ### 构建方式
 
-```shell
+```
 ./build.sh --product-name rk3568 --build-target wukong
 ```
 
 ### 推送方式
 
-```shell
+```
 hdc_std shell mount -o rw,remount /
 hdc_std file send wukong /
 hdc_std shell chmod a+x /wukong
