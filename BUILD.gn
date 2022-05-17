@@ -109,7 +109,7 @@ ohos_executable("wukong") {
     "window_manager:libdm",
     "window_manager:libwm",
   ]
-  install_enable = enable
+  install_enable = true
 
   subsystem_name = "test"
   part_name = "wukong"
