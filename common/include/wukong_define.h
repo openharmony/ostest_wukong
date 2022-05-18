@@ -28,8 +28,8 @@ namespace WuKong {
 #define SEMPHORE_RUN_NAME "wukong_sem_run"
 #define SEMPHORE_STOP_NAME "wukong_sem_stop"
 
-#define TRACK_LOG_STD() WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "STD : (%5d) %s", __LINE__, __func__)
-#define TRACK_LOG_END() WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "END : (%5d) %s", __LINE__, __func__)
+#define TRACK_LOG_STD() WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s START", __LINE__, __func__)
+#define TRACK_LOG_END() WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s END", __LINE__, __func__)
 #define TRACK_LOG_STR(format, ...) WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s : " #format, \
                                                                       __LINE__, __func__, __VA_ARGS__)
 #define DEBUG_LOG_STR(format, ...) WuKongLogger::GetInstance()->Print(LOG_LEVEL_DEBUG, "DBG : (%5d) %s : " #format, \
