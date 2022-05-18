@@ -30,9 +30,10 @@
 #include <thread>
 #include <unistd.h>
 
+#include "string_ex.h"
 #include "wukong_util.h"
-#include "wukong_define.h"
 #include "securec.h"
+#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -69,11 +70,18 @@ bool WuKongLogger::Start()
     }
     if (logFileName_.empty()) {
         DIR *rootDir = nullptr;
-        if ((rootDir = opendir(DEFAULT_DIR.c_str())) == nullptr) {
-            int ret = mkdir(DEFAULT_DIR.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
-            if (ret != 0) {
-                std::cerr << "failed to create dir: " << DEFAULT_DIR << std::endl;
-                return false;
+        std::string dirStr = "/";
+        std::vector<std::string> strs;
+        OHOS::SplitStr(DEFAULT_DIR, "/", strs);
+        for (auto str : strs) {
+            dirStr.append(str);
+            dirStr.append("/");
+            if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
+                int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
+                if (ret != 0) {
+                    std::cerr << "failed to create dir: " << DEFAULT_DIR << std::endl;
+                    return false;
+                }
             }
         }
         logFileName_.append(DEFAULT_DIR);

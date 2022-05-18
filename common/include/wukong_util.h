@@ -15,12 +15,12 @@
 #ifndef TEST_WUKONG_UTIL_H
 #define TEST_WUKONG_UTIL_H
 
-#include <unistd.h>
 #include <string>
+#include <unistd.h>
 #include <vector>
 
-#include "singleton.h"
 #include "errors.h"
+#include "singleton.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -64,7 +64,7 @@ public:
      * @brief Get the block List of the test.
      * @param blockList the block list.
      */
-    void GetBlockList(std::vector<std::string> & blockList);
+    void GetBlockList(std::vector<std::string> &blockList);
 
     /**
      * @brief get the bundlelist and ability list.
@@ -134,6 +134,64 @@ private:
     int32_t screenHeight_ = -1;
     std::string startRunTime_;
 };
+
+class WukongSemaphore {
+public:
+    WukongSemaphore(const std::string &name, size_t size) : name_(name)
+    {
+        maxCount_ = 0;
+    }
+    ~WukongSemaphore()
+    {
+    }
+
+    bool Create()
+    {
+        return true;
+    }
+    bool Unlink()
+    {
+        return true;
+    }
+
+    bool Open()
+    {
+        return true;
+    }
+    bool Close()
+    {
+        return true;
+    }
+
+    bool Wait()
+    {
+        return true;
+    }
+    bool TryWait()
+    {
+        return true;
+    }
+    bool TimedWait(const struct timespec &ts)
+    {
+        return true;
+    }
+    bool Post()
+    {
+        return true;
+    }
+
+    int GetValue() const
+    {
+        return maxCount_;
+    }
+
+private:
+    std::string name_;
+    int maxCount_;
+};
+
+typedef WukongSemaphore NamedSemaphore;
+
 }  // namespace WuKong
 }  // namespace OHOS
 #endif  // TEST_WUKONG_UTIL_H

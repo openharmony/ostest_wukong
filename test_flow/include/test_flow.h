@@ -21,7 +21,6 @@
 
 #include "app_manager.h"
 #include "input_action.h"
-#include "semaphore_ex.h"
 #include "timer.h"
 #include "wukong_define.h"
 #include "wukong_shell_command.h"
@@ -53,7 +52,7 @@ public:
     ErrCode Run();
 
     /**
-     * @brief Run test flow
+     * @brief stop test flow
      * @param code stop code.
      */
     void Stop(ErrCode code);

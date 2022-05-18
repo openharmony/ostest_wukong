@@ -16,7 +16,6 @@
 #include <cstdio>
 #include <sys/stat.h>
 
-#include "semaphore_ex.h"
 #include "string_ex.h"
 #include "wukong_define.h"
 #include "wukong_shell_command.h"
@@ -39,7 +38,7 @@ static void WuKongMutexFile()
     }
 }
 
-static void InitSemaphore(OHOS::NamedSemaphore& sem, const int count)
+static void InitSemaphore(NamedSemaphore& sem, const int count)
 {
     bool res = sem.Open();
     int value = 0;
@@ -60,7 +59,7 @@ static void InitSemaphore(OHOS::NamedSemaphore& sem, const int count)
     sem.Close();
 }
 
-static bool IsRunning(OHOS::NamedSemaphore& sem)
+static bool IsRunning(NamedSemaphore& sem)
 {
     bool result = false;
     sem.Open();
@@ -124,9 +123,9 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    OHOS::NamedSemaphore semRun(SEMPHORE_RUN_NAME, 1);
+    NamedSemaphore semRun(SEMPHORE_RUN_NAME, 1);
     InitSemaphore(semRun, 1);
-    OHOS::NamedSemaphore semStop(SEMPHORE_STOP_NAME, 1);
+    NamedSemaphore semStop(SEMPHORE_STOP_NAME, 1);
     InitSemaphore(semStop, 1);
 
     if (isStop) {
