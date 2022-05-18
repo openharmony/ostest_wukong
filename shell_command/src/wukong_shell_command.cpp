@@ -20,7 +20,6 @@
 #include "iservice_registry.h"
 #include "launcher_service.h"
 #include "random_test_flow.h"
-#include "semaphore_ex.h"
 #include "special_test_flow.h"
 #include "system_ability_definition.h"
 #include "test_flow_factory.h"

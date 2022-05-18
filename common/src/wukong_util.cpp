@@ -36,10 +36,12 @@ WuKongUtil::WuKongUtil()
     char fileNameBuf[timeBufsize] = {0};
     time_t currentTime = time(0);
     int res = 0;
-    
-    tm *timePtr = localtime(&currentTime);
-    res = strftime(fileNameBuf, timeBufsize, "%Y%m%d_%H%M%S", timePtr);
-    
+    if (currentTime > 0) {
+        tm *timePtr = localtime(&currentTime);
+        if (timePtr) {
+            res = strftime(fileNameBuf, timeBufsize, "%Y%m%d_%H%M%S", timePtr);
+        }
+    }
     if (res > 0) {
         startRunTime_ = std::string(fileNameBuf);
     } else {
