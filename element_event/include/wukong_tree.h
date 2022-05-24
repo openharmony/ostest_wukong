@@ -22,11 +22,10 @@ namespace OHOS {
 namespace WuKong {
 class WuKongTree {
 public:
-    WuKongTree();
-    virtual ~WuKongTree();
-    virtual ErrCode GetRoot();
-    virtual ErrCode AddChild();
-    virtual ErrCode PreOrderList();
+    virtual ~WuKongTree() {};
+    virtual ErrCode GetRoot() = 0;
+    virtual ErrCode AddChild() = 0;
+    virtual ErrCode PreOrderList() = 0;
 };
 }  // namespace WuKong
 }  // namespace OHOS
