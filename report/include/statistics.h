@@ -15,8 +15,12 @@
 
 #ifndef TEST_WUKONG_STATISTICS
 #define TEST_WUKONG_STATISTICS
+
+#include <map>
+#include <memory>
 #include <string>
 
+#include "table.h"
 #include "wukong_define.h"
 namespace OHOS {
 namespace WuKong {
@@ -24,7 +28,14 @@ class Statistics {
 public:
     Statistics();
     virtual ~Statistics();
-    virtual ErrCode StatisticsDetail();
+    /*
+     * @brief statistics algorithm implementation
+     * @param dataVector filtered data vector
+     * @param tables store statistics processing data
+     * @return
+     */
+    virtual void StatisticsDetail(std::vector<std::map<std::string, std::string>> dataVector,
+                                  std::map<std::string, std::shared_ptr<Table>> &tables);
 };
 }  // namespace WuKong
 }  // namespace OHOS

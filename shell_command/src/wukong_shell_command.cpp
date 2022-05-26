@@ -17,6 +17,7 @@
 #include "ability_manager_client.h"
 #include "appexecfwk_errors.h"
 #include "bundle_mgr_proxy.h"
+#include "component_manager.h"
 #include "iservice_registry.h"
 #include "launcher_service.h"
 #include "random_test_flow.h"
@@ -85,7 +86,7 @@ ErrCode WuKongShellCommand::GetWuKongVersion()
 
 ErrCode WuKongShellCommand::RunStopCommand()
 {
-    NamedSemaphore sem(SEMPHORE_STOP_NAME, 1);
+    WukongSemaphore sem(SEMPHORE_STOP_NAME, 1);
     sem.Open();
     if (sem.GetValue() == 0) {
         sem.Post();
@@ -100,6 +101,7 @@ ErrCode WuKongShellCommand::RunTestCommand()
     int res = OHOS::ERR_OK;
     // get testFlow by cmd_ of ShellCommand
     std::shared_ptr<TestFlow> testFlow = TestFlowFactory::GetTestFlow(*this, cmd_);
+    uint32_t handle = ComponentManager::GetInstance()->AddRegisterListener(testFlow);
 
     // check the command arguments
     // if argument is not ok, exit wukong command.
@@ -109,11 +111,20 @@ ErrCode WuKongShellCommand::RunTestCommand()
         return res;
     }
 
+    // connect to accessibility
+    if (!ComponentManager::GetInstance()->Connect()) {
+        ERROR_LOG("ComponentManager Connect failed");
+        return OHOS::ERR_INVALID_OPERATION;
+    }
+    DEBUG_LOG("connected sucessfully");
+
     // run test flow.
     res = testFlow->Run();
     if (res != OHOS::ERR_OK) {
         DEBUG_LOG("Test flow run failed");
     }
+    ComponentManager::GetInstance()->Disconnect();
+    ComponentManager::GetInstance()->DeleteRegisterListener(handle);
     TRACK_LOG_END();
     return res;
 }
@@ -147,16 +158,18 @@ ErrCode WuKongShellCommand::ShowAllAppInfo()
     ErrCode result = WuKongUtil::GetInstance()->GetAllAppInfo();
     std::vector<std::string> bundleList;
     std::vector<std::string> abilityList;
-
+    std::string iconpath;
+    WuKongUtil::GetInstance()->GetIconPath(iconpath);
     WuKongUtil::GetInstance()->GetBundleList(bundleList, abilityList);
     if (result != OHOS::ERR_OK) {
-        result = OHOS::ERR_INVALID_VALUE;
+        return result;
     }
     std::stringstream appInfo;
     for (unsigned index = 0; index < bundleList.size(); index++) {
         DEBUG_LOG_STR("Bundle Name: (%s), Ability Name: (%s)", bundleList[index].c_str(), abilityList[index].c_str());
         appInfo << "BundleName:  " << bundleList[index] << std::endl;
         appInfo << "AbilityName:  " << abilityList[index] << std::endl;
+        DEBUG_LOG_STR("IconPath: %s", iconpath.c_str());
     }
     resultReceiver_.append(appInfo.str());
     TRACK_LOG_END();

@@ -29,14 +29,15 @@ namespace OHOS {
 namespace WuKong {
 class SysEventListener : public OHOS::HiviewDFX::HiSysEventSubscribeCallBack {
 public:
-    explicit SysEventListener(std::ofstream& targetCsvFile)
-        : csvFile(targetCsvFile)
+    explicit SysEventListener(std::ofstream& targetCsvFile) : csvFile(targetCsvFile)
     {
     }
-    void OnHandle(const std::string& domain, const std::string& eventName,
-                  const int eventType, const std::string& eventDetail) override;
+    void OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
+                  const std::string& eventDetail) override;
     void OnServiceDied() override;
-    ~SysEventListener() override {}
+    ~SysEventListener() override
+    {
+    }
 
 private:
     std::ofstream& csvFile;

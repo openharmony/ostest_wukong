@@ -12,11 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "statistics.h"
 
 namespace OHOS {
 namespace WuKong {
-    Statistics::Statistics() {}
+Statistics::Statistics()
+{
 }
+Statistics::~Statistics()
+{
+}
+void Statistics::StatisticsDetail(std::vector<std::map<std::string, std::string>> dataVector,
+                                  std::map<std::string, std::shared_ptr<Table>> &tables)
+{
+    return;
+}
+}  // namespace WuKong
 }  // namespace OHOS

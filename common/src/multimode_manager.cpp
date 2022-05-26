@@ -33,7 +33,9 @@ MultimodeManager::MultimodeManager()
     }
 }
 
-MultimodeManager::~MultimodeManager() {}
+MultimodeManager::~MultimodeManager()
+{
+}
 
 ErrCode MultimodeManager::SingleKeyCodeInput(int keycode, int downtime)
 {

@@ -30,25 +30,27 @@ const std::string SPECIAL_TEST_HELP_MSG =
     "   -t, --touch[x,y]           touch event \n"
     "   -c, --count                total count of test\n"
     "   -i, --interval             interval\n"
-    "   -S, --swap[option]         swap event percent\n"
+    "   -S, --swap[option]         swap event\n"
     "                              option is -s| -e| -b\n"
     "                              -s, --start: the start point of swap\n"
     "                              -e, --end: the end point of swap\n"
     "                              -b, --bilateral: swap go and back\n"
     "   -k, --spec_insomnia        power on/off event\n"
-    "   -T, --time                 total time of test\n";
-const std::string SHORT_OPTIONS = "c:hi:T:t:kSbs:e:";
+    "   -T, --time                 total time of test\n"
+    "   -C, --component            component event\n";
+const std::string SHORT_OPTIONS = "c:hi:T:t:kSbs:e:C:";
 const struct option LONG_OPTIONS[] = {
-    {"count", required_argument, nullptr, 'c'},     // test count
-    {"help", no_argument, nullptr, 'h'},            // help information
-    {"interval", required_argument, nullptr, 'i'},  // test interval
-    {"touch", required_argument, nullptr, 't'},     // touch
-    {"spec_insomnia", no_argument, nullptr, 'k'},   // sleep and awake
-    {"time", required_argument, nullptr, 'T'},      // test time
-    {"swap", required_argument, nullptr, 'S'},      // swap
-    {"bilateral", no_argument, nullptr, 'b'},       // swap go and back
-    {"statrt", no_argument, nullptr, 's'},          // the start point of swap
-    {"end", no_argument, nullptr, 'e'},             // the end point of swap
+    {"count", required_argument, nullptr, 'c'},      // test count
+    {"help", no_argument, nullptr, 'h'},             // help information
+    {"interval", required_argument, nullptr, 'i'},   // test interval
+    {"touch", required_argument, nullptr, 't'},      // touch
+    {"spec_insomnia", no_argument, nullptr, 'k'},    // sleep and awake
+    {"time", required_argument, nullptr, 'T'},       // test time
+    {"swap", required_argument, nullptr, 'S'},       // swap
+    {"bilateral", no_argument, nullptr, 'b'},        // swap go and back
+    {"statrt", no_argument, nullptr, 's'},           // the start point of swap
+    {"end", no_argument, nullptr, 'e'},              // the end point of swap
+    {"component", required_argument, nullptr, 'C'},  // the end point of swap
 };
 const int oneMintue = 60000;
 bool g_commandSWAPENABLE = false;
@@ -58,12 +60,15 @@ bool g_commandTOUCHENABLE = false;
 bool g_commandPOWERENABLE = false;
 bool g_commandGOBACKENABLE = false;
 bool g_commandCOUNTENABLE = false;
+bool g_commandCOMPONENTENABLE = false;
 
 static unsigned int NUMBER_TWO = 2;
 }  // namespace
 using namespace std;
 
-SpecialTestFlow::SpecialTestFlow(WuKongShellCommand &shellcommand) : TestFlow(shellcommand) {}
+SpecialTestFlow::SpecialTestFlow(WuKongShellCommand &shellcommand) : TestFlow(shellcommand)
+{
+}
 
 SpecialTestFlow::~SpecialTestFlow()
 {
@@ -109,6 +114,19 @@ ErrCode SpecialTestFlow::EnvInit()
             shellcommand_.ResultReceiverAppend(paramError + "\n");
             result = OHOS::ERR_INVALID_VALUE;
         }
+    } else if (g_commandCOMPONENTENABLE == true) {
+        std::shared_ptr<AppSwitchParam> appswitchParam = std::make_shared<AppSwitchParam>();
+        if (bundleName_.size() == 1) {
+            appswitchParam->bundlename_ = bundleName_[0];
+            if (specialTestObject_ == nullptr) {
+                specialTestObject_ = appswitchParam;
+            }
+        } else {
+            DEBUG_LOG(paramError.c_str());
+            shellcommand_.ResultReceiverAppend(paramError + "\n");
+            result = OHOS::ERR_INVALID_VALUE;
+        }
+        result = LauncherApp();
     }
 
     // if time test flow, registe timer.
@@ -128,7 +146,6 @@ ErrCode SpecialTestFlow::RunStep()
             return OHOS::ERR_OK;
         }
     }
-
     // order test
     ErrCode result = OHOS::ERR_OK;
     InputType inputTypeId = DistrbuteInputType();
@@ -151,6 +168,8 @@ InputType SpecialTestFlow::DistrbuteInputType()
         iputType = INPUTTYPE_SWAPINPUT;
     } else if (g_commandPOWERENABLE) {
         iputType = INPUTTYPE_HARDKEYINPUT;
+    } else if (g_commandCOMPONENTENABLE) {
+        iputType = INPUTTYPE_ELEMENTINPUT;
     }
     return iputType;
 }
@@ -171,6 +190,7 @@ ErrCode SpecialTestFlow::HandleUnknownOption(const char optopt)
         case 'c':
         case 's':
         case 'e':
+        case 'C':
             shellcommand_.ResultReceiverAppend("error: option '");
             shellcommand_.ResultReceiverAppend(string(1, optopt));
             shellcommand_.ResultReceiverAppend("' requires a value.\n");
@@ -232,12 +252,19 @@ ErrCode SpecialTestFlow::HandleNormalOption(const int option)
         }
         case 's': {
             SplitStr(optarg, ",", swapStartPoint_);
+            // check if param is valid
             result = CheckPosition(swapStartPoint_);
             break;
         }
         case 'e': {
             SplitStr(optarg, ",", swapEndPoint_);
+            // check if param is valid
             result = CheckPosition(swapEndPoint_);
+            break;
+        }
+        case 'C': {
+            SplitStr(optarg, ",", bundleName_);
+            g_commandCOMPONENTENABLE = true;
             break;
         }
     }
@@ -314,6 +341,17 @@ ErrCode SpecialTestFlow::CheckPosition(std::vector<std::string> argumentlist)
             shellcommand_.ResultReceiverAppend(paramError + "\n");
             result = OHOS::ERR_NO_INIT;
         }
+    }
+    return result;
+}
+
+ErrCode SpecialTestFlow::LauncherApp()
+{
+    ErrCode result = OHOS::ERR_OK;
+    std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
+    result = inputaction->OrderInput(specialTestObject_);
+    if (result != OHOS::ERR_OK) {
+        ERROR_LOG("launcher app failed");
     }
     return result;
 }

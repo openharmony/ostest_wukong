@@ -17,6 +17,7 @@
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
+#include "input_info.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -55,6 +56,8 @@ ErrCode MouseInput::RandomInput()
     result =
         multiinput->PointerInput(xClickPosition, yClickPosition, mouseType, MMI::PointerEvent::POINTER_ACTION_DOWN);
     result = multiinput->PointerInput(xClickPosition, yClickPosition, mouseType, MMI::PointerEvent::POINTER_ACTION_UP);
+    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
+    inputInfo->SetInputType(INPUTTYPE_MOUSEINPUT);
     return result;
 }
 

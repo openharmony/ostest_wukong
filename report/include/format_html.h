@@ -15,10 +15,12 @@
 
 #ifndef TEST_WUKONG_FORMAT_HTML
 #define TEST_WUKONG_FORMAT_HTML
+
 #include <string>
 
 #include "format.h"
 #include "wukong_define.h"
+
 namespace OHOS {
 namespace WuKong {
 class FormatHTML : public Format {

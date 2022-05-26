@@ -17,6 +17,7 @@
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
+#include "input_info.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -56,6 +57,8 @@ ErrCode TouchInput::RandomInput()
                                       MMI::PointerEvent::POINTER_ACTION_DOWN);
     result = multiinput->PointerInput(touchX, touchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_UP);
+    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
+    inputInfo->SetInputType(INPUTTYPE_TOUCHINPUT);
     INFO_LOG_STR("Touch: (%d, %d)", touchX, touchY);
     return result;
 }

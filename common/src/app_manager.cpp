@@ -16,10 +16,9 @@
 #include "app_manager.h"
 
 #include "ability_manager_client.h"
-#include "app_log_wrapper.h"
 #include "element_name.h"
-#include "wukong_util.h"
 #include "wukong_define.h"
+#include "wukong_util.h"
 
 namespace OHOS {
 namespace WuKong {

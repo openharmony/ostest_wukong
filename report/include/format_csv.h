@@ -15,17 +15,17 @@
 
 #ifndef TEST_WUKONG_FORMAT_CSV
 #define TEST_WUKONG_FORMAT_CSV
-#include <string>
 
 #include "format.h"
 #include "wukong_define.h"
+
 namespace OHOS {
 namespace WuKong {
 class FormatCSV : public Format {
 public:
     FormatCSV();
     ~FormatCSV();
-    ErrCode FormatDetail();
+    void FormatDetail(std::shared_ptr<Table> tablePtr, std::string &target);
 };
 }  // namespace WuKong
 }  // namespace OHOS

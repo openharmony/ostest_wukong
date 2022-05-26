@@ -20,12 +20,12 @@
 #include <unistd.h>
 
 #include "app_manager.h"
+#include "component_manager.h"
 #include "input_action.h"
 #include "timer.h"
 #include "wukong_define.h"
 #include "wukong_shell_command.h"
 #include "wukong_util.h"
-#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -34,7 +34,7 @@ using namespace std;
  * @brief TestFlow base clasee, provided test flow for the CommandRun parse
  * command and run test.
  */
-class TestFlow {
+class TestFlow : public ComponentManagerListener {
 public:
     TestFlow(WuKongShellCommand &shellcommand);
     virtual ~TestFlow() {};
@@ -56,6 +56,11 @@ public:
      * @param code stop code.
      */
     void Stop(ErrCode code);
+
+protected:
+    virtual void OnStatusUpdated(ComponentStatus stutus) override;
+    virtual void OnScreenUpdated() override;
+    virtual void OnPermissionScreenShown() override;
 
 protected:
     /**
@@ -104,7 +109,7 @@ protected:
     const int oneSecond_ = 1000;
 
 private:
-    NamedSemaphore semStop_;
+    WukongSemaphore semStop_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

@@ -15,16 +15,25 @@
 
 #ifndef TEST_WUKONG_FORMAT
 #define TEST_WUKONG_FORMAT
+
 #include <string>
 
+#include "table.h"
 #include "wukong_define.h"
+
 namespace OHOS {
 namespace WuKong {
 class Format {
 public:
     Format();
     virtual ~Format();
-    virtual ErrCode FormatDetail();
+    /*
+     * @brief format algorithm implementation
+     * @param tablePtr stored after statistics
+     * @param target format output string
+     * @return
+     */
+    virtual void FormatDetail(std::shared_ptr<Table> tablePtr, std::string &target);
 };
 }  // namespace WuKong
 }  // namespace OHOS

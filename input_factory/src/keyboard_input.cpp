@@ -16,6 +16,7 @@
 #include "keyboard_input.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
+#include "input_info.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -42,6 +43,8 @@ ErrCode KeyboardInput::RandomInput()
     } else {
         return OHOS::ERR_NO_INIT;
     }
+    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
+    inputInfo->SetInputType(INPUTTYPE_KEYBOARDINPUT);
     return result;
 }
 

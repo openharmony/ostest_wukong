@@ -14,10 +14,14 @@
  */
 
 #include "test_flow.h"
+#include "component_manager.h"
 #include "report.h"
 
 namespace OHOS {
 namespace WuKong {
+namespace {
+bool isPermissionBundle = false;
+}
 TestFlow::TestFlow(WuKongShellCommand &shellcommand)
     : shellcommand_(shellcommand), isFinished_(false), semStop_(SEMPHORE_STOP_NAME, 1)
 {
@@ -69,10 +73,10 @@ ErrCode TestFlow::CheckVaildityCmd()
     if (result == OHOS::ERR_OK) {
         AppManager::GetInstance()->SetAbilityController();
         result = EnvInit();
-        if (result == OHOS::ERR_OK) {
-            WuKongUtil::GetInstance()->GetAllAppInfo();
-        } else {
+        if (result != OHOS::ERR_OK) {
             ERROR_LOG("event init failed");
+        } else {
+            WuKongUtil::GetInstance()->GetAllAppInfo();
         }
     }
     return result;
@@ -84,11 +88,6 @@ ErrCode TestFlow::Run()
     OHOS::ErrCode result = OHOS::ERR_OK;
     int count = 0;
     // init report
-    result = OHOS::WuKong::Report::GetInstance().Init();
-    if (result != OHOS::ERR_OK) {
-        ERROR_LOG("report init error");
-        return result;
-    }
 
     // Open the stop semaphore, check stop.
     bool res = semStop_.Open();
@@ -103,8 +102,16 @@ ErrCode TestFlow::Run()
 
     // run test step, check test status, and control test step.
     while (!isFinished_) {
-        result = RunStep();
-        DEBUG_LOG_STR("Step: (%d) Result: (%d)", ++count, result);
+        if (isPermissionBundle == true) {
+            result = ComponentManager::GetInstance()->PermoissionInput();
+            if (result == OHOS::ERR_OK) {
+                isPermissionBundle = false;
+            }
+            DEBUG_LOG_STR("PermoissionInput Result: (%d)", result);
+        } else {
+            result = RunStep();
+            DEBUG_LOG_STR("Step: (%d) Result: (%d)", ++count, result);
+        }
         if (semStop_.GetValue() == 1) {
             TEST_RUN_LOG("Finished: (Stop)");
             isFinished_ = true;
@@ -118,20 +125,28 @@ ErrCode TestFlow::Run()
     semStop_.Close();
 
     // save report
-    result = OHOS::WuKong::Report::GetInstance().Finish();
-    if (result != OHOS::ERR_OK) {
-        ERROR_LOG("report finish error");
-    }
+    OHOS::WuKong::Report::GetInstance()->Finish();
     TRACK_LOG_END();
     return result;
 }
 
 void TestFlow::Stop(OHOS::ErrCode code)
 {
-    TRACK_LOG_STD();
-    DEBUG_LOG_STR("Stop Result: (%d)", code);
     isFinished_ = true;
+}
+void TestFlow::OnStatusUpdated(ComponentStatus stutus) { 
+    DEBUG_LOG_STR("Component Status: (%d)", stutus); 
+}
+void TestFlow::OnScreenUpdated()
+{
+    TRACK_LOG_STD();
     TRACK_LOG_END();
+}
+void TestFlow::OnPermissionScreenShown()
+{
+    TRACK_LOG_STD();
+    TRACK_LOG_END();
+    isPermissionBundle = true;
 }
 }  // namespace WuKong
 }  // namespace OHOS

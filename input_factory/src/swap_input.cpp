@@ -17,6 +17,7 @@
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
+#include "input_info.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -63,6 +64,8 @@ ErrCode SwapInput::RandomInput()
     int yDstPosition = rand() % screenHeight;
     INFO_LOG_STR("Swap: (%d, %d) -> (%d, %d)", xSrcPosition, ySrcPosition, xDstPosition, yDstPosition);
     result = MultimodeManager::GetInstance()->IntervalSwap(xSrcPosition, ySrcPosition, xDstPosition, yDstPosition);
+    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
+    inputInfo->SetInputType(INPUTTYPE_SWAPINPUT);
     return result;
 }
 

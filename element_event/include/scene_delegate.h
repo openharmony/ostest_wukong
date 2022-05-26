@@ -15,6 +15,7 @@
 
 #ifndef TEST_WUKONG_SCENE_DELEGATE_H
 #define TEST_WUKONG_SCENE_DELEGATE_H
+
 #include "wukong_define.h"
 
 namespace OHOS {

@@ -16,7 +16,7 @@
 #include "input_factory.h"
 
 #include "appswitch_input.h"
-#include "element_input.h"
+#include "component_input.h"
 #include "keyboard_input.h"
 #include "swap_input.h"
 #include "mouse_input.h"
@@ -50,7 +50,7 @@ std::shared_ptr<InputAction> InputFactory::GetInputAction(InputType type)
             break;
         }
         case INPUTTYPE_ELEMENTINPUT: {
-            input_action = std::make_shared<ElementInput>();
+            input_action = std::make_shared<ComponentInput>();
             break;
         }
         case INPUTTYPE_HARDKEYINPUT: {

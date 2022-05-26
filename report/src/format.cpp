@@ -17,6 +17,15 @@
 
 namespace OHOS {
 namespace WuKong {
-    Format::Format() {}
+Format::Format()
+{
 }
+Format::~Format()
+{
+}
+void Format::FormatDetail(std::shared_ptr<Table> tablePtr, std::string &target)
+{
+    return;
+}
+}  // namespace WuKong
 }  // namespace OHOS

@@ -17,11 +17,12 @@
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
+#include "input_info.h"
 
 namespace OHOS {
 namespace WuKong {
 namespace {
-const int hardkeyCount = 3;
+const int hardkeyCount = 2;
 const int downtime = 10;
 }  // namespace
 HardkeyInput::HardkeyInput() : InputAction() {}
@@ -40,6 +41,8 @@ ErrCode HardkeyInput::RandomInput()
     ErrCode result = OHOS::ERR_OK;
     int keycode = MMI::KeyEvent::KEYCODE_VOLUME_UP + rand() % hardkeyCount;
     result = MultimodeManager::GetInstance()->SingleKeyCodeInput(keycode, downtime);
+    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
+    inputInfo->SetInputType(INPUTTYPE_HARDKEYINPUT);
     return result;
 }
 

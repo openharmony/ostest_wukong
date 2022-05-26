@@ -17,6 +17,15 @@
 
 namespace OHOS {
 namespace WuKong {
-    Filter::Filter() {}
+Filter::Filter()
+{
 }
+Filter::~Filter()
+{
+}
+void Filter::FilterDetail(std::string type, std::map<std::string, std::string> data,
+                          std::vector<std::map<std::string, std::string>> &dataVector)
+{
+}
+}  // namespace WuKong
 }  // namespace OHOS

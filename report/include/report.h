@@ -1,11 +1,4 @@
 /*
- * @Description:
- * @Date: 2022-04-21 19:11:57
- * @LastEditTime: 2022-04-21 20:23:01
- * @FilePath: /wukong/report/include/report.h
- * @author: lemon
- */
-/*
  * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,20 +15,47 @@
 
 #ifndef TEST_WUKONG_REPORT
 #define TEST_WUKONG_REPORT
-#include "data_unit.h"
+
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "data_set.h"
+#include "singleton.h"
 #include "wukong_define.h"
+
 namespace OHOS {
 namespace WuKong {
-enum ReportType { RandomTest = 0, SpecialTest };
-class Report final {
+class Report final : public DelayedSingleton<Report> {
+    DECLARE_DELAYED_SINGLETON(Report)
 public:
-    static Report &GetInstance();
-    ErrCode Init();
-    ErrCode Finish();
+    void Finish();
+    void SetSeed(std::string seed);
+    /*
+     * @brief  Synchronous inputed information
+     * @return void
+     */
+    void SyncInputInfo();
+    /*
+     * @brief Write the content of the test process segmented to the storage file
+     * @return void
+     */
+    void SegmentedWrite();
 
 private:
-    Report() = default;
-    ~Report() = default;
+    // csv filename
+    std::string reportCsvFileName_ = "";
+    std::string seed_ = "";
+    int taskCount_ = 0;
+    time_t startTime_;
+    // multimodal random input data set
+    std::shared_ptr<DataSet> eventDataSet_ = std::make_shared<DataSet>();
+    // componment input data set
+    std::shared_ptr<DataSet> componmentDataSet_ = std::make_shared<DataSet>();
+    // app set
+    std::vector<std::string> apps_;
+    std::vector<std::string>::iterator appsIter_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

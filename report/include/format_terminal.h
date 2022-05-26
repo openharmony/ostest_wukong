@@ -15,10 +15,12 @@
 
 #ifndef TEST_WUKONG_FORMAT_TERMINAL
 #define TEST_WUKONG_FORMAT_TERMINAL
+
 #include <string>
 
 #include "format.h"
 #include "wukong_define.h"
+
 namespace OHOS {
 namespace WuKong {
 class FormatTerminal : public Format {

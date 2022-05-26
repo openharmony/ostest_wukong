@@ -17,8 +17,12 @@
 
 namespace OHOS {
 namespace WuKong {
-FormatTerminal::FormatTerminal() : Format() {}
-FormatTerminal::~FormatTerminal() {}
+FormatTerminal::FormatTerminal() : Format()
+{
+}
+FormatTerminal::~FormatTerminal()
+{
+}
 ErrCode FormatTerminal::FormatDetail()
 {
     return OHOS::ERR_OK;

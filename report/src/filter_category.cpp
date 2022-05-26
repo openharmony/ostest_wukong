@@ -17,11 +17,21 @@
 
 namespace OHOS {
 namespace WuKong {
-FilterCategory::FilterCategory() : Filter() {}
-FilterCategory::~FilterCategory() {}
-ErrCode FilterCategory::FilterDetail()
+FilterCategory::FilterCategory() : Filter()
 {
-    return OHOS::ERR_OK;
+}
+
+FilterCategory::~FilterCategory()
+{
+}
+
+void FilterCategory::FilterDetail(std::string type, std::map<std::string, std::string> data,
+                                  std::vector<std::map<std::string, std::string>> &dataVector)
+{
+    std::map<std::string, std::string>::iterator it = data.find(type);
+    if ((it != data.end()) && (!it->second.empty())) {
+        dataVector.push_back(data);
+    }
 }
 }  // namespace WuKong
 }  // namespace OHOS

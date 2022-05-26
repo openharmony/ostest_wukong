@@ -21,12 +21,10 @@
 #include <string>
 #include <vector>
 
-#include "app_log_wrapper.h"
 #include "bundle_mgr_interface.h"
 #include "shell_command.h"
 #include "wukong_define.h"
 #include "wukong_util.h"
-#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {

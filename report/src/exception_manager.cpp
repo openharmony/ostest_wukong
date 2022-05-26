@@ -35,7 +35,6 @@
 #include "hisysevent_manager.h"
 #include "sysevent_listener.h"
 #include "wukong_util.h"
-#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {

@@ -15,13 +15,49 @@
 
 #include "format_csv.h"
 
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <stdio.h>
+
 namespace OHOS {
 namespace WuKong {
-FormatCSV::FormatCSV() : Format() {}
-FormatCSV::~FormatCSV() {}
-ErrCode FormatCSV::FormatDetail()
+FormatCSV::FormatCSV() : Format()
 {
-    return OHOS::ERR_OK;
+}
+FormatCSV::~FormatCSV()
+{
+}
+void FormatCSV::FormatDetail(std::shared_ptr<Table> tablePtr, std::string &target)
+{
+    std::vector<std::string> header = tablePtr->GetHeader();
+    std::vector<std::vector<std::string>> record = tablePtr->GetRecord();
+    std::vector<int> column_size_ = tablePtr->GetColumnSize();
+    std::stringstream ss;
+
+    ss << "name, " << tablePtr->GetName() << ", detail, " << tablePtr->GetDetail() << std::endl;
+    for (int col = 0; col < header.size(); col++) {
+        ss << std::setw(column_size_[col]) << std::setiosflags(std::ios::left) << std::setfill(' ') << header[col];
+        if (col == (header.size() - 1)) {
+            break;
+        }
+        ss << ',';
+    }
+    ss << std::endl;
+
+    for (int row = 0; row < record.size(); row++) {
+        for (int col = 0; col < header.size(); col++) {
+            ss << std::setw(column_size_[col]) << std::setiosflags(std::ios::left) << std::setfill(' ');
+            ss << record[row][col];
+            if (col == (header.size() - 1)) {
+                break;
+            }
+            ss << ',';
+        }
+        ss << std::endl;
+    }
+    target += ss.str();
 }
 }  // namespace WuKong
 }  // namespace OHOS

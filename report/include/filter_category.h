@@ -19,13 +19,15 @@
 
 #include "filter.h"
 #include "wukong_define.h"
+
 namespace OHOS {
 namespace WuKong {
 class FilterCategory : public Filter {
 public:
     FilterCategory();
     ~FilterCategory();
-    ErrCode FilterDetail();
+    void FilterDetail(std::string type, std::map<std::string, std::string> data,
+                      std::vector<std::map<std::string, std::string>> &dataVector);
 };
 }  // namespace WuKong
 }  // namespace OHOS

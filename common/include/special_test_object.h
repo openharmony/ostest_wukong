@@ -16,8 +16,8 @@
 #ifndef TEST_WUKONG_SPECAIL_TEST_OBJECT_H
 #define TEST_WUKONG_SPECAIL_TEST_OBJECT_H
 
-#include <string>
 #include <cstdio>
+#include <string>
 
 #include "securec.h"
 
@@ -25,19 +25,27 @@ namespace OHOS {
 namespace WuKong {
 class SpcialTestObject {
 public:
-    SpcialTestObject() {};
-    virtual ~SpcialTestObject() {};
+    SpcialTestObject()
+    {
+    }
+    virtual ~SpcialTestObject()
+    {
+    }
     // convert coordinates to string
     virtual std::string toString()
     {
         return std::to_string(objectType_);
     }
-    int objectType_;
+    int objectType_ = -1;
 };
 class SwapParam : public SpcialTestObject {
 public:
-    SwapParam() {};
-    virtual ~SwapParam() {};
+    SwapParam()
+    {
+    }
+    virtual ~SwapParam()
+    {
+    }
 
     virtual std::string toString()
     {
@@ -53,17 +61,21 @@ public:
         }
         return std::string(buffer);
     }
-    int startX_;
-    int startY_;
-    int endX_;
-    int endY_;
-    bool isGoBack_;
-    bool isBack_;
+    int startX_ = -1;
+    int startY_ = -1;
+    int endX_ = -1;
+    int endY_ = -1;
+    bool isGoBack_ = false;
+    bool isBack_ = false;
 };
 class TouchParam : public SpcialTestObject {
 public:
-    TouchParam() {};
-    virtual ~TouchParam() {};
+    TouchParam()
+    {
+    }
+    virtual ~TouchParam()
+    {
+    }
     virtual std::string toString()
     {
         char buffer[50];
@@ -73,8 +85,27 @@ public:
         }
         return std::string(buffer);
     }
-    int x_;
-    int y_;
+    int x_ = -1;
+    int y_ = -1;
+};
+class AppSwitchParam : public SpcialTestObject {
+public:
+    AppSwitchParam()
+    {
+    }
+    virtual ~AppSwitchParam()
+    {
+    }
+    virtual std::string toString()
+    {
+        char buffer[50];
+        int result = sprintf_s(buffer, sizeof(buffer), "Bundlename: (%s)", bundlename_.c_str());
+        if (result < 0) {
+            return SpcialTestObject::toString();
+        }
+        return std::string(buffer);
+    }
+    std::string bundlename_ = " ";
 };
 }  // namespace WuKong
 }  // namespace OHOS

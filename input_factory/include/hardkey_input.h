@@ -26,7 +26,9 @@ class HardkeyInput : public InputAction {
 public:
     HardkeyInput();
     ~HardkeyInput();
+
     ErrCode OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject);
+
     /**
      * @brief input a power event in random test.
      * @return Return ERR_OK on success， others on failure.

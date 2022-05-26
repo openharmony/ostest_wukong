@@ -19,6 +19,7 @@
 
 #include "input_factory.h"
 #include "wukong_define.h"
+#include "report.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -38,9 +39,10 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -k, --keyboard             keyboard event percent\n"
     "   -H, --hardkey              hardkey event percent\n"
     "   -S, --swap                 swap event percent\n"
-    "   -T, --time                 test time\n";
+    "   -T, --time                 test time\n"
+    "   -C, --component            component event percent\n";
 
-const std::string SHORT_OPTIONS = "a:b:c:hi:k:p:s:t:T:H:m:S:";
+const std::string SHORT_OPTIONS = "a:b:c:hi:k:p:s:t:T:H:m:S:C:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -55,6 +57,7 @@ const struct option LONG_OPTIONS[] = {
     {"swap", required_argument, nullptr, 'S'},       // swap percent
     {"hardkey", required_argument, nullptr, 'H'},    // hardkey percent
     {"prohibit", required_argument, nullptr, 'p'},   // prohibit
+    {"component", required_argument, nullptr, 'C'},  // prohibit
 };
 
 /**
@@ -72,7 +75,7 @@ const vector<int> DEFAULT_INPUT_PERCENT = {
 
 const map<int, InputType> OPTION_INPUT_PERCENT = {
     {'a', INPUTTYPE_APPSWITCHINPUT},  // input appswitch event
-    {'e', INPUTTYPE_ELEMENTINPUT},    // input element event
+    {'C', INPUTTYPE_ELEMENTINPUT},    // input element event
     {'k', INPUTTYPE_KEYBOARDINPUT},   // input keyboard event
     {'S', INPUTTYPE_SWAPINPUT},       // input swap event
     {'m', INPUTTYPE_MOUSEINPUT},      // input mouse event
@@ -166,6 +169,7 @@ ErrCode RandomTestFlow::EnvInit()
         srand((unsigned int)tempSeed);
         seedArgs_ = (int)time(nullptr);
     }
+    Report::GetInstance()->SetSeed(std::to_string(seedArgs_));
     TEST_RUN_LOG(("Seed: " + std::to_string(seedArgs_)).c_str());
 
     // shuffle the event list.
@@ -228,6 +232,7 @@ ErrCode RandomTestFlow::RunStep()
     InputType eventTypeId = (InputType)(eventList_.at(eventindex));
     std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(eventTypeId);
     result = inputaction->RandomInput();
+    Report::GetInstance()->SyncInputInfo();
     usleep(intervalArgs_ * oneSecond_);
     return result;
 }
@@ -241,7 +246,8 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         case 'S':
         case 'k':
         case 'H':
-        case 'a': {
+        case 'a':
+        case 'C': {
             result = SetInputPercent(option);
             break;
         }
@@ -349,6 +355,7 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
         case 'H':
         case 'T':
         case 'm':
+        case 'C':
             // error: option 'x' requires a value.
             shellcommand_.ResultReceiverAppend("error: option '");
             shellcommand_.ResultReceiverAppend(string(1, optopt));
@@ -373,7 +380,7 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
 
 void RandomTestFlow::RandomShuffle(std::vector<int> &eventlist)
 {
-    for (int i = eventList_.size() - 1; i > 0; --i) {
+    for (uint32_t i = eventList_.size() - 1; i > 0; --i) {
         std::swap(eventList_[i], eventList_[std::rand() % (i + 1)]);
     }
 }

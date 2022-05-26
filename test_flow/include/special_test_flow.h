@@ -77,6 +77,12 @@ private:
      */
     ErrCode CheckPosition(std::vector<std::string> argumentlist);
 
+    /**
+     * @brief launcher app of component event
+     * @return return ERR_OK is valid, others is invalid.
+     */
+    ErrCode LauncherApp();
+
     uint32_t timerId_ = 0;
     int countArgs_ = 10;
 
@@ -94,6 +100,9 @@ private:
 
     // the list of the start point of swap
     std::vector<std::string> swapStartPoint_;
+
+    // the bundle of component event
+    std::vector<std::string> bundleName_;
 
     // the list of the end point of swap
     std::vector<std::string> swapEndPoint_;

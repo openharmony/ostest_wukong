@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef TEST_WUKONG_MULTIMODE_MANAGER_H
 #define TEST_WUKONG_MULTIMODE_MANAGER_H
 
@@ -21,7 +22,6 @@
 #include "input_manager.h"
 #include "singleton.h"
 #include "wukong_define.h"
-#include "wukong_util.h"
 
 namespace OHOS {
 namespace WuKong {

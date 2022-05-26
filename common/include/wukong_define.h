@@ -30,16 +30,16 @@ namespace WuKong {
 
 #define TRACK_LOG_STD() WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s START", __LINE__, __func__)
 #define TRACK_LOG_END() WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s END", __LINE__, __func__)
-#define TRACK_LOG_STR(format, ...) WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s : " #format, \
-                                                                      __LINE__, __func__, __VA_ARGS__)
-#define DEBUG_LOG_STR(format, ...) WuKongLogger::GetInstance()->Print(LOG_LEVEL_DEBUG, "DBG : (%5d) %s : " #format, \
-                                                                      __LINE__, __func__, __VA_ARGS__)
-#define INFO_LOG_STR(format, ...) WuKongLogger::GetInstance()->Print(LOG_LEVEL_INFO, "INF : (%5d) %s : " #format, \
-                                                                     __LINE__, __func__, __VA_ARGS__)
-#define WARN_LOG_STR(format, ...) WuKongLogger::GetInstance()->Print(LOG_LEVEL_WARN, "WRN : (%5d) %s : " #format, \
-                                                                     __LINE__, __func__, __VA_ARGS__)
-#define ERROR_LOG_STR(format, ...) WuKongLogger::GetInstance()->Print(LOG_LEVEL_ERROR, "ERR : (%5d) %s : " #format, \
-                                                                      __LINE__, __func__, __VA_ARGS__)
+#define TRACK_LOG_STR(format, ...) \
+    WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s : " #format, __LINE__, __func__, __VA_ARGS__)
+#define DEBUG_LOG_STR(format, ...) \
+    WuKongLogger::GetInstance()->Print(LOG_LEVEL_DEBUG, "DBG : (%5d) %s : " #format, __LINE__, __func__, __VA_ARGS__)
+#define INFO_LOG_STR(format, ...) \
+    WuKongLogger::GetInstance()->Print(LOG_LEVEL_INFO, "INF : (%5d) %s : " #format, __LINE__, __func__, __VA_ARGS__)
+#define WARN_LOG_STR(format, ...) \
+    WuKongLogger::GetInstance()->Print(LOG_LEVEL_WARN, "WRN : (%5d) %s : " #format, __LINE__, __func__, __VA_ARGS__)
+#define ERROR_LOG_STR(format, ...) \
+    WuKongLogger::GetInstance()->Print(LOG_LEVEL_ERROR, "ERR : (%5d) %s : " #format, __LINE__, __func__, __VA_ARGS__)
 #define TRACK_LOG(str) WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s : " #str, __LINE__, __func__)
 #define DEBUG_LOG(str) WuKongLogger::GetInstance()->Print(LOG_LEVEL_DEBUG, "DBG : (%5d) %s : " #str, __LINE__, __func__)
 #define INFO_LOG(str) WuKongLogger::GetInstance()->Print(LOG_LEVEL_INFO, "INF : (%5d) %s : " #str, __LINE__, __func__)

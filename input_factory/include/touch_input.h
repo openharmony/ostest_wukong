@@ -17,7 +17,9 @@
 #define TEST_WUKONG_TOUCH_INPUT_H
 
 #include <string>
+
 #include "input_action.h"
+
 namespace OHOS {
 namespace WuKong {
 class TouchInput : public InputAction {

@@ -30,10 +30,10 @@
 #include <thread>
 #include <unistd.h>
 
-#include "string_ex.h"
-#include "wukong_util.h"
 #include "securec.h"
+#include "string_ex.h"
 #include "wukong_define.h"
+#include "wukong_util.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -98,8 +98,10 @@ bool WuKongLogger::Start()
     logPrinter_.Start(LOGGER_THREAD_NAME);
 
     // wait print thread started.
-    std::unique_lock<std::mutex> lk(mtxThreadWait_);
-    cvWaitPrint_.wait(lk);
+    do {
+        std::unique_lock<std::mutex> lk(mtxThreadWait_);
+        cvWaitPrint_.wait(lk);
+    } while (false);
     return true;
 }
 
@@ -187,7 +189,7 @@ bool WuKongLogger::PrinterThread::Run()
         self->mtxQueue_.lock();
         // the buffer queue is empty and main wait stop, retrun this thread.
         if (self->bufferQueue_.empty() && !self->printerRunning_) {
-	    self->mtxQueue_.unlock();
+            self->mtxQueue_.unlock();
             break;
         }
         while (!self->bufferQueue_.empty()) {

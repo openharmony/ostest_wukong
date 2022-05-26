@@ -19,6 +19,7 @@
 #include <string>
 
 #include "input_action.h"
+#include "special_test_object.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -26,6 +27,8 @@ class AppswitchInput : public InputAction {
 public:
     AppswitchInput();
     ~AppswitchInput();
+
+    ErrCode OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject);
 
     /**
      * @brief started up a app by ability.
@@ -45,7 +48,7 @@ public:
      * @param index bundlelist's index.
      * @return Return ERR_OK on success， others on failure.
      */
-    ErrCode PrintResultOfStartAbility(const ErrCode result, int index);
+    ErrCode PrintResultOfStartAbility(const ErrCode result, uint32_t index);
 
 private:
     /**

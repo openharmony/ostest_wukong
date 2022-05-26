@@ -65,6 +65,11 @@ public:
      */
     void Print(LOG_LEVEL level, const char *format, ...);
 
+    LOG_LEVEL GetLogLevel()
+    {
+        return outputLevel_;
+    }
+
     DECLARE_DELAYED_SINGLETON(WuKongLogger);
 
 private:
@@ -85,7 +90,7 @@ private:
     LOG_LEVEL outputLevel_ = LOG_LEVEL_INFO;
 
     // current output setting
-    int outputType_ = STD_OUTPUT | FILE_OUTPUT | HILOG_OUTPUT;
+    uint32_t outputType_ = STD_OUTPUT | FILE_OUTPUT | HILOG_OUTPUT;
 
     // current process disk filename
     std::string logFileName_ = "";
@@ -95,7 +100,7 @@ private:
     std::queue<LogInfo> bufferQueue_;
 
     // log printer thread.
-    bool printerRunning_;
+    bool printerRunning_ = false;
     PrinterThread logPrinter_;
     std::mutex mtxThreadWait_;
     std::condition_variable cvWaitPrint_;

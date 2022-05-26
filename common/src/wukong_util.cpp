@@ -15,9 +15,7 @@
 
 #include "wukong_util.h"
 
-#include "accessibility_ui_test_ability.h"
 #include "display_manager.h"
-#include "event_monitor.h"
 #include "iservice_registry.h"
 #include "launcher_service.h"
 #include "string_ex.h"
@@ -25,7 +23,6 @@
 
 namespace OHOS {
 namespace WuKong {
-using namespace OHOS::Accessibility;
 using namespace std;
 const int userId = 100;
 
@@ -35,12 +32,11 @@ WuKongUtil::WuKongUtil()
     const int timeBufsize = 32;
     char fileNameBuf[timeBufsize] = {0};
     time_t currentTime = time(0);
-    int res = 0;
+    uint32_t res = 0;
+
     if (currentTime > 0) {
-        tm *timePtr = localtime(&currentTime);
-        if (timePtr) {
-            res = strftime(fileNameBuf, timeBufsize, "%Y%m%d_%H%M%S", timePtr);
-        }
+        tm* timePtr = localtime(&currentTime);
+    res = strftime(fileNameBuf, timeBufsize, "%Y%m%d_%H%M%S", timePtr);
     }
     if (res > 0) {
         startRunTime_ = std::string(fileNameBuf);
@@ -65,6 +61,13 @@ ErrCode WuKongUtil::GetAllAppInfo()
     std::vector<AppExecFwk::LauncherAbilityInfo> launcherAbilityInfos;
     launcherservice.GetAllLauncherAbilityInfos(userId, launcherAbilityInfos);
     for (auto item : launcherAbilityInfos) {
+        iconPath_ = item.applicationInfo.iconPath;
+        DEBUG_LOG_STR("iconPath: %s", item.applicationInfo.iconPath.c_str());
+        DEBUG_LOG_STR("codePath: %s", item.applicationInfo.codePath.c_str());
+        DEBUG_LOG_STR("dataDir: %s", item.applicationInfo.dataDir.c_str());
+        DEBUG_LOG_STR("dataBaseDir: %s", item.applicationInfo.dataBaseDir.c_str());
+        DEBUG_LOG_STR("cacheDir: %s", item.applicationInfo.cacheDir.c_str());
+        DEBUG_LOG_STR("entryDir: %s", item.applicationInfo.entryDir.c_str());
         std::string bundleName = item.elementName.GetBundleName();
         // store the list of all bundle names
         bundleList_.push_back(bundleName);
@@ -192,6 +195,11 @@ void WuKongUtil::GetScreenSize(int32_t &width, int32_t &height)
     }
     width = screenWidth_;
     height = screenHeight_;
+}
+
+void WuKongUtil::GetIconPath(std::string &iconpath)
+{
+    iconpath = iconPath_;
 }
 }  // namespace WuKong
 }  // namespace OHOS

@@ -17,8 +17,12 @@
 
 namespace OHOS {
 namespace WuKong {
-FormatHTML::FormatHTML() : Format() {}
-FormatHTML::~FormatHTML() {}
+FormatHTML::FormatHTML() : Format()
+{
+}
+FormatHTML::~FormatHTML()
+{
+}
 ErrCode FormatHTML::FormatDetail()
 {
     return OHOS::ERR_OK;

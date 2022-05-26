@@ -15,16 +15,28 @@
 
 #ifndef TEST_WUKONG_FILTER
 #define TEST_WUKONG_FILTER
+
+#include <map>
 #include <string>
+#include <vector>
 
 #include "wukong_define.h"
+
 namespace OHOS {
 namespace WuKong {
 class Filter {
 public:
     Filter();
     virtual ~Filter();
-    virtual ErrCode FilterDetail();
+    /*
+     * @brief filter algorithm implementation
+     * @param type contain event,componemnt type
+     * @param data source data with structure `k=>v`
+     * @param dataVector store filtered data
+     * @return
+     */
+    virtual void FilterDetail(std::string type, std::map<std::string, std::string> data,
+                              std::vector<std::map<std::string, std::string>> &dataVector);
 };
 }  // namespace WuKong
 }  // namespace OHOS
