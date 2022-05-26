@@ -187,6 +187,7 @@ bool WuKongLogger::PrinterThread::Run()
         self->mtxQueue_.lock();
         // the buffer queue is empty and main wait stop, retrun this thread.
         if (self->bufferQueue_.empty() && !self->printerRunning_) {
+	    self->mtxQueue_.unlock();
             break;
         }
         while (!self->bufferQueue_.empty()) {
