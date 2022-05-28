@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 
 wukong_root = "//test/wukong"
-aafwk_root = "//foundation/aafwk/standard"
+aafwk_root = "//foundation/ability/ability_runtime"
 
 config("wukong_common_config") {
   include_dirs = [ "//third_party/json/single_include/nlohmann" ]
