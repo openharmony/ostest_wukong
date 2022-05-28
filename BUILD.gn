@@ -83,7 +83,8 @@ ohos_executable("wukong") {
 
   include_dirs += accessibility_include_dirs
 
-  deps = [ "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager" ]
+  deps = [ "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
+           "//base/hiviewdfx/faultloggerd/interfaces/innerkits/signal_handler:dfx_signalhandler",]
 
   external_deps = [
     "ability_base:want",

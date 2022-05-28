@@ -19,6 +19,7 @@
 #include "string_ex.h"
 #include "wukong_define.h"
 #include "wukong_shell_command.h"
+#include "dfx_signal_handler.h"
 
 using namespace OHOS::WuKong;
 

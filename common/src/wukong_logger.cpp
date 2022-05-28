@@ -42,6 +42,7 @@ const std::string DEFAULT_DIR = "/data/local/wukong/log/";
 const std::string LOGGER_THREAD_NAME = "wukong_logger";
 const int LOG_CONTENT_LENGTH = 256;
 const int LOG_PRINTER_TIMEOUT = 500;
+std::mutex LOGBUFFER;
 }  // namespace
 
 WuKongLogger::WuKongLogger() : logPrinter_()
@@ -118,9 +119,11 @@ void WuKongLogger::Stop()
 
 void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
 {
+    LOGBUFFER.lock();
     char writeBuf[LOG_CONTENT_LENGTH] = {0};
     /* check logger_level */
     if (level < outputLevel_ && level < LOG_LEVEL_DEBUG) {
+        LOGBUFFER.unlock();
         return;
     }
     /* format output content */
@@ -129,6 +132,7 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
     int ret = vsnprintf_s(writeBuf, LOG_CONTENT_LENGTH, LOG_CONTENT_LENGTH, format, args);
     if (ret < 0) {
         va_end(args);
+        LOGBUFFER.unlock();
         return;
     }
     va_end(args);
@@ -142,7 +146,7 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
     if (outputLevel_ <= LOG_LEVEL_TRACK) {
         std::cout << logInfo.logStr_ << std::endl;
     }
-
+    LOGBUFFER.unlock();
     // push log to buffer queue.
     mtxQueue_.lock();
     bufferQueue_.push(logInfo);
@@ -187,7 +191,7 @@ bool WuKongLogger::PrinterThread::Run()
         self->mtxQueue_.lock();
         // the buffer queue is empty and main wait stop, retrun this thread.
         if (self->bufferQueue_.empty() && !self->printerRunning_) {
-	    self->mtxQueue_.unlock();
+	        self->mtxQueue_.unlock();
             break;
         }
         while (!self->bufferQueue_.empty()) {

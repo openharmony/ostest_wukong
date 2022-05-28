@@ -124,7 +124,7 @@ ErrCode RandomTestFlow::InitEventPercent()
 
     // check the sum percent more than 100%, and exit wukong.
     if (sumPercent > ONE_HUNDRED_PERCENT) {
-        shellcommand_.ResultReceiverAppend("requires a value.\n");
+        shellcommand_.ResultReceiverAppend("all event percentage more than 1, please reset params.\n");
         shellcommand_.ResultReceiverAppend(RANDOM_TEST_HELP_MSG);
         return OHOS::ERR_INVALID_VALUE;
     }

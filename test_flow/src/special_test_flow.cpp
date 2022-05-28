@@ -306,7 +306,10 @@ ErrCode SpecialTestFlow::CheckPosition(std::vector<std::string> argumentlist)
     std::string paramError = "the param of position is incorrect";
 
     // get the size of screen
-    WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
+    result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
     if (argumentlist.size() > 0) {
         if (stoi(argumentlist[0]) > screenWidth || stoi(argumentlist[1]) > screenHeight || stoi(argumentlist[0]) < 0 ||
             stoi(argumentlist[1]) < 0) {

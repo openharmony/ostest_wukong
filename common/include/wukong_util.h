@@ -90,8 +90,9 @@ public:
      * @brief get the size of screen.
      * @param width the width of screen.
      * @param height the height of screen.
+     * @return Return ERR_OK on success, others on failure.
      */
-    void GetScreenSize(int32_t &width, int32_t &height);
+    ErrCode GetScreenSize(int32_t &width, int32_t &height);
 
     /**
      * @brief get start run time string for report, log etc.
@@ -129,7 +130,8 @@ private:
     std::vector<std::string> validBundleList_;
     std::vector<std::string> validAbilityList_;
     std::vector<std::string> allowList_;
-    std::vector<std::string> blockList_;
+    std::vector<std::string> blockList_ = {"com.ohos.devicemanagerui", "com.ohos.screenlock",
+                                           "com.ohos.permissionmanager"};
     int32_t screenWidth_ = -1;
     int32_t screenHeight_ = -1;
     std::string startRunTime_;

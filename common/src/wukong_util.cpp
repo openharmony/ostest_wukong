@@ -182,16 +182,22 @@ void WuKongUtil::SetAllAppInfo(std::vector<std::string> &bundleList, std::vector
     abilityList_ = abilityList;
 }
 
-void WuKongUtil::GetScreenSize(int32_t &width, int32_t &height)
+ErrCode WuKongUtil::GetScreenSize(int32_t &width, int32_t &height)
 {
+    ErrCode result = OHOS::ERR_OK;
     if (screenWidth_ == -1 || screenHeight_ == -1) {
         OHOS::Rosen::DisplayManager &displayMgr = OHOS::Rosen::DisplayManager::GetInstance();
         sptr<OHOS::Rosen::Display> display = displayMgr.GetDefaultDisplay();
+        if (display == nullptr) {
+            ERROR_LOG("get screen size failed");
+            return OHOS::ERR_INVALID_VALUE;
+        }
         screenWidth_ = display->GetWidth();
         screenHeight_ = display->GetHeight();
     }
     width = screenWidth_;
     height = screenHeight_;
+    return result;
 }
 }  // namespace WuKong
 }  // namespace OHOS

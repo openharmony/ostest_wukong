@@ -36,7 +36,10 @@ ErrCode MouseInput::RandomInput()
     int32_t screenHeight = -1;
     int mouseType = MMI::PointerEvent::BUTTON_NONE;
     // get the size of screen
-    WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
+    result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
     // generate random point on the screen
     int xClickPosition = rand() % screenWidth;
     int yClickPosition = rand() % screenHeight;
