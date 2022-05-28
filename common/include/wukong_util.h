@@ -44,7 +44,7 @@ public:
      * @param key the key subscript in the bundle list.
      * @return tthe location of the key bundle in the bundlelist.
      */
-    int FindElement(std::vector<std::string> bundleList, std::string key);
+    uint32_t FindElement(std::vector<std::string> bundleList, std::string key);
 
     /**
      * @brief Set the Allow List.
@@ -96,8 +96,9 @@ public:
      * @brief get the size of screen.
      * @param width the width of screen.
      * @param height the height of screen.
+     * @return Return ERR_OK on success, others on failure.
      */
-    void GetScreenSize(int32_t &width, int32_t &height);
+    ErrCode GetScreenSize(int32_t &width, int32_t &height);
 
     /**
      * @brief get the icon path of app.

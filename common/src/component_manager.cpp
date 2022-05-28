@@ -132,7 +132,7 @@ bool ComponentManager::Connect()
         return false;
     }
     std::cout << "Start connect to AAMS" << std::endl;
-    if (!ability->Connect()) {
+    if (ability->Connect() != Accessibility::RET_OK) {
         std::cout << "Failed to connect to AAMS" << std::endl;
         return false;
     }

@@ -27,7 +27,7 @@ const int NUMBER_TWO = 2;
 
 void StatisticsComponment::StatisticsDetail
                             (vector<map<string, string>> srcDatas,
-                            map<string, shared_ptr<Table>> &destTables)
+                             map<string, shared_ptr<Table>> &destTables)
 {
     if (!SrcDatasPreprocessing(srcDatas)) {
         return;
@@ -82,7 +82,7 @@ void StatisticsComponment::StatisticsDetail
             int ExpectInputTimes = atoi(coverages_[app][*componmentsIter_].at(1).c_str());
             countExpectInputTimes += ExpectInputTimes;
             line.push_back(to_string(ExpectInputTimes));
-            if (!ExpectInputTimes) {
+            if (ExpectInputTimes != 0) {
                 float coverage = (inputedTimes * 100.0) / ExpectInputTimes;
             bufferStream.str("");
             bufferStream << setiosflags(ios::fixed) << setprecision(NUMBER_TWO) << coverage;
@@ -144,7 +144,7 @@ bool StatisticsComponment::SrcDatasPreprocessing(std::vector<std::map<std::strin
         coveratgeDetail.push_back((*srcDatasIter)["inputedTimes"]);
         coveratgeDetail.push_back((*srcDatasIter)["componmentTotals"]);
         coverages_[app][componment] = coveratgeDetail;
-        appRecord.insert({ componment, "componment" });
+        appRecord.insert( { componment, "componment" } );
         appContainer_[app] = appRecord;
         componmentsIter_ = find(componments_.begin(), componments_.end(), componment);
         if (componmentsIter_ == componments_.end()) {

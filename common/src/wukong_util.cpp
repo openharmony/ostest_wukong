@@ -25,7 +25,7 @@ namespace OHOS {
 namespace WuKong {
 using namespace std;
 const int userId = 100;
-
+const uint32_t INVALIDVALUE = 0xFFFFFFFF;
 WuKongUtil::WuKongUtil()
 {
     TRACK_LOG_STD();
@@ -72,8 +72,8 @@ ErrCode WuKongUtil::GetAllAppInfo()
         // store the list of all bundle names
         bundleList_.push_back(bundleName);
         abilityList_.push_back(item.elementName.GetAbilityName());
-        int isInBlockList = FindElement(blockList_, bundleName);
-        if (isInBlockList != -1) {
+        uint32_t isInBlockList = FindElement(blockList_, bundleName);
+        if (isInBlockList != INVALIDVALUE) {
             continue;
         }
         // store the list of bundle names except for block list
@@ -92,13 +92,13 @@ void WuKongUtil::GetBundleList(std::vector<std::string> &bundlelist, std::vector
     abilitylist = abilityList_;
 }
 
-int WuKongUtil::FindElement(std::vector<std::string> bundleList, std::string key)
+uint32_t WuKongUtil::FindElement(std::vector<std::string> bundleList, std::string key)
 {
     auto it = find(bundleList.begin(), bundleList.end(), key);
     if (it != bundleList.end()) {
         return distance(bundleList.begin(), it);
     }
-    return -1;
+    return INVALIDVALUE;
 }
 
 ErrCode WuKongUtil::CheckBundleNameList()
@@ -119,8 +119,8 @@ ErrCode WuKongUtil::CheckArgumentList(std::vector<std::string> &arguments)
     ErrCode result = OHOS::ERR_OK;
     GetAllAppInfo();
     for (unsigned int i = 0; i < arguments.size(); i++) {
-        int index = FindElement(bundleList_, arguments[i]);
-        if (index == -1) {
+        uint32_t index = FindElement(bundleList_, arguments[i]);
+        if (index == INVALIDVALUE) {
             ERROR_LOG_STR("bundle name '%s' is not be included in all bundles", arguments[i].c_str());
             result = OHOS::ERR_INVALID_VALUE;
         }
@@ -185,16 +185,22 @@ void WuKongUtil::SetAllAppInfo(std::vector<std::string> &bundleList, std::vector
     abilityList_ = abilityList;
 }
 
-void WuKongUtil::GetScreenSize(int32_t &width, int32_t &height)
+ErrCode WuKongUtil::GetScreenSize(int32_t &width, int32_t &height)
 {
+    ErrCode result = OHOS::ERR_OK;
     if (screenWidth_ == -1 || screenHeight_ == -1) {
         OHOS::Rosen::DisplayManager &displayMgr = OHOS::Rosen::DisplayManager::GetInstance();
         sptr<OHOS::Rosen::Display> display = displayMgr.GetDefaultDisplay();
+        if (display == nullptr) {
+            ERROR_LOG("get screen size failed");
+            return OHOS::ERR_NO_INIT;
+        }
         screenWidth_ = display->GetWidth();
         screenHeight_ = display->GetHeight();
     }
     width = screenWidth_;
     height = screenHeight_;
+    return result;
 }
 
 void WuKongUtil::GetIconPath(std::string &iconpath)

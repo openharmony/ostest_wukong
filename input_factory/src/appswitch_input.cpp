@@ -42,9 +42,12 @@ ErrCode AppswitchInput::OrderInput(std::shared_ptr<SpcialTestObject>& specialTes
     std::vector<std::string> bundleList;
     std::vector<std::string> abilityList;
     auto util = WuKongUtil::GetInstance();
-    uint32_t index = INVALIDVALUE;
     util->GetBundleList(bundleList, abilityList);
-    index = util->FindElement(bundleList, bundlename);
+    uint32_t index = util->FindElement(bundleList, bundlename);
+    if (index == INVALIDVALUE) {
+        ERROR_LOG("not found bundle");
+        return OHOS::ERR_INVALID_VALUE;
+    }
     // start ability through bundle information
     result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
     // print the result of start event
@@ -59,6 +62,10 @@ ErrCode AppswitchInput::RandomInput()
     std::vector<std::string> abilityList;
     WuKongUtil::GetInstance()->GetBundleList(bundleList, abilityList);
     uint32_t index = GetAbilityIndex(bundleList);
+    if (index == INVALIDVALUE) {
+        ERROR_LOG("not found bundle");
+        return OHOS::ERR_INVALID_VALUE;
+    }
     // start ability through bundle information
     result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
     // print the result of start event
@@ -88,7 +95,7 @@ ErrCode AppswitchInput::GetInputInfo()
     return OHOS::ERR_OK;
 }
 
-int AppswitchInput::GetAbilityIndex(std::vector<std::string> &bundlelist)
+uint32_t AppswitchInput::GetAbilityIndex(std::vector<std::string> &bundlelist)
 {
     uint32_t index = INVALIDVALUE;
     std::vector<std::string> allowlist;

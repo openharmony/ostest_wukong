@@ -57,7 +57,7 @@ private:
      * @param index index of ability name in ability name list.
      * @return Return ERR_OK on success,others on failure.
      */
-    int GetAbilityIndex(std::vector<std::string> &bundleList);
+    uint32_t GetAbilityIndex(std::vector<std::string> &bundleList);
 };
 }  // namespace WuKong
 }  // namespace OHOS

@@ -80,7 +80,7 @@ public:
     {
         char buffer[50];
         int result = sprintf_s(buffer, sizeof(buffer), "Point: (%d, %d)", x_, y_);
-        if (result < 0) {
+        if (result == -1) {
             return SpcialTestObject::toString();
         }
         return std::string(buffer);

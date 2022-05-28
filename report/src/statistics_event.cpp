@@ -61,7 +61,7 @@ void StatisticsEvent::StatisticsDetail
             }
             execTimes += appRecord.count(*eventsIter_);
             line.push_back(to_string(execTimes));
-            if (!countExecTimes) {
+            if (countExecTimes != 0) {
                 float proportion = (execTimes * 100.0) / countExecTimes;
             bufferStream.str("");
             bufferStream << setiosflags(ios::fixed) << setprecision(NUMBER_TWO) << proportion;
@@ -130,7 +130,7 @@ bool StatisticsEvent::SrcDatasPreprocessing(std::vector<std::map<std::string, st
             return false;
         }
         event = (*srcDatasIter)["event"];
-        appRecord.insert({ event, "event" });
+        appRecord.insert( { event, "event" } );
         appContainer_[app] = appRecord;
         eventsIter_ = find(events_.begin(), events_.end(), event);
         if (eventsIter_ == events_.end()) {

@@ -134,14 +134,17 @@ void TestFlow::Stop(OHOS::ErrCode code)
 {
     isFinished_ = true;
 }
-void TestFlow::OnStatusUpdated(ComponentStatus stutus) { 
-    DEBUG_LOG_STR("Component Status: (%d)", stutus); 
+void TestFlow::OnStatusUpdated(ComponentStatus stutus)
+{
+    DEBUG_LOG_STR("Component Status: (%d)" , stutus);
 }
+
 void TestFlow::OnScreenUpdated()
 {
     TRACK_LOG_STD();
     TRACK_LOG_END();
 }
+
 void TestFlow::OnPermissionScreenShown()
 {
     TRACK_LOG_STD();
