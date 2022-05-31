@@ -14,10 +14,11 @@
  */
 
 #include "mouse_input.h"
+
+#include "input_info.h"
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
-#include "input_info.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -26,9 +27,13 @@ const int oneHundred = 100;
 const int mouseRightPercent = 20;
 const int mouseMidPercent = 10;
 }  // namespace
-MouseInput::MouseInput() : InputAction() {}
+MouseInput::MouseInput() : InputAction()
+{
+}
 
-MouseInput::~MouseInput() {}
+MouseInput::~MouseInput()
+{
+}
 
 ErrCode MouseInput::RandomInput()
 {
@@ -53,12 +58,18 @@ ErrCode MouseInput::RandomInput()
     } else {
         mouseType = MMI::PointerEvent::MOUSE_BUTTON_LEFT;
     }
-    INFO_LOG_STR("Mouse: (%d, %d) Mouse Type: (%s)",
-                 xClickPosition, yClickPosition, MouseTypeToString(mouseType).c_str());
+    INFO_LOG_STR("Mouse: (%d, %d) Mouse Type: (%s)", xClickPosition, yClickPosition,
+                 MouseTypeToString(mouseType).c_str());
     auto multiinput = MultimodeManager::GetInstance();
     result =
         multiinput->PointerInput(xClickPosition, yClickPosition, mouseType, MMI::PointerEvent::POINTER_ACTION_DOWN);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
     result = multiinput->PointerInput(xClickPosition, yClickPosition, mouseType, MMI::PointerEvent::POINTER_ACTION_UP);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
     std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
     inputInfo->SetInputType(INPUTTYPE_MOUSEINPUT);
     return result;

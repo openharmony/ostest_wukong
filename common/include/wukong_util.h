@@ -143,9 +143,8 @@ private:
     std::vector<std::string> validBundleList_;
     std::vector<std::string> validAbilityList_;
     std::vector<std::string> allowList_;
-    std::vector<std::string> blockList_ = { "com.ohos.devicemanagerui",
-                                            "com.ohos.screenlock",
-                                            "com.ohos.permissionmanager" };
+    std::vector<std::string> blockList_ = {"com.ohos.devicemanagerui", "com.ohos.screenlock",
+                                           "com.ohos.permissionmanager"};
     int32_t screenWidth_ = -1;
     int32_t screenHeight_ = -1;
 

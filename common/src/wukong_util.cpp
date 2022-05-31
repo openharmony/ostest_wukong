@@ -35,8 +35,8 @@ WuKongUtil::WuKongUtil()
     uint32_t res = 0;
 
     if (currentTime > 0) {
-        tm* timePtr = localtime(&currentTime);
-    res = strftime(fileNameBuf, timeBufsize, "%Y%m%d_%H%M%S", timePtr);
+        tm *timePtr = localtime(&currentTime);
+        res = strftime(fileNameBuf, timeBufsize, "%Y%m%d_%H%M%S", timePtr);
     }
     if (res > 0) {
         startRunTime_ = std::string(fileNameBuf);
@@ -193,7 +193,7 @@ ErrCode WuKongUtil::GetScreenSize(int32_t &width, int32_t &height)
         sptr<OHOS::Rosen::Display> display = displayMgr.GetDefaultDisplay();
         if (display == nullptr) {
             ERROR_LOG("get screen size failed");
-            return OHOS::ERR_NO_INIT;
+            return OHOS::ERR_INVALID_VALUE;
         }
         screenWidth_ = display->GetWidth();
         screenHeight_ = display->GetHeight();

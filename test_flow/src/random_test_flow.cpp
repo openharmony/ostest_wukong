@@ -18,8 +18,8 @@
 #include <string>
 
 #include "input_factory.h"
-#include "wukong_define.h"
 #include "report.h"
+#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -94,7 +94,8 @@ bool g_commandCOUNTENABLE = false;
 using namespace std;
 
 RandomTestFlow::RandomTestFlow(WuKongShellCommand &shellcommand)
-    : TestFlow(shellcommand), inputPercent_(INPUTTYPE_INVALIDINPUT, 0)
+    : TestFlow(shellcommand),
+      inputPercent_(INPUTTYPE_INVALIDINPUT, 0)
 {
 }
 
@@ -257,7 +258,7 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         }
         case 'c': {
             // check if the '-c' and 'T' is exist at the same time
-            CheckArgument(option);
+            result = CheckArgument(option);
             break;
         }
         case 'h': {
@@ -278,7 +279,7 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         }
         case 'T': {
             // check if the '-c' and 'T' is exist at the same time
-            CheckArgument(option);
+            result = CheckArgument(option);
             break;
         }
         case 'p': {

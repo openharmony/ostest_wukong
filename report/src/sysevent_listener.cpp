@@ -34,18 +34,23 @@ using OHOS::HiviewDFX::HiSysEvent;
 
 namespace {
 template <typename ValueType>
-void ValueGet(const json& jsonData, std::string&& key, ValueType& data)
+void ValueGet(const json& jsonData, const std::string& key, const json::value_t vt, ValueType& data)
 {
-    const ValueType* valuePtr = jsonData[key].get<const ValueType*>();
-    if (valuePtr != nullptr) {
-        data = *valuePtr;
+    TRACK_LOG_STD();
+    if (jsonData.contains(key)) {
+        if (vt == jsonData[key].type()) {
+            ValueType value = jsonData[key].get<ValueType>();
+            data = value;
+        }
     }
+    TRACK_LOG_END();
 }
 }  // namespace
 
 void SysEventListener::OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
                                 const std::string& eventDetail)
 {
+    TRACK_LOG_STD();
     TRACK_LOG("----------Exception caught----------");
     WARN_LOG_STR("domain: %s", domain.c_str());
     TRACK_LOG_STR("eventName: %s", eventName.c_str());
@@ -76,17 +81,14 @@ void SysEventListener::OnHandle(const std::string& domain, const std::string& ev
     if (jsonData == json::value_t::discarded) {
         ERROR_LOG_STR("event detail parse error, the content: %s", eventDetail.c_str());
     } else {
-        ValueGet<uint64_t>(jsonData, "time_", data.time);
-        ValueGet<std::string>(jsonData, "tz_", data.timeZone);
-        ValueGet<uint64_t>(jsonData, "pid_", data.pid);
-        ValueGet<uint64_t>(jsonData, "tid_", data.tid);
-        ValueGet<uint64_t>(jsonData, "uid_", data.uid);
-        ValueGet<uint64_t>(jsonData, "traceid_", data.traceId);
-        ValueGet<uint64_t>(jsonData, "spanid_", data.spanId);
-        ValueGet<uint64_t>(jsonData, "pspanid_", data.pspanId);
-        ValueGet<uint64_t>(jsonData, "trace_flag_", data.traceFlag);
+        ValueGet<uint64_t>(jsonData, "time_", json::value_t::number_unsigned, data.time);
+        ValueGet<std::string>(jsonData, "tz_", json::value_t::string, data.timeZone);
+        ValueGet<uint64_t>(jsonData, "pid_", json::value_t::number_unsigned, data.pid);
+        ValueGet<uint64_t>(jsonData, "tid_", json::value_t::number_unsigned, data.tid);
+        ValueGet<uint64_t>(jsonData, "uid_", json::value_t::number_unsigned, data.uid);
     }
     CsvUtils::WriteOneLine(csvFile, data);
+    TRACK_LOG_END();
 }
 void SysEventListener::OnServiceDied()
 {

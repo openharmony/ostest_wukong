@@ -42,6 +42,7 @@ const std::string DEFAULT_DIR = "/data/local/wukong/log/";
 const std::string LOGGER_THREAD_NAME = "wukong_logger";
 const int LOG_CONTENT_LENGTH = 256;
 const int LOG_PRINTER_TIMEOUT = 500;
+std::mutex LOGBUFFER;
 }  // namespace
 
 WuKongLogger::WuKongLogger() : logPrinter_()
@@ -69,14 +70,13 @@ bool WuKongLogger::Start()
         std::cout << "Logger::Start" << std::endl;
     }
     if (logFileName_.empty()) {
-        DIR *rootDir = nullptr;
         std::string dirStr = "/";
         std::vector<std::string> strs;
         OHOS::SplitStr(DEFAULT_DIR, "/", strs);
         for (auto str : strs) {
             dirStr.append(str);
             dirStr.append("/");
-            if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
+            if (opendir(dirStr.c_str()) == nullptr) {
                 int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
                 if (ret != 0) {
                     std::cerr << "failed to create dir: " << DEFAULT_DIR << std::endl;
@@ -120,9 +120,11 @@ void WuKongLogger::Stop()
 
 void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
 {
+    LOGBUFFER.lock();
     char writeBuf[LOG_CONTENT_LENGTH] = {0};
     /* check logger_level */
     if (level < outputLevel_ && level < LOG_LEVEL_DEBUG) {
+        LOGBUFFER.unlock();
         return;
     }
     /* format output content */
@@ -131,6 +133,7 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
     int ret = vsnprintf_s(writeBuf, LOG_CONTENT_LENGTH, LOG_CONTENT_LENGTH, format, args);
     if (ret < 0) {
         va_end(args);
+        LOGBUFFER.unlock();
         return;
     }
     va_end(args);
@@ -144,7 +147,7 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
     if (outputLevel_ <= LOG_LEVEL_TRACK) {
         std::cout << logInfo.logStr_ << std::endl;
     }
-
+    LOGBUFFER.unlock();
     // push log to buffer queue.
     mtxQueue_.lock();
     bufferQueue_.push(logInfo);

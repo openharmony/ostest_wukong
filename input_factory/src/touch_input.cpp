@@ -14,16 +14,21 @@
  */
 
 #include "touch_input.h"
+
+#include "input_info.h"
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
-#include "input_info.h"
 
 namespace OHOS {
 namespace WuKong {
-TouchInput::TouchInput() : InputAction() {}
+TouchInput::TouchInput() : InputAction()
+{
+}
 
-TouchInput::~TouchInput() {}
+TouchInput::~TouchInput()
+{
+}
 
 ErrCode TouchInput::OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
@@ -38,6 +43,9 @@ ErrCode TouchInput::OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObj
     auto multiinput = MultimodeManager::GetInstance();
     result = multiinput->PointerInput(touchX, touchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_DOWN);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
     result = multiinput->PointerInput(touchX, touchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_UP);
     INFO_LOG_STR("Touch: (%d, %d)", touchX, touchY);
@@ -58,8 +66,14 @@ ErrCode TouchInput::RandomInput()
     auto multiinput = MultimodeManager::GetInstance();
     result = multiinput->PointerInput(touchX, touchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_DOWN);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
     result = multiinput->PointerInput(touchX, touchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_UP);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
     std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
     inputInfo->SetInputType(INPUTTYPE_TOUCHINPUT);
     INFO_LOG_STR("Touch: (%d, %d)", touchX, touchY);

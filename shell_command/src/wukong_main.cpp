@@ -50,8 +50,12 @@ static void InitSemaphore(WukongSemaphore& sem, const int count)
         DEBUG_LOG("Open Semaphore success");
         value = sem.GetValue();
         if (value > count) {
-            DEBUG_LOG_STR("the semaphore value is unvalid (%d), and reopen Semaphore", value);
+            DEBUG_LOG_STR("the semaphore value is invalid (%d), and reopen Semaphore", value);
             res = sem.Create();
+            if (!res) {
+                ERROR_LOG("creat sem failed");
+                return;
+            }
         } else {
             DEBUG_LOG_STR("Semaphore Value: (%d)", value);
         }

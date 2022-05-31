@@ -124,6 +124,9 @@ ErrCode MultimodeManager::IntervalSwap(int xSrcPosition, int ySrcPosition, int x
     auto multiinput = MultimodeManager::GetInstance();
     result = multiinput->PointerInput(xSrcPosition, ySrcPosition, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_DOWN);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
     usleep(sleepTime);
     int segment = 50;
     float secX = (xDstPosition - xSrcPosition) / (float)segment;
@@ -134,6 +137,9 @@ ErrCode MultimodeManager::IntervalSwap(int xSrcPosition, int ySrcPosition, int x
         int mPosY = int(ySrcPosition + secY * i);
         result = multiinput->PointerInput(mPosX, mPosY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                           MMI::PointerEvent::POINTER_ACTION_MOVE);
+        if (result != OHOS::ERR_OK) {
+            return result;
+        }
         usleep(sleepTime);
     }
     result = multiinput->PointerInput(xDstPosition, yDstPosition, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
