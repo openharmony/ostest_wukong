@@ -16,14 +16,12 @@
 #include "statistics_componment.h"
 
 #include <sstream>
-#include <string>
-#include <iostream>
-#include <stdio.h>
 
 namespace OHOS {
 namespace WuKong {
 using namespace std;
 const int NUMBER_TWO = 2;
+const float ONE_HUNDRED_PERCENT = 100;
 
 void StatisticsComponment::StatisticsDetail
                             (vector<map<string, string>> srcDatas,
@@ -68,11 +66,14 @@ void StatisticsComponment::StatisticsDetail
             }
             execTimes += appRecord.count(*componmentsIter_);
             line.push_back(to_string(execTimes));
-            if (!countExecTimes) {
-                float proportion = (execTimes * 100.0) / countExecTimes;
+            if (countExecTimes <= 0 && execTimes <= 0)
+            {
+                ERROR_LOG("statistics error.");
+                return;
+            }
+                float proportion = (execTimes * ONE_HUNDRED_PERCENT) / countExecTimes;
             bufferStream.str("");
             bufferStream << setiosflags(ios::fixed) << setprecision(NUMBER_TWO) << proportion;
-            }
             string proportionStr = bufferStream.str() + "%";
             line.push_back(proportionStr);
             std::map<std::string, std::vector<std::string>> tmpInput;
@@ -83,7 +84,7 @@ void StatisticsComponment::StatisticsDetail
             countExpectInputTimes += ExpectInputTimes;
             line.push_back(to_string(ExpectInputTimes));
             if (ExpectInputTimes != 0) {
-                float coverage = (inputedTimes * 100.0) / ExpectInputTimes;
+                float coverage = (inputedTimes * ONE_HUNDRED_PERCENT) / ExpectInputTimes;
             bufferStream.str("");
             bufferStream << setiosflags(ios::fixed) << setprecision(NUMBER_TWO) << coverage;
             }
@@ -144,7 +145,7 @@ bool StatisticsComponment::SrcDatasPreprocessing(std::vector<std::map<std::strin
         coveratgeDetail.push_back((*srcDatasIter)["inputedTimes"]);
         coveratgeDetail.push_back((*srcDatasIter)["componmentTotals"]);
         coverages_[app][componment] = coveratgeDetail;
-        appRecord.insert( { componment, "componment" } );
+        appRecord.insert({componment, "componment" });
         appContainer_[app] = appRecord;
         componmentsIter_ = find(componments_.begin(), componments_.end(), componment);
         if (componmentsIter_ == componments_.end()) {

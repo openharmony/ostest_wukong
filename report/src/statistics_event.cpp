@@ -15,9 +15,6 @@
 #include "statistics_event.h"
 
 #include <sstream>
-#include <string>
-#include <iostream>
-#include <stdio.h>
 
 namespace OHOS {
 namespace WuKong {
@@ -26,7 +23,7 @@ const int NUMBER_TWO = 2;
 
 void StatisticsEvent::StatisticsDetail
                         (vector<map<string, string>> srcDatas,
-                        map<string, shared_ptr<Table>> &destTables)
+                         map<string, shared_ptr<Table>> &destTables)
 {
     if (!SrcDatasPreprocessing(srcDatas)) {
         return;
@@ -130,7 +127,7 @@ bool StatisticsEvent::SrcDatasPreprocessing(std::vector<std::map<std::string, st
             return false;
         }
         event = (*srcDatasIter)["event"];
-        appRecord.insert( { event, "event" } );
+        appRecord.insert({event, "event" } );
         appContainer_[app] = appRecord;
         eventsIter_ = find(events_.begin(), events_.end(), event);
         if (eventsIter_ == events_.end()) {
