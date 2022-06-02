@@ -27,7 +27,7 @@ class ComponentTree : public WuKongTree {
 public:
     ComponentTree() : WuKongTree(), expectedInputCount_(0)
     {
-        inputTypeCountMap_.empty();
+        inputTypeCountMap_.clear();
     }
     virtual ~ComponentTree()
     {
