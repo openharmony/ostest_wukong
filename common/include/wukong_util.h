@@ -25,11 +25,6 @@
 
 namespace OHOS {
 namespace WuKong {
-/**
- * @brief reference the NamedSemaphore for the process lock function
- */
-typedef NamedSemaphore WukongSemaphore;
-
 class WuKongUtil : public DelayedSingleton<WuKongUtil> {
 public:
     /**
@@ -150,6 +145,63 @@ private:
 
     std::string startRunTime_;
 };
+
+class WukongSemaphore {
+public:
+    WukongSemaphore(const std::string &name, size_t size) : name_(name)
+    {
+        maxCount_ = 0;
+    }
+    ~WukongSemaphore()
+    {
+    }
+
+    bool Create()
+    {
+        return true;
+    }
+    bool Unlink()
+    {
+        return true;
+    }
+
+    bool Open()
+    {
+        return true;
+    }
+    bool Close()
+    {
+        return true;
+    }
+
+    bool Wait()
+    {
+        return true;
+    }
+    bool TryWait()
+    {
+        return true;
+    }
+    bool TimedWait(const struct timespec &ts)
+    {
+        return true;
+    }
+    bool Post()
+    {
+        return true;
+    }
+
+    int GetValue() const
+    {
+        return maxCount_;
+    }
+
+private:
+    std::string name_;
+    int maxCount_;
+};
+
+typedef WukongSemaphore NamedSemaphore;
 }  // namespace WuKong
 }  // namespace OHOS
 #endif  // TEST_WUKONG_UTIL_H
