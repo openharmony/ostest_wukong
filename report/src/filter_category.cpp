@@ -28,10 +28,14 @@ FilterCategory::~FilterCategory()
 void FilterCategory::FilterDetail(std::string type, std::map<std::string, std::string> data,
                                   std::vector<std::map<std::string, std::string>> &dataVector)
 {
-    std::map<std::string, std::string>::iterator it = data.find(type);
+    DEBUG_LOG_STR("filter by category{%s}", type.c_str());
+    std::map<std::string, std::string>::iterator it;
+    it = data.find(type);
     if ((it != data.end()) && (!it->second.empty())) {
+        DEBUG_LOG("record data");
         dataVector.push_back(data);
     }
 }
+
 }  // namespace WuKong
 }  // namespace OHOS

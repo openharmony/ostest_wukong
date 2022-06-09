@@ -24,19 +24,45 @@ namespace OHOS {
 namespace WuKong {
 class PageTree : public WuKongTree {
 public:
-    PageTree() : WuKongTree(), validCount_(0), invalidCount_(0), count_(0)
+    PageTree() : WuKongTree(), validComponentCount_(0), allComponentCount_(0)
     {
     }
     virtual ~PageTree()
     {
+        TRACK_LOG_STR("Node (0x%016llX)", !parent_.expired(), nodeId_);
+    }
+
+    void SetValidComponentCount(uint32_t count)
+    {
+        validComponentCount_ = count;
+    }
+    void SetAllComponentCount(uint32_t count)
+    {
+        allComponentCount_ = count;
+    }
+    uint32_t GetValidComponentCount()
+    {
+        return validComponentCount_;
+    }
+    uint32_t GetAllComponentCount()
+    {
+        return allComponentCount_;
+    }
+    const std::shared_ptr<ComponentTree>& GetCurrentComponentNode()
+    {
+        return inputElementInfo_;
     }
 
 private:
     friend class TreeManager;
     virtual bool SetNodeId() override;
-
-    uint32_t validCount_;
-    uint32_t invalidCount_;
+    void SetCurrentComponentNode(const std::shared_ptr<ComponentTree>& info)
+    {
+        inputElementInfo_ = info;
+    }
+    std::shared_ptr<ComponentTree> inputElementInfo_;
+    uint32_t validComponentCount_;
+    uint32_t allComponentCount_;
     uint32_t count_;
 };
 }  // namespace WuKong

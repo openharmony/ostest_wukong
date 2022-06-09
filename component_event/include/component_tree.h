@@ -27,10 +27,22 @@ class ComponentTree : public WuKongTree {
 public:
     ComponentTree() : WuKongTree(), expectedInputCount_(0)
     {
+        type_.clear();
         inputTypeCountMap_.clear();
     }
     virtual ~ComponentTree()
     {
+        // TRACK_LOG_STR("End index (%u), nodeId (0x%016llX),  inputCount (%u)", index_, nodeId_, inputCount_);
+    }
+
+    const std::string& GetType()
+    {
+        return type_;
+    }
+
+    bool IsVisible()
+    {
+        return isVisible_;
     }
 private:
     friend class TreeManager;
@@ -45,6 +57,8 @@ private:
             inputTypeCountMap_[type] = 1;
         }
     }
+    bool isVisible_ = false;
+    std::string type_;
     uint32_t expectedInputCount_;
     std::map<uint32_t, uint32_t> inputTypeCountMap_;
 };

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_STATISTICS
-#define TEST_WUKONG_STATISTICS
+#ifndef TEST_WUKONG_STATISTICS_H
+#define TEST_WUKONG_STATISTICS_H
 
 #include <map>
 #include <memory>
@@ -22,8 +22,10 @@
 
 #include "table.h"
 #include "wukong_define.h"
+
 namespace OHOS {
 namespace WuKong {
+
 class Statistics {
 public:
     Statistics();

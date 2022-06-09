@@ -15,15 +15,71 @@
 
 #include "wukong_util.h"
 
+#include <dirent.h>
+#include <memory.h>
+#include <sys/stat.h>
+
 #include "display_manager.h"
+#include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "launcher_service.h"
+#include "png.h"
 #include "string_ex.h"
+#include "system_ability_definition.h"
 #include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
+namespace {
+const std::string DEFAULT_DIR = "/data/local/wukong/report/";
+bool TakeWuKongScreenCap(std::string wkScreenPath)
+{
+    // get PixelMap from DisplayManager API
+    Rosen::DisplayManager &displayMgr = Rosen::DisplayManager::GetInstance();
+    std::shared_ptr<Media::PixelMap> pixelMap = displayMgr.GetScreenshot(displayMgr.GetDefaultDisplayId());
+    static constexpr int bitmapDepth = 8;
+    auto width = static_cast<uint32_t>(pixelMap->GetWidth());
+    auto height = static_cast<uint32_t>(pixelMap->GetHeight());
+    auto data = pixelMap->GetPixels();
+    auto stride = static_cast<uint32_t>(pixelMap->GetRowBytes());
+    if (pixelMap == nullptr) {
+        DEBUG_LOG("Failed to get display pixelMap");
+        return false;
+    }
+    png_structp pngStruct = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (pngStruct == nullptr) {
+        DEBUG_LOG("error: png_create_write_struct nullptr!");
+        return false;
+    }
+    png_infop pngInfo = png_create_info_struct(pngStruct);
+    if (pngInfo == nullptr) {
+        DEBUG_LOG("error: png_create_info_struct error nullptr!");
+        png_destroy_write_struct(&pngStruct, nullptr);
+        return false;
+    }
+    FILE *fp = fopen(wkScreenPath.c_str(), "wb");
+    if (fp == nullptr) {
+        DEBUG_LOG("error: open file error!");
+        png_destroy_write_struct(&pngStruct, &pngInfo);
+        return false;
+    }
+    png_init_io(pngStruct, fp);
+    png_set_IHDR(pngStruct, pngInfo, width, height, bitmapDepth, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+    png_set_packing(pngStruct);          // set packing info
+    png_write_info(pngStruct, pngInfo);  // write to header
+    for (uint32_t i = 0; i < height; i++) {
+        png_write_row(pngStruct, data + (i * stride));
+    }
+    png_write_end(pngStruct, pngInfo);
+    // free
+    png_destroy_write_struct(&pngStruct, &pngInfo);
+    (void)fclose(fp);
+    return true;
+}
+}  // namespace
 using namespace std;
+using namespace OHOS::AppExecFwk;
 const int userId = 100;
 const uint32_t INVALIDVALUE = 0xFFFFFFFF;
 WuKongUtil::WuKongUtil()
@@ -36,12 +92,35 @@ WuKongUtil::WuKongUtil()
 
     if (currentTime > 0) {
         tm *timePtr = localtime(&currentTime);
+        if (timePtr == nullptr) {
+            ERROR_LOG("timePtr is nullptr");
+            return;
+        }
         res = strftime(fileNameBuf, timeBufsize, "%Y%m%d_%H%M%S", timePtr);
     }
     if (res > 0) {
         startRunTime_ = std::string(fileNameBuf);
     } else {
         startRunTime_ = "unvalid_time";
+    }
+    curDir_ = DEFAULT_DIR + startRunTime_ + "/";
+    DEBUG_LOG_STR("common dir{%s}", curDir_.c_str());
+    DIR *rootDir = nullptr;
+    std::string dirStr = "/";
+    std::vector<std::string> strs;
+    OHOS::SplitStr(curDir_, "/", strs);
+    bool dirStatus = true;
+    for (auto str : strs) {
+        dirStr.append(str);
+        dirStr.append("/");
+        if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
+            int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
+            if (ret != 0) {
+                dirStatus = false;
+                std::cerr << "failed to create dir: " << curDir_ << std::endl;
+                break;
+            }
+        }
     }
     DEBUG_LOG_STR("%s", startRunTime_.c_str());
     TRACK_LOG_END();
@@ -58,8 +137,14 @@ WuKongUtil::~WuKongUtil()
 ErrCode WuKongUtil::GetAllAppInfo()
 {
     AppExecFwk::LauncherService launcherservice;
-    std::vector<AppExecFwk::LauncherAbilityInfo> launcherAbilityInfos;
-    launcherservice.GetAllLauncherAbilityInfos(userId, launcherAbilityInfos);
+    std::vector<AppExecFwk::LauncherAbilityInfo> launcherAbilityInfos(0);
+
+    bool result = launcherservice.GetAllLauncherAbilityInfos(userId, launcherAbilityInfos);
+    DEBUG_LOG_STR("GetAllLauncherAbilityInfos: size (%u), result (%d)", launcherAbilityInfos.size(), result);
+    if (launcherAbilityInfos.size() <= 0) {
+        ERROR_LOG("GetAllLauncherAbilityInfos size is 0");
+        return OHOS::ERR_INVALID_VALUE;
+    }
     for (auto item : launcherAbilityInfos) {
         iconPath_ = item.applicationInfo.iconPath;
         DEBUG_LOG_STR("iconPath: %s", item.applicationInfo.iconPath.c_str());
@@ -118,7 +203,7 @@ ErrCode WuKongUtil::CheckArgumentList(std::vector<std::string> &arguments)
 {
     ErrCode result = OHOS::ERR_OK;
     GetAllAppInfo();
-    for (unsigned int i = 0; i < arguments.size(); i++) {
+    for (uint32_t i = 0; i < arguments.size(); i++) {
         uint32_t index = FindElement(bundleList_, arguments[i]);
         if (index == INVALIDVALUE) {
             ERROR_LOG_STR("bundle name '%s' is not be included in all bundles", arguments[i].c_str());
@@ -193,7 +278,7 @@ ErrCode WuKongUtil::GetScreenSize(int32_t &width, int32_t &height)
         sptr<OHOS::Rosen::Display> display = displayMgr.GetDefaultDisplay();
         if (display == nullptr) {
             ERROR_LOG("get screen size failed");
-            return OHOS::ERR_INVALID_VALUE;
+            return OHOS::ERR_NO_INIT;
         }
         screenWidth_ = display->GetWidth();
         screenHeight_ = display->GetHeight();
@@ -207,5 +292,89 @@ void WuKongUtil::GetIconPath(std::string &iconpath)
 {
     iconpath = iconPath_;
 }
+
+ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath)
+{
+    using namespace std::chrono;
+    ErrCode result = ERR_OK;
+    auto wukongts = to_string(time_point_cast<milliseconds>(system_clock::now()).time_since_epoch().count());
+    int fileExist_ = access((curDir_ + "screenshot").c_str(), F_OK);
+    if (fileExist_ == 0) {
+        DEBUG_LOG("File exist.");
+    } else {
+        const int wukongScreenShot = mkdir((curDir_ + "screenshot").c_str(), 0777);
+        DEBUG_LOG("File create.");
+        if (wukongScreenShot == -1) {
+            DEBUG_LOG("Error creating directory!");
+            result = ERR_NO_INIT;
+        }
+    }
+    auto wkScreenPath = curDir_ + "screenshot/" + wukongts + ".png";
+    DEBUG_LOG_STR("WukongScreenCap store path is  {%s}", wkScreenPath.c_str());
+    bool isTakeScreen = TakeWuKongScreenCap(wkScreenPath);
+    if (isTakeScreen == true) {
+        screenStorePath = wkScreenPath;
+        DEBUG_LOG("The snapshot has been created.");
+    } else {
+        DEBUG_LOG("This snapshot can not be created.");
+    }
+    return result;
+}
+
+sptr<IBundleMgr> WuKongUtil::GetBundleMgrProxy() const
+{
+    sptr<ISystemAbilityManager> systemAbilityManager =
+        SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (!systemAbilityManager) {
+        ERROR_LOG("failed to get system ability mgr.");
+        return nullptr;
+    }
+
+    sptr<IRemoteObject> remoteObject = systemAbilityManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (!remoteObject) {
+        ERROR_LOG("failed to get bundle manager proxy.");
+        return nullptr;
+    }
+
+    return iface_cast<IBundleMgr>(remoteObject);
+}
+
+void WuKongUtil::GetAllAbilitiesByBundleName(std::string bundleName, std::vector<std::string> &abilities)
+{
+    TRACK_LOG_STD();
+    sptr<IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
+    std::vector<BundleInfo> bundleInfos;
+    bool getInfoResult = bundleMgrProxy->GetBundleInfos(BundleFlag::GET_BUNDLE_DEFAULT, bundleInfos, userId);
+    if (!getInfoResult) {
+        ERROR_LOG("GetBundleInfos ERR");
+        return;
+    }
+    DEBUG_LOG_STR("bundles length{%d}", bundleInfos.size());
+    for (auto &bundleIter : bundleInfos) {
+        DEBUG_LOG_STR("bundleIter.name{%s}", bundleName.c_str());
+        BundleInfo bundleInfo;
+        if (bundleIter.name == bundleName) {
+            DEBUG_LOG_STR("map bundleName{%s}", bundleName.c_str());
+            bool result =
+                bundleMgrProxy->GetBundleInfo(bundleIter.name, BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, 100);
+            if (!result) {
+                ERROR_LOG_STR("WriteWuKongBundleInfo getBundleInfo result %d", result);
+                break;
+            }
+            for (auto &abilityIter : bundleInfo.abilityInfos) {
+                DEBUG_LOG_STR("bundleName{%s} container abilities item{%s}", bundleName.c_str(),
+                              (abilityIter.name).c_str());
+                abilities.push_back(abilityIter.name);
+            }
+        }
+    }
+    TRACK_LOG_END();
+}
+
+std::string WuKongUtil::GetCurrentTestDir()
+{
+    return curDir_;
+}
+
 }  // namespace WuKong
 }  // namespace OHOS

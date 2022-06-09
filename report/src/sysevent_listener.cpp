@@ -22,8 +22,6 @@
 
 #include "sysevent_listener.h"
 
-#include <nlohmann/json.hpp>
-
 #include "csv_utils.h"
 #include "hisysevent.h"
 
@@ -36,11 +34,9 @@ namespace {
 template <typename ValueType>
 void ValueGet(const json& jsonData, const std::string& key, const json::value_t vt, ValueType& data)
 {
-    TRACK_LOG_STD();
     if (jsonData.contains(key)) {
-        if (vt == jsonData[key].type()) {
-            ValueType value = jsonData[key].get<ValueType>();
-            data = value;
+        if (jsonData[key].type() == vt) {
+            data = jsonData[key].get<ValueType>();
         }
     }
     TRACK_LOG_END();
@@ -50,12 +46,11 @@ void ValueGet(const json& jsonData, const std::string& key, const json::value_t 
 void SysEventListener::OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
                                 const std::string& eventDetail)
 {
-    TRACK_LOG_STD();
+    Report::GetInstance()->CrashFileRecord();
     TRACK_LOG("----------Exception caught----------");
-    WARN_LOG_STR("domain: %s", domain.c_str());
+    TRACK_LOG_STR("domain: %s", domain.c_str());
     TRACK_LOG_STR("eventName: %s", eventName.c_str());
-    TRACK_LOG_STR("eventType: %s", std::to_string(eventType).c_str());
-    TRACK_LOG_STR("eventDetail: %s", eventDetail.c_str());
+    TRACK_LOG_STR("eventType: %d", eventType);
     TRACK_LOG("------------------------------------");
     CsvUtils::OneLineData data;
     data.domain = domain;
@@ -76,7 +71,6 @@ void SysEventListener::OnHandle(const std::string& domain, const std::string& ev
         default:
             data.type = "UNKNOWN";
     }
-
     json jsonData = json::parse(eventDetail, nullptr, false);
     if (jsonData == json::value_t::discarded) {
         ERROR_LOG_STR("event detail parse error, the content: %s", eventDetail.c_str());
@@ -88,7 +82,6 @@ void SysEventListener::OnHandle(const std::string& domain, const std::string& ev
         ValueGet<uint64_t>(jsonData, "uid_", json::value_t::number_unsigned, data.uid);
     }
     CsvUtils::WriteOneLine(csvFile, data);
-    TRACK_LOG_END();
 }
 void SysEventListener::OnServiceDied()
 {

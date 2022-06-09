@@ -16,7 +16,7 @@
 #include "keyboard_input.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
-#include "input_info.h"
+#include "report.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -25,7 +25,11 @@ const int singleCodePercent = 30;
 const int oneHundredPercent = 100;
 const int downtime = 100;
 }  // namespace
-KeyboardInput::KeyboardInput() : InputAction() {}
+KeyboardInput::KeyboardInput() : InputAction() {
+    std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
+    multimodeInputMsg->inputType_ = INPUTTYPE_KEYBOARDINPUT;
+    inputedMsgObject_ = multimodeInputMsg;
+}
 KeyboardInput::~KeyboardInput() {}
 ErrCode KeyboardInput::RandomInput()
 {
@@ -43,8 +47,10 @@ ErrCode KeyboardInput::RandomInput()
     } else {
         return OHOS::ERR_NO_INIT;
     }
-    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
-    inputInfo->SetInputType(INPUTTYPE_KEYBOARDINPUT);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     return result;
 }
 

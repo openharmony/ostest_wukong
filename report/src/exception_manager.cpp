@@ -1,11 +1,4 @@
 /*
- * @Description:
- * @Date: 2022-04-21 19:52:42
- * @LastEditTime: 2022-04-21 20:02:52
- * @FilePath: /wukong/report/src/exception_manager.cpp
- * @author: lemon
- */
-/*
  * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +78,7 @@ bool ExceptionManager::StartCatching()
     std::string eventName = "";
     sysRules.emplace_back(domain, eventName);
     toolListener = std::make_shared<SysEventListener>(csvFile);
-    return HiSysEventManager::AddEventListener(toolListener, sysRules);
+    return HiSysEventManager::AddEventListener(toolListener, sysRules) == 0;
 }
 
 void ExceptionManager::StopCatching()

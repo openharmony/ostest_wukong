@@ -19,7 +19,7 @@
 #include <string>
 
 #include "input_action.h"
-
+#include "input_msg_object.h"
 namespace OHOS {
 namespace WuKong {
 class HardkeyInput : public InputAction {
@@ -27,7 +27,7 @@ public:
     HardkeyInput();
     ~HardkeyInput();
 
-    ErrCode OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject);
+    ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject);
 
     /**
      * @brief input a power event in random test.
@@ -40,6 +40,9 @@ public:
      * @return Return ERR_OK on success， others on failure.
      */
     ErrCode GetInputInfo();
+
+private:
+    std::shared_ptr<InputedMsgObject> inputedMsgObject_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

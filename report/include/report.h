@@ -13,22 +13,34 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_REPORT
-#define TEST_WUKONG_REPORT
+#ifndef TEST_WUKONG_REPORT_H
+#define TEST_WUKONG_REPORT_H
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
 #include "data_set.h"
+#include "input_msg_object.h"
 #include "singleton.h"
+#include "sysevent_listener.h"
 #include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
+
+namespace {
+struct componmentRecord {
+    std::map<std::string, uint32_t> componmentTypeCount;
+    std::map<uint32_t, std::vector<std::string>> pageIdComponments;
+};
+}  // namespace
 class Report final : public DelayedSingleton<Report> {
     DECLARE_DELAYED_SINGLETON(Report)
+    friend class SysEventListener;
+
 public:
     void Finish();
     void SetSeed(std::string seed);
@@ -36,26 +48,99 @@ public:
      * @brief  Synchronous inputed information
      * @return void
      */
-    void SyncInputInfo();
+    void SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject);
     /*
-     * @brief Write the content of the test process segmented to the storage file
+     * @brief Write the content of the test process segmented to the storage csvfile
      * @return void
      */
-    void SegmentedWrite();
+    void SegmentedWriteCSV();
+
+    /*
+     * @brief Write the content of the test process segmented to the storage jsonfile
+     * @return void
+     */
+    void SegmentedWriteJson();
+
+    /*
+     * @brief recor screen path to report
+     * @return void
+     */
+    void RecordScreenPath(const std::string &screenPath);
 
 private:
+    /*
+     * @brief dependent environment init, include create file,dir, setting start time
+     * @return void
+     */
+    void EnvInit();
+
+    /*
+     * @brief dataSet init, include  event input, componment input, ability, exception
+     * @return void
+     */
+    void DataSetInit();
+
+    /*
+     * @brief When a crash occurs, include the crash file to the target directory
+     * @return void
+     */
+    void CrashFileRecord();
+
+    /*
+     * @brief clear cppcrash & jscrash dir when test start
+     * @return void
+     */
+    void CrashFileClear();
+
+    /*
+     * @brief copy file from soruce to dest
+     * @param sourceFile
+     * @param destFile
+     * @return bool
+     */
+    bool CopyFile(const char *sourceFile, const char *destFile);
+
+    /*
+     * @brief find Exception Type by crash file name
+     * @param exceptionFilename
+     * @return void
+     */
+    void ExceptionRecord(const std::string &exceptionFilename);
+
+    /*
+     * @brief componment infomation arrange
+     * @param bundle bundle name
+     * @param inputCompMsgPtr input componment msg ptr
+     * @param data out data
+     * @return void
+     */
+    void ComponmentInfoArrange(const std::string &bundle, std::shared_ptr<ComponmentInputMsg> inputCompMsgPtr,
+                               std::map<std::string, std::string> &data);
+
     // csv filename
     std::string reportCsvFileName_ = "";
+    std::string reportJsonFileName_ = "";
+    std::string currentTestDir_ = "";
+    std::vector<std::string> crashFiles_;
     std::string seed_ = "";
     int taskCount_ = 0;
-    time_t startTime_;
-    // multimodal random input data set
+    time_t startTime_ = time(0);
+    std::mutex crashMtx_;
+    std::vector<std::string> crashDirs_ = {"/data/log/faultlog/faultlogger/", "/data/log/faultlog/temp/"};
+    // multimodal input data set
     std::shared_ptr<DataSet> eventDataSet_ = std::make_shared<DataSet>();
     // componment input data set
     std::shared_ptr<DataSet> componmentDataSet_ = std::make_shared<DataSet>();
+    // ability data set
+    std::shared_ptr<DataSet> abilityDataSet_ = std::make_shared<DataSet>();
+    // exception data set
+    std::shared_ptr<DataSet> exceptionDataSet_ = std::make_shared<DataSet>();
     // app set
-    std::vector<std::string> apps_;
-    std::vector<std::string>::iterator appsIter_;
+    std::vector<std::string> bundles_;
+    std::map<std::string, componmentRecord> bundleComponmentRecord_;
+
+    // screen store path vector
+    std::vector<std::string> screenPaths_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

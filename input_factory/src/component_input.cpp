@@ -16,13 +16,126 @@
 #include "component_input.h"
 
 #include "component_manager.h"
+#include "input_factory.h"
 #include "input_manager.h"
+#include "input_msg_object.h"
+#include "report.h"
 #include "scene_delegate.h"
 #include "tree_manager.h"
 #include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
+namespace {
+const uint32_t PAGE_BACK_COUNT_MAX = 3;
+
+ErrCode LauncherApp(const std::string& bundleName)
+{
+    auto appInput = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
+    if (appInput == nullptr) {
+        ERROR_LOG("InputFactory::GetInputAction INPUTTYPE_APPSWITCHINPUT is null");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    // launch app by AppSwitchInput function.
+    std::shared_ptr<AppSwitchParam> appSwitchParam = std::make_shared<AppSwitchParam>();
+    appSwitchParam->bundlename_ = bundleName;
+    std::shared_ptr<SpcialTestObject> sto = appSwitchParam;
+    auto result = appInput->OrderInput(sto);
+    if (result != OHOS::ERR_OK) {
+        ERROR_LOG("AppSwitchInput OrderInput failed");
+    }
+    return result;
+}
+
+uint32_t CheckLauncherApp(const std::shared_ptr<ComponentParam>& param)
+{
+    TRACK_LOG_STD();
+    for (uint32_t i = 0; i < param->bundleName_.size(); i++) {
+        // do not launch app when bundle is running.
+        if (param->bundleRunning_[i] == true && param->bundleFinish_[i] == false) {
+            return i;
+        }
+        // launch app when the bundle is stop and not finish.
+        if (param->bundleRunning_[i] == false && param->bundleFinish_[i] == false) {
+            // launch app by AppSwitchInput function.
+            if (LauncherApp(param->bundleName_[i]) != OHOS::ERR_OK) {
+                return param->bundleName_.size();
+            }
+
+            // init bundleRunning status to stop.
+            for (auto running : param->bundleRunning_) {
+                running = false;
+            }
+
+            // set current launched bundle is running.
+            param->bundleRunning_[i] = true;
+            TRACK_LOG_STR("%s", param->toString().c_str());
+            TEST_RUN_LOG(param->bundleName_[i].c_str());
+            return i;
+        }
+    }
+    // not found bundle can be run, and return failed.
+    return param->bundleName_.size();
+}
+
+bool CheckAbliltyFinished(const std::shared_ptr<AbilityTree>& abilityNode)
+{
+    TRACK_LOG_STD();
+    bool abilityRunFinished = false;
+    if (abilityNode == nullptr) {
+        ERROR_LOG("abilityNode is nullptr");
+        return abilityRunFinished;
+    }
+    uint32_t allCount = abilityNode->GetAllComponentCount();
+    uint32_t inputCount = abilityNode->GetInputCount();
+    TRACK_LOG_STR("ability (%s) component count (%u), input count (%u)", abilityNode->GetBundleName().c_str(), allCount,
+                  inputCount);
+    if (inputCount >= allCount) {
+        abilityRunFinished = true;
+    }
+    TRACK_LOG_END();
+    return abilityRunFinished;
+}
+
+bool CheckBundleFinished(const std::shared_ptr<WuKongTree>& parent)
+{
+    if (!CheckAbliltyFinished(std::static_pointer_cast<AbilityTree>(parent))) {
+        return false;
+    }
+    for (auto child : parent->GetChildren()) {
+        if (!CheckBundleFinished(std::static_pointer_cast<AbilityTree>(child))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool CheckInputFinished(const std::shared_ptr<ComponentParam>& param)
+{
+    TRACK_LOG_STD();
+    bool isFinished = false;
+    auto currentAbilityPtr = TreeManager::GetInstance()->GetCurrentAbility();
+    if (currentAbilityPtr == nullptr) {
+        ERROR_LOG("GetCurrentAbility abilityNode is nullptr");
+        return isFinished;
+    }
+
+    // check app input event finished and set param is finished.
+    if (CheckBundleFinished(WuKongTree::GetRoot(currentAbilityPtr))) {
+        for (uint32_t i = 0; i < param->bundleRunning_.size(); i++) {
+            if (param->bundleRunning_[i] && param->bundleName_[i] == currentAbilityPtr->GetBundleName()) {
+                param->bundleFinish_[i] = true;
+                isFinished = true;
+                break;
+            }
+        }
+    }
+
+    TRACK_LOG_END();
+    return isFinished;
+}
+}  // namespace
 ComponentInput::ComponentInput() : InputAction()
 {
 }
@@ -31,26 +144,72 @@ ComponentInput::~ComponentInput()
 {
 }
 
-ErrCode ComponentInput::OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject)
+ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
     ErrCode result = OHOS::ERR_OK;
+    auto componentPtr = std::static_pointer_cast<ComponentParam>(specialTestObject);
+    if (componentPtr == nullptr) {
+        ERROR_LOG("specialTestObject param is null");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    uint32_t launchIndex = CheckLauncherApp(componentPtr);
+    if (launchIndex >= componentPtr->bundleName_.size()) {
+        ERROR_LOG("launcher app failed, and stop run test");
+        componentPtr->isAllFinished_ = true;
+        ERROR_LOG(componentPtr->toString().c_str());
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
     auto treemanager = TreeManager::GetInstance();
     result = treemanager->UpdateComponentInfo();
     DEBUG_LOG_STR("update componentinfo result (%d)", result);
     if (result == OHOS::ERR_OK) {
-        SceneDelegate delegate;
-        delegate.ChooseScene(false);
-        if (delegate.IsBackToPrePage()) {
-            result = ComponentManager::GetInstance()->BackToPrePage();
+        auto delegate = SceneDelegate::GetInstance();
+        result = delegate->ChooseScene(false);
+        if (result != OHOS::ERR_OK) {
+            ERROR_LOG("choose scene failed");
+            return result;
+        }
+        if (delegate->IsBackToPrePage()) {
+            componentPtr->pageBack_[launchIndex]++;
+            if (componentPtr->pageBack_[launchIndex] > PAGE_BACK_COUNT_MAX) {
+                result = LauncherApp(componentPtr->bundleName_[launchIndex]);
+                componentPtr->pageBack_[launchIndex] = 0;
+            } else {
+                result = ComponentManager::GetInstance()->BackToPrePage();
+            }
         } else {
             auto elementInfo = treemanager->GetElementInfoByOrder();
-            OHOS::Accessibility::ActionType actionType = JudgeComponentType(*(elementInfo.get()));
+            if (elementInfo == nullptr) {
+                ERROR_LOG("elementinfo is nullptr");
+                return OHOS::ERR_INVALID_VALUE;
+            }
+            int actionType = JudgeComponentType(*(elementInfo.get()));
             if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
                 actionType = OHOS::Accessibility::ACCESSIBILITY_ACTION_CLICK;
             }
             result = ComponentManager::GetInstance()->ComponentEventInput(*(elementInfo.get()), actionType);
             if (result == OHOS::ERR_OK) {
                 treemanager->SetInputcomponentIndex(actionType);
+                componentPtr->pageBack_[launchIndex] = 0;
+                std::shared_ptr<ComponmentInputMsg> componentInputMsg = std::make_shared<ComponmentInputMsg>();
+                componentInputMsg->pageComponments = delegate->GetComponentTypeList();
+                componentInputMsg->pageId_ = delegate->GetCurrentPageId();
+                componentInputMsg->componmentType_ = elementInfo->GetComponentType();
+                Report::GetInstance()->SyncInputInfo(componentInputMsg);
+            }
+        }
+    }
+
+    // check current bundle finished state.
+    if (CheckInputFinished(componentPtr)) {
+        componentPtr->isAllFinished_ = true;
+        // confirm all bundle status.
+        for (auto isFinished : componentPtr->bundleFinish_) {
+            if (!isFinished) {
+                componentPtr->isAllFinished_ = false;
+                break;
             }
         }
     }
@@ -65,25 +224,32 @@ ErrCode ComponentInput::RandomInput()
     result = treemanager->UpdateComponentInfo();
     DEBUG_LOG_STR("update componentinfo result (%d)", result);
     if (result == OHOS::ERR_OK) {
-        SceneDelegate delegate;
-        delegate.ChooseScene(true);
+        auto delegate = SceneDelegate::GetInstance();
+        delegate->ChooseScene(true);
         auto componentInfos = treemanager->GetActiveElementInfos();
-        int index = -1;
         DEBUG_LOG_STR("component list size (%d)", componentInfos.size());
-        DEBUG_LOG_STR("back: %d", delegate.IsBackToPrePage());
-        if (delegate.IsBackToPrePage()) {
+        DEBUG_LOG_STR("back: %d", delegate->IsBackToPrePage());
+        if (delegate->IsBackToPrePage()) {
             result = ComponentManager::GetInstance()->BackToPrePage();
         } else if (componentInfos.size() > 0) {
-            index = rand() % componentInfos.size();
+            uint32_t index = rand() % componentInfos.size();
             DEBUG_LOG_STR("component input index (%d)", index);
-            OHOS::Accessibility::ActionType actionType = JudgeComponentType(*(componentInfos[index].get()));
+            int actionType = JudgeComponentType(*(componentInfos[index].get()));
             if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
                 actionType = OHOS::Accessibility::ACCESSIBILITY_ACTION_CLICK;
             }
             result = ComponentManager::GetInstance()->ComponentEventInput(*(componentInfos[index].get()), actionType);
             if (result == OHOS::ERR_OK) {
                 treemanager->SetInputcomponentIndex(actionType, index);
+                std::shared_ptr<ComponmentInputMsg> componentInputMsg = std::make_shared<ComponmentInputMsg>();
+                componentInputMsg->pageComponments = delegate->GetComponentTypeList();
+                componentInputMsg->pageId_ = delegate->GetCurrentPageId();
+                componentInputMsg->componmentType_ = componentInfos[index]->GetComponentType();
+                Report::GetInstance()->SyncInputInfo(componentInputMsg);
             }
+        } else {
+            ERROR_LOG("component list is null");
+            result = OHOS::ERR_NO_INIT;
         }
     }
     DEBUG_LOG_STR("component random input result (%d)", result);
@@ -95,22 +261,27 @@ ErrCode ComponentInput::GetInputInfo()
     return OHOS::ERR_OK;
 }
 
-OHOS::Accessibility::ActionType ComponentInput::JudgeComponentType(
-    OHOS::Accessibility::AccessibilityElementInfo& elementInfo)
+int ComponentInput::JudgeComponentType(OHOS::Accessibility::AccessibilityElementInfo& elementInfo)
 {
-    OHOS::Accessibility::ActionType actionType = Accessibility::ACCESSIBILITY_ACTION_INVALID;
+    int actionType = Accessibility::ACCESSIBILITY_ACTION_INVALID;
+    TRACK_LOG_STD();
     std::vector<OHOS::Accessibility::AccessibleAction> actionlist = elementInfo.GetActionList();
     if (actionlist.empty()) {
         std::string componentType = elementInfo.GetComponentType();
         TRACK_LOG_STR("component type: %s", componentType.c_str());
-        if (componentType == "TextInput" || componentType == "TextArea") {
+        if (componentType == "TextInput" || componentType == "TextArea" || componentType == "Text") {
             actionType = Accessibility::ACCESSIBILITY_ACTION_SET_TEXT;
+        } else if (componentType == "GridContainer") {
+            actionType = Accessibility::ACCESSIBILITY_ACTION_SCROLL_FORWARD;
+        } else if (componentType == "Slider") {
+            actionType = COMPONENT_LEFT_SWAP;
         } else {
             actionType = Accessibility::ACCESSIBILITY_ACTION_CLICK;
         }
     } else {
+        TRACK_LOG_STR("action list size: %u", actionlist.size());
         auto it = actionlist[rand() % actionlist.size()];
-        actionType = it.GetActionType();
+        actionType = (int)it.GetActionType();
     }
     TRACK_LOG_STR("action type: %d", actionType);
     return actionType;

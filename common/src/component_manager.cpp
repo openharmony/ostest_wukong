@@ -15,15 +15,22 @@
 
 #include "component_manager.h"
 
+#include <iostream>
+#include <string>
+#include <unistd.h>
+
+#include "accessibility_ui_test_ability.h"
 #include "multimode_manager.h"
 
 namespace OHOS {
 namespace WuKong {
 namespace {
-const std::vector<std::string> typeList = {"Toggle", "Column", "Row", "Text", "ListItem", "Button"};
 const std::string permissionBundleName = "com.ohos.permissionmanager";
 const int DIV = 2;
 const int DOWNTIME = 10;
+const int ONESECOND = 1000000;
+const int TWOSECONDS = 2000000;
+const int OFFSET = 10;
 }  // namespace
 
 class ComponentEventMonitor : public Accessibility::AccessibleAbilityListener {
@@ -81,8 +88,8 @@ void ComponentEventMonitor::OnAbilityDisconnected()
 
 void ComponentEventMonitor::OnAccessibilityEvent(const Accessibility::AccessibilityEventInfo& eventInfo)
 {
-    DEBUG_LOG_STR("OnAccessibilityEvent Start %s", std::to_string(eventInfo.GetEventType()).c_str());
-    DEBUG_LOG_STR("current bundlie: %s", eventInfo.GetBundleName().c_str());
+    DEBUG_LOG_STR("OnAccessibilityEvent Start %u", eventInfo.GetEventType());
+    DEBUG_LOG_STR("current bundle: %s", eventInfo.GetBundleName().c_str());
     if (eventInfo.GetBundleName() == permissionBundleName) {
         auto listenerlist = ComponentManager::GetInstance()->GetListenerList();
         for (auto it : listenerlist) {
@@ -103,6 +110,18 @@ bool ComponentEventMonitor::WaitEventIdle(uint32_t idleThresholdMs, uint32_t tim
 
 ComponentManager::ComponentManager()
 {
+    componentMap_ = {
+        {Accessibility::ACCESSIBILITY_ACTION_CLICK,
+         std::bind(&ComponentManager::ComponentTouchInput, this, std::placeholders::_1)},
+        {Accessibility::ACCESSIBILITY_ACTION_SCROLL_FORWARD,
+         std::bind(&ComponentManager::ComponentUpSwapInput, this, std::placeholders::_1)},
+
+        {Accessibility::ACCESSIBILITY_ACTION_SCROLL_BACKWARD,
+         std::bind(&ComponentManager::ComponentDownSwapInput, this, std::placeholders::_1)},
+        {Accessibility::ACCESSIBILITY_ACTION_SET_TEXT,
+         std::bind(&ComponentManager::ComponentMultikeyInput, this, std::placeholders::_1)},
+        {COMPONENT_LEFT_SWAP, std::bind(&ComponentManager::ComponentLeftSwapInput, this, std::placeholders::_1)},
+    };
 }
 ComponentManager::~ComponentManager()
 {
@@ -147,6 +166,10 @@ bool ComponentManager::Connect()
 
 void ComponentManager::Disconnect()
 {
+    auto auita = Accessibility::AccessibilityUITestAbility::GetInstance();
+    if (auita != nullptr) {
+        auita->Disconnect();
+    }
 }
 uint32_t ComponentManager::AddRegisterListener(std::shared_ptr<ComponentManagerListener> listener)
 {
@@ -182,25 +205,16 @@ ErrCode ComponentManager::PermoissionInput()
 
 ErrCode ComponentManager::CreateEventInputMap()
 {
-    componentMap_ = {
-        {Accessibility::ACCESSIBILITY_ACTION_CLICK,
-         std::bind(&ComponentManager::ComponentTouchInput, this, std::placeholders::_1)},
-        {Accessibility::ACCESSIBILITY_ACTION_SCROLL_FORWARD,
-         std::bind(&ComponentManager::ComponentUpSwapInput, this, std::placeholders::_1)},
-
-        {Accessibility::ACCESSIBILITY_ACTION_SCROLL_BACKWARD,
-         std::bind(&ComponentManager::ComponentDownSwapInput, this, std::placeholders::_1)},
-        {Accessibility::ACCESSIBILITY_ACTION_SET_TEXT,
-         std::bind(&ComponentManager::ComponentMultikeyInput, this, std::placeholders::_1)},
-    };
     return OHOS::ERR_OK;
 }
 
 ErrCode ComponentManager::ComponentEventInput(OHOS::Accessibility::AccessibilityElementInfo& elementInfo,
-                                              const OHOS::Accessibility::ActionType actionType)
+                                              const int actionType)
 {
-    int result = OHOS::ERR_OK;
+    ErrCode result = OHOS::ERR_OK;
     CreateEventInputMap();
+    // get position of current component
+    GetComponentPosition(elementInfo);
     auto componentRespond = componentMap_[actionType];
     if (componentRespond == nullptr) {
         componentRespond = componentMap_[Accessibility::ACCESSIBILITY_ACTION_CLICK];
@@ -212,18 +226,11 @@ ErrCode ComponentManager::ComponentEventInput(OHOS::Accessibility::Accessibility
 ErrCode ComponentManager::ComponentTouchInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
     ErrCode result = OHOS::ERR_OK;
-    Accessibility::Rect componentBounds;
     auto touchInput = MultimodeManager::GetInstance();
-    componentBounds = elementInfo.GetRectInScreen();
-    int boundStartX = componentBounds.GetLeftTopXScreenPostion();
-    int boundStartY = componentBounds.GetLeftTopYScreenPostion();
-    int boundEndX = componentBounds.GetRightBottomXScreenPostion();
-    int boundEndY = componentBounds.GetRightBottomYScreenPostion();
-
     // Calculate touch position
-    int elementTouchX = boundStartX + (boundEndX - boundStartX) / DIV;
-    int elementTouchY = boundStartY + (boundEndY - boundStartY) / DIV;
-    DEBUG_LOG_STR("componentTouch Position: (%d, %d)", elementTouchX, elementTouchY);
+    int32_t elementTouchX = startX_ + (endX_ - startX_) / DIV;
+    int32_t elementTouchY = startY_ + (endY_ - startY_) / DIV;
+    INFO_LOG_STR("componentTouch Position: (%d, %d)", elementTouchX, elementTouchY);
     result = touchInput->PointerInput(elementTouchX, elementTouchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_DOWN);
     result = touchInput->PointerInput(elementTouchX, elementTouchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
@@ -242,42 +249,68 @@ ErrCode ComponentManager::BackToPrePage()
 ErrCode ComponentManager::ComponentUpSwapInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
     ErrCode result = OHOS::ERR_OK;
-    Accessibility::Rect componentBounds = elementInfo.GetRectInScreen();
-    int boundStartX = componentBounds.GetLeftTopXScreenPostion();
-    int boundStartY = componentBounds.GetLeftTopYScreenPostion();
-    int boundEndX = componentBounds.GetRightBottomXScreenPostion();
-    int boundEndY = componentBounds.GetRightBottomYScreenPostion();
-    int componentUpSwapStartX = boundStartX + (boundEndX - boundStartX) / DIV;
-    int componentUpSwapStartY = boundStartY;
-    int componentUpSwapEndX = boundStartX + (boundEndX - boundStartX) / DIV;
-    int componentUpSwapEndY = boundEndY;
+    // Calculate swap position
+    int32_t componentUpSwapStartX = startX_ + (endX_ - startX_) / DIV;
+    int32_t componentUpSwapStartY = endY_ - OFFSET;
+    int32_t componentUpSwapEndX = componentUpSwapStartX;
+    int32_t componentUpSwapEndY = startY_ + OFFSET;
+    INFO_LOG_STR("Component Up Swap: (%d, %d) -> (%d, %d)", componentUpSwapStartX, componentUpSwapStartY,
+                 componentUpSwapEndX, componentUpSwapEndY);
     result = MultimodeManager::GetInstance()->IntervalSwap(componentUpSwapStartX, componentUpSwapStartY,
                                                            componentUpSwapEndX, componentUpSwapEndY);
+    usleep(TWOSECONDS);
     return result;
 }
 
 ErrCode ComponentManager::ComponentDownSwapInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
     ErrCode result = OHOS::ERR_OK;
-    Accessibility::Rect componentBounds;
-    int boundStartX = componentBounds.GetLeftTopXScreenPostion();
-    int boundStartY = componentBounds.GetLeftTopYScreenPostion();
-    int boundEndX = componentBounds.GetRightBottomXScreenPostion();
-    int boundEndY = componentBounds.GetRightBottomYScreenPostion();
-    int componentDownSwapStartX = boundStartX + (boundEndX - boundStartX) / DIV;
-    int componentDownSwapStartY = boundEndY;
-    int componentDownSwapEndX = boundStartX + (boundEndX - boundStartX) / DIV;
-    int componentDownSwapEndY = boundStartY;
+    // Calculate swap position
+    int32_t componentDownSwapStartX = startX_ + (endX_ - startX_) / DIV;
+    int32_t componentDownSwapStartY = startY_ + OFFSET;
+    int32_t componentDownSwapEndX = componentDownSwapStartX;
+    int32_t componentDownSwapEndY = endY_ - OFFSET;
+    INFO_LOG_STR("Component Down Swap: (%d, %d) -> (%d, %d)", componentDownSwapStartX, componentDownSwapStartY,
+                 componentDownSwapEndX, componentDownSwapEndY);
     result = MultimodeManager::GetInstance()->IntervalSwap(componentDownSwapStartX, componentDownSwapStartY,
                                                            componentDownSwapEndX, componentDownSwapEndY);
+    usleep(TWOSECONDS);
     return result;
 }
 
 ErrCode ComponentManager::ComponentMultikeyInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
     ErrCode result = OHOS::ERR_OK;
+    result = ComponentTouchInput(elementInfo);
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
+    usleep(ONESECOND);
     result = MultimodeManager::GetInstance()->MultiKeyCodeInput(DOWNTIME);
     return result;
+}
+
+ErrCode ComponentManager::ComponentLeftSwapInput(Accessibility::AccessibilityElementInfo& elementInfo)
+{
+    ErrCode result = OHOS::ERR_OK;
+    // Calculate swap position
+    int32_t leftSwapStartX = startX_ + OFFSET;
+    int32_t leftSwapEndX = endX_ + OFFSET;
+    int32_t leftSwapStartY = startY_ + (endY_ - startY_) / DIV;
+    int32_t leftSwapEndY = leftSwapStartY;
+    INFO_LOG_STR("Component Left Swap: (%d, %d) -> (%d, %d)", leftSwapStartX, leftSwapStartY, leftSwapEndX,
+                 leftSwapEndY);
+    result = MultimodeManager::GetInstance()->IntervalSwap(leftSwapStartX, leftSwapStartY, leftSwapEndX, leftSwapEndY);
+    return result;
+}
+
+void ComponentManager::GetComponentPosition(Accessibility::AccessibilityElementInfo& elementInfo)
+{
+    Accessibility::Rect componentBounds = elementInfo.GetRectInScreen();
+    startX_ = componentBounds.GetLeftTopXScreenPostion();
+    startY_ = componentBounds.GetLeftTopYScreenPostion();
+    endX_ = componentBounds.GetRightBottomXScreenPostion();
+    endY_ = componentBounds.GetRightBottomYScreenPostion();
 }
 }  // namespace WuKong
 }  // namespace OHOS

@@ -14,74 +14,93 @@
  */
 #include "statistics_event.h"
 
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <map>
 #include <sstream>
 
 namespace OHOS {
 namespace WuKong {
 using namespace std;
-const int NUMBER_TWO = 2;
 
-void StatisticsEvent::StatisticsDetail
-                        (vector<map<string, string>> srcDatas,
-                         map<string, shared_ptr<Table>> &destTables)
+void StatisticsElemnt::StatisticsDetail(vector<map<string, string>> srcDatas,
+                                        map<string, shared_ptr<Table>> &destTables)
 {
     if (!SrcDatasPreprocessing(srcDatas)) {
         return;
     }
-    string app, event;
     multimap<string, string> appRecord;
     stringstream bufferStream;
     vector<string> line;
+    map<string, multimap<string, string>>::iterator appContainerIter;
     int countAllExecTimes = 0;
-    for (appsIter_ = apps_.begin(); appsIter_ != apps_.end(); appsIter_++) {
+    for (auto appsIter : apps_) {
         // check app is record in appContainer
-        appContainerIter_ = appContainer_.find(*appsIter_);
-        if (appContainerIter_ == appContainer_.end()) {
+        appContainerIter = appContainer_.find(appsIter);
+        if (appContainerIter == appContainer_.end()) {
             break;
         }
-        app = (*appsIter_);
-        appRecord = appContainer_[app];
+        appRecord = appContainer_[appsIter];
+        DEBUG_LOG("appRecord have:");
+        for (auto appRecordIter : appRecord) {
+            DEBUG_LOG_STR("first{%s} second{%s}:", appRecordIter.first.c_str(), appRecordIter.second.c_str());
+        }
+
         map<string, vector<string>> eventItems;
         // check whether the current type has established a statistical relationship
-        if (tablesItems_.count(app) != 0) {
-            eventItems = tablesItems_[app];
+        if (tablesItems_.count(appsIter) != 0) {
+            eventItems = tablesItems_[appsIter];
         }
+        DEBUG_LOG_STR("app{%s} have:", appsIter.c_str());
+        for (auto eventsIter : eventItems) {
+            DEBUG_LOG_STR("event{%s} execTimes{%s},proportion{%s}:", eventsIter.first.c_str(),(eventsIter.second.at(0)).c_str(),(eventsIter.second.at(1)).c_str());
+        }
+
         int countExecTimes = appRecord.size();
         countAllExecTimes += countExecTimes;
         // record eventType,execTimes,proportion
-        for (eventsIter_ = events_.begin(); eventsIter_ != events_.end(); eventsIter_++) {
-            line.push_back(*eventsIter_);
+        for (auto eventsIter : events_) {
+            DEBUG_LOG_STR("statistics event{%s}:", eventsIter.c_str());
+            line.push_back(eventsIter);
             int execTimes = 0;
-            if (eventItems.count(*eventsIter_) != 0) {
-                line = eventItems[*eventsIter_];
+            if (eventItems.count(eventsIter) != 0) {
+                line = eventItems[eventsIter];
                 execTimes += atoi(line.at(0).c_str());
             }
-            execTimes += appRecord.count(*eventsIter_);
+            execTimes += appRecord.count(eventsIter);
+            DEBUG_LOG_STR("appRecord eventCount{%d}:", appRecord.count(eventsIter));
             line.push_back(to_string(execTimes));
-            if (countExecTimes != 0) {
-                float proportion = (execTimes * 100.0) / countExecTimes;
-            bufferStream.str("");
-            bufferStream << setiosflags(ios::fixed) << setprecision(NUMBER_TWO) << proportion;
+            if (countExecTimes <= 0) {
+                ERROR_LOG("statistics error");
+                return;
             }
+            float proportion = (execTimes * 100.0) / countExecTimes;
+            bufferStream.str("");
+            bufferStream << setiosflags(ios::fixed) << setprecision(2) << proportion;
             string proportionStr = bufferStream.str() + "%";
             line.push_back(proportionStr);
             record_.push_back(line);
             line.clear();
         }
-        line = {"total", to_string(countExecTimes), "100%"};
+        line = {"total", to_string(countExecTimes), "100.00%"};
         record_.push_back(line);
         shared_ptr<Table> table = make_shared<Table>(headers_, record_);
         record_.clear();
         line.clear();
-        table->SetName(app);
+        table->SetName(appsIter);
         table->SetDetail("eventStatistics");
-        destTables[app] = table;
+        destTables[appsIter] = table;
     }
     for (auto iter : allStatistic_) {
         int execTimes = iter.second;
-        float proportion = (execTimes * 100.0) / countAllExecTimes;
+        if (execCount_ <= 0) {
+            ERROR_LOG("statistics error");
+            return;
+        }
+        float proportion = (execTimes * 100.0) / execCount_;
         bufferStream.str("");
-        bufferStream << setiosflags(ios::fixed) << setprecision(NUMBER_TWO) << proportion;
+        bufferStream << setiosflags(ios::fixed) << setprecision(2) << proportion;
         string proportionStr = bufferStream.str() + "%";
         line.push_back(iter.first);
         line.push_back(to_string(execTimes));
@@ -89,59 +108,62 @@ void StatisticsEvent::StatisticsDetail
         record_.push_back(line);
         line.clear();
     }
-    line = {"total", to_string(countAllExecTimes), "100%"};
+    line = {"total", to_string(execCount_), "100.00%"};
     record_.push_back(line);
     shared_ptr<Table> table = make_shared<Table>(headers_, record_);
     table->SetName("all");
     table->SetDetail("eventStatistics");
     destTables["all"] = table;
-    appContainer_.clear();
     record_.clear();
-    allStatistic_.clear();
 }
 
-bool StatisticsEvent::SrcDatasPreprocessing(std::vector<std::map<std::string, std::string>> srcDatas)
+bool StatisticsElemnt::SrcDatasPreprocessing(std::vector<std::map<std::string, std::string>> srcDatas)
 {
     string app, event;
+    vector<string>::iterator appsIter;
+    vector<string>::iterator eventsIter;
     multimap<string, string> appRecord;
-    appContainerIter_ = appContainer_.begin();
-    vector<map<string, string>>::iterator srcDatasIter;
-    for (srcDatasIter = srcDatas.begin(); srcDatasIter != srcDatas.end(); srcDatasIter++) {
-        // check bundle name
-        if (srcDatasIter->count("bundleName") == 0) {
-            return false;
-        }
-        app = (*srcDatasIter)["bundleName"];
+    map<string, multimap<string, string>>::iterator appContainerIter;
+    for (auto srcDatasIter : srcDatas) {
+        app = srcDatasIter["bundleName"];
+        DEBUG_LOG_STR("current bundleName{%s}", app.c_str());
         // check app is insert apps
-        appsIter_ = find(apps_.begin(), apps_.end(), app);
-        if (appsIter_ == apps_.end()) {
+        appsIter = find(apps_.begin(), apps_.end(), app);
+        if (appsIter == apps_.end()) {
+            DEBUG_LOG_STR("push bundleName{%s}", app.c_str());
             apps_.push_back(app);
         }
         // check appContainer is insert app,get app map record
-        appContainerIter_ = appContainer_.find(app);
-        if (appContainerIter_ != appContainer_.end()) {
-            appRecord = appContainerIter_->second;
+        appContainerIter = appContainer_.find(app);
+        if (appContainerIter != appContainer_.end()) {
+            DEBUG_LOG_STR("find appRecord from addContainer bundleName{%s}", app.c_str());
+            appRecord = appContainerIter->second;
         }
         // check evnet
-        if (srcDatasIter->count("event") == 0) {
+        if (srcDatasIter.count("event") == 0) {
             return false;
         }
-        event = (*srcDatasIter)["event"];
-        appRecord.insert({event, "event" } );
+        event = srcDatasIter["event"];
+        appRecord.insert({event, "event"});
         appContainer_[app] = appRecord;
-        eventsIter_ = find(events_.begin(), events_.end(), event);
-        if (eventsIter_ == events_.end()) {
+        eventsIter = find(events_.begin(), events_.end(), event);
+        if (eventsIter == events_.end()) {
+            DEBUG_LOG_STR("init all statistics event{%s}", event.c_str());
             events_.push_back(event);
             allStatistic_[event] = 1;
         } else {
             int total = allStatistic_[event] + 1;
             allStatistic_[event] = total;
+            DEBUG_LOG_STR("add all statistics event{%s}", event.c_str());
         }
+        DEBUG_LOG_STR("all statistics event{%s} total{%d}", event.c_str(), allStatistic_[event]);
         execCount_++;
+        DEBUG_LOG_STR("execCount_{%d}", execCount_);
         appRecord.clear();
     }
 
     return true;
 }
+
 }  // namespace WuKong
 }  // namespace OHOS

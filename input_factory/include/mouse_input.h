@@ -19,6 +19,7 @@
 #include <string>
 
 #include "input_action.h"
+#include "input_msg_object.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -41,6 +42,7 @@ private:
      * @return Return the string of mouse type.
      */
     std::string MouseTypeToString(int mousetype);
+    std::shared_ptr<InputedMsgObject> inputedMsgObject_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

@@ -15,22 +15,24 @@
 
 #include "touch_input.h"
 
-#include "input_info.h"
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
-
+#include "report.h"
 namespace OHOS {
 namespace WuKong {
 TouchInput::TouchInput() : InputAction()
 {
+    std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
+    multimodeInputMsg->inputType_ = INPUTTYPE_TOUCHINPUT;
+    inputedMsgObject_ = multimodeInputMsg;
 }
 
 TouchInput::~TouchInput()
 {
 }
 
-ErrCode TouchInput::OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject)
+ErrCode TouchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
     ErrCode result = OHOS::ERR_OK;
 
@@ -74,8 +76,7 @@ ErrCode TouchInput::RandomInput()
     if (result != OHOS::ERR_OK) {
         return result;
     }
-    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
-    inputInfo->SetInputType(INPUTTYPE_TOUCHINPUT);
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     INFO_LOG_STR("Touch: (%d, %d)", touchX, touchY);
     return result;
 }

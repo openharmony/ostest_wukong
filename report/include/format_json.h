@@ -13,30 +13,22 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_KEYBOARD_INPUT_H
-#define TEST_WUKONG_KEYBOARD_INPUT_H
+#ifndef TEST_WUKONG_FORMAT_JSON_H
+#define TEST_WUKONG_FORMAT_JSON_H
 
 #include <string>
 
-#include "input_action.h"
-#include "input_msg_object.h"
+#include "format.h"
+#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
-class KeyboardInput : public InputAction {
+class FormatJSON : public Format {
 public:
-    KeyboardInput();
-    ~KeyboardInput();
-
-    /**
-     * @brief input a keyboard event in random test.
-     * @return Return ERR_OK on success， others on failure.
-     */
-    ErrCode RandomInput();
-    ErrCode GetInputInfo();
-private:
-    std::shared_ptr<InputedMsgObject> inputedMsgObject_;
+    FormatJSON();
+    ~FormatJSON();
+    void FormatDetail(std::shared_ptr<Table> tablePtr, std::string &target);
 };
 }  // namespace WuKong
 }  // namespace OHOS
-#endif  // TEST_WUKONG_KEYBOARD_INPUT_H
+#endif

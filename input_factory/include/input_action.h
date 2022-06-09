@@ -27,15 +27,18 @@
 
 namespace OHOS {
 namespace WuKong {
-enum InputType {
+enum InputType
+{
     INPUTTYPE_TOUCHINPUT,      // input touch event
-    INPUTTYPE_SWAPINPUT,     // input swap event
+    INPUTTYPE_SWAPINPUT,       // input swap event
     INPUTTYPE_MOUSEINPUT,      // input mouse event
     INPUTTYPE_KEYBOARDINPUT,   // input keyboard event
     INPUTTYPE_ELEMENTINPUT,    // input element event
     INPUTTYPE_APPSWITCHINPUT,  // input appswitch event
-    INPUTTYPE_HARDKEYINPUT,      // input power event
-    INPUTTYPE_INVALIDINPUT     // input invaild event
+    INPUTTYPE_HARDKEYINPUT,    // input power event
+    INPUTTYPE_INVALIDINPUT,    // input invaild event
+    INPUTTYPE_RECORDINPUT,     // input record event
+    INPUTTYPE_REPPLAYINPUT     // input replay event
 };
 
 /**
@@ -43,13 +46,16 @@ enum InputType {
  */
 class InputAction {
 public:
-    InputAction() {};
-    virtual ~InputAction() {};
-    virtual ErrCode OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject)
+    InputAction()
+    {
+    }
+    virtual ~InputAction()
+    {
+    }
+    virtual ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
     {
         return OHOS::ERR_INVALID_VALUE;
     }
-
     /**
      * @brief input a touch event in random test.
      * @return Return ERR_OK on success， others on failure.

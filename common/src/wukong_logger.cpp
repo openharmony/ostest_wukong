@@ -38,11 +38,11 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-const std::string DEFAULT_DIR = "/data/local/wukong/log/";
+const std::string DEFAULT_DIR = "/data/local/wukong/report/";
 const std::string LOGGER_THREAD_NAME = "wukong_logger";
 const int LOG_CONTENT_LENGTH = 256;
 const int LOG_PRINTER_TIMEOUT = 500;
-std::mutex LOGBUFFER;
+std::mutex LOCK_PRINT_BUFFER;
 }  // namespace
 
 WuKongLogger::WuKongLogger() : logPrinter_()
@@ -69,24 +69,8 @@ bool WuKongLogger::Start()
     if (outputLevel_ <= LOG_LEVEL_TRACK) {
         std::cout << "Logger::Start" << std::endl;
     }
-    if (logFileName_.empty()) {
-        std::string dirStr = "/";
-        std::vector<std::string> strs;
-        OHOS::SplitStr(DEFAULT_DIR, "/", strs);
-        for (auto str : strs) {
-            dirStr.append(str);
-            dirStr.append("/");
-            if (opendir(dirStr.c_str()) == nullptr) {
-                int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
-                if (ret != 0) {
-                    std::cerr << "failed to create dir: " << DEFAULT_DIR << std::endl;
-                    return false;
-                }
-            }
-        }
-        logFileName_.append(DEFAULT_DIR);
-        logFileName_ += "wukong_" + WuKongUtil::GetInstance()->GetStartRunTime() + ".log";
-    }
+
+    logFileName_ = WuKongUtil::GetInstance()->GetCurrentTestDir() + "wukong.log";
 
     if (logPrinter_.IsRunning()) {
         DEBUG_LOG("Logger already started");
@@ -120,11 +104,11 @@ void WuKongLogger::Stop()
 
 void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
 {
-    LOGBUFFER.lock();
+    LOCK_PRINT_BUFFER.lock();
     char writeBuf[LOG_CONTENT_LENGTH] = {0};
     /* check logger_level */
     if (level < outputLevel_ && level < LOG_LEVEL_DEBUG) {
-        LOGBUFFER.unlock();
+        LOCK_PRINT_BUFFER.unlock();
         return;
     }
     /* format output content */
@@ -133,21 +117,27 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
     int ret = vsnprintf_s(writeBuf, LOG_CONTENT_LENGTH, LOG_CONTENT_LENGTH, format, args);
     if (ret < 0) {
         va_end(args);
-        LOGBUFFER.unlock();
+        LOCK_PRINT_BUFFER.unlock();
         return;
     }
     va_end(args);
 
     // write lock avoid write conflicts
     LogInfo logInfo;
-    logInfo.logStr_.append(writeBuf, writeBuf + strlen(writeBuf));
+    if (outputLevel_ <= LOG_LEVEL_TRACK) {
+        time_t currentTime = time(0);
+        char *timeChar = ctime(&currentTime);
+        logInfo.logStr_.append(timeChar, strlen(timeChar) - 1);
+        logInfo.logStr_.append(" : ");
+    }
+    logInfo.logStr_.append(writeBuf, strlen(writeBuf));
     logInfo.level_ = level;
-
+    LOCK_PRINT_BUFFER.unlock();
     // if log level is less than LOG_LEVEL_DEBUG, cout print.
     if (outputLevel_ <= LOG_LEVEL_TRACK) {
         std::cout << logInfo.logStr_ << std::endl;
     }
-    LOGBUFFER.unlock();
+
     // push log to buffer queue.
     mtxQueue_.lock();
     bufferQueue_.push(logInfo);

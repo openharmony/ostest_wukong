@@ -16,7 +16,6 @@
 #define TEST_WUKONG_COMPONENT_MANAGER_H
 
 #include "accessibility_element_info.h"
-#include "accessibility_ui_test_ability.h"
 #include "component_tree.h"
 #include "wukong_define.h"
 
@@ -50,14 +49,66 @@ public:
 
     std::vector<std::shared_ptr<ComponentManagerListener>> GetListenerList();
 
-    ErrCode ComponentEventInput(OHOS::Accessibility::AccessibilityElementInfo& elementInfo,
-                                const OHOS::Accessibility::ActionType actionType);
-
     /**
-     * @brief Create a Event Input Map.
+     * @brief input multimode event for the current page.
+     * @param elementInfo current component
+     * @param actionType the action type of current component
      * @return Return ERR_OK on success, others on failure.
      */
-    ErrCode CreateEventInputMap();
+    ErrCode ComponentEventInput(OHOS::Accessibility::AccessibilityElementInfo& elementInfo, const int actionType);
+
+    /**
+     * @brief input back event for the current page.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode BackToPrePage();
+
+    DECLARE_DELAYED_SINGLETON(ComponentManager);
+
+private:
+    bool connected_ = false;
+
+    int32_t startX_ = -1;
+    int32_t endX_ = -1;
+    int32_t startY_ = -1;
+    int32_t endY_ = -1;
+
+    std::vector<std::shared_ptr<ComponentManagerListener>> listenerList_;
+    std::map<int, std::function<ErrCode(Accessibility::AccessibilityElementInfo&)>> componentMap_;
+
+    /**
+     * @brief get the positin of current component .
+     * @param elementInfo current component.
+     */
+    void GetComponentPosition(Accessibility::AccessibilityElementInfo& elementInfo);
+
+    /**
+     * @brief input up swap event for the current component.
+     * @param elementInfo current component.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode ComponentUpSwapInput(Accessibility::AccessibilityElementInfo& elementInfo);
+
+    /**
+     * @brief input dowan swap event for the target component.
+     * @param elementInfo element, also call component.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode ComponentDownSwapInput(Accessibility::AccessibilityElementInfo& elementInfo);
+
+    /**
+     * @brief input keyboard event for the target component.
+     * @param elementInfo element, also call component.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode ComponentMultikeyInput(Accessibility::AccessibilityElementInfo& elementInfo);
+
+    /**
+     * @brief input left swap event for the target component.
+     * @param elementInfo element, also call component.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode ComponentLeftSwapInput(Accessibility::AccessibilityElementInfo& elementInfo);
 
     /**
      * @brief input touch event for the target component.
@@ -66,22 +117,11 @@ public:
      */
     ErrCode ComponentTouchInput(Accessibility::AccessibilityElementInfo& elementInfo);
 
-    ErrCode BackToPrePage();
-
-    ErrCode ComponentUpSwapInput(Accessibility::AccessibilityElementInfo& elementInfo);
-
-    ErrCode ComponentDownSwapInput(Accessibility::AccessibilityElementInfo& elementInfo);
-
-    ErrCode ComponentMultikeyInput(Accessibility::AccessibilityElementInfo& elementInfo);
-
-    DECLARE_DELAYED_SINGLETON(ComponentManager);
-
-private:
-    std::vector<std::shared_ptr<ComponentManagerListener>> listenerList_;
-    bool connected_ = false;
-    int injectTimes_ = 0;
-    OHOS::Accessibility::ActionType actionType;
-    std::map<Accessibility::ActionType, std::function<ErrCode(Accessibility::AccessibilityElementInfo&)>> componentMap_;
+    /**
+     * @brief Create a Event Input Map.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode CreateEventInputMap();
 };
 }  // namespace WuKong
 }  // namespace OHOS

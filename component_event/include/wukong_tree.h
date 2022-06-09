@@ -24,7 +24,16 @@ namespace OHOS {
 namespace WuKong {
 class WuKongTree {
 public:
-    WuKongTree() : nodeId_(0), index_(0), inputCount_(0), parent_(nullptr), children_(0)
+    static const std::shared_ptr<WuKongTree>& GetRoot(const std::shared_ptr<WuKongTree>& child)
+    {
+        if (child->GetParent() == nullptr) {
+            return child;
+        }
+        return GetRoot(child->GetParent());
+    }
+
+public:
+    WuKongTree() : nodeId_(0), index_(0), inputCount_(0), parent_(), children_(0)
     {
     }
     virtual ~WuKongTree()
@@ -53,9 +62,10 @@ public:
      * @brief Get node parent pointer, if root node return nullptr.
      * @return WuKongTree shared pointer.
      */
-    virtual const std::shared_ptr<WuKongTree>& GetParent()
+    virtual const std::shared_ptr<WuKongTree> GetParent()
     {
-        return parent_;
+        TRACK_LOG_STR("current note has parent (%d), Node (0x%016llX)", !parent_.expired(), nodeId_);
+        return parent_.lock();
     }
 
     /**
@@ -95,11 +105,11 @@ protected:
     {
         index_ = index;
     }
-    virtual void SetParent(std::shared_ptr<WuKongTree> parent)
+    virtual void SetParent(const std::shared_ptr<WuKongTree>& parent)
     {
         parent_ = parent;
     }
-    virtual void AddChild(std::shared_ptr<WuKongTree> child)
+    virtual void AddChild(const std::shared_ptr<WuKongTree>& child)
     {
         children_.push_back(child);
     }
@@ -124,7 +134,7 @@ protected:
     /**
      * @brief node parent pointer.
      */
-    std::shared_ptr<WuKongTree> parent_;
+    std::weak_ptr<WuKongTree> parent_;
     /**
      * @brief node children pointers.
      */

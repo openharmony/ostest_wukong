@@ -13,50 +13,44 @@
  * limitations under the License.
  */
 
-#include "format_csv.h"
+#include "format_json.h"
 
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 namespace OHOS {
 namespace WuKong {
-FormatCSV::FormatCSV() : Format()
+FormatJSON::FormatJSON() : Format()
 {
 }
 
-FormatCSV::~FormatCSV()
+FormatJSON::~FormatJSON()
 {
 }
 
-void FormatCSV::FormatDetail(std::shared_ptr<Table> tablePtr, std::string &target)
+void FormatJSON::FormatDetail(std::shared_ptr<Table> tablePtr, std::string &target)
 {
     std::vector<std::string> header = tablePtr->GetHeader();
     std::vector<std::vector<std::string>> record = tablePtr->GetRecord();
     std::vector<int> column_size_ = tablePtr->GetColumnSize();
     std::stringstream ss;
-
-    ss << "name, " << tablePtr->GetName() << ", detail, " << tablePtr->GetDetail() << std::endl;
-    for (int col = 0; col < header.size(); col++) {
-        ss << std::setw(column_size_[col]) << std::setiosflags(std::ios::left) << std::setfill(' ') << header[col];
-        if (col == (header.size() - 1)) {
-            break;
-        }
-        ss << ',';
-    }
-    ss << std::endl;
-
-    for (uint32_t row = 0; row < record.size(); row++) {
-        for (uint32_t col = 0; col < header.size(); col++) {
-            ss << std::setw(column_size_[col]) << std::setiosflags(std::ios::left) << std::setfill(' ');
-            ss << record[row][col];
+    ss << "[" << std::endl;
+    for (int row = 0; row < record.size(); row++) {
+        ss << "{" << std::endl;
+        for (int col = 0; col < header.size(); col++) {
+            ss  << header[col] << ":\"" << record[row][col] << "\"";
             if (col == (header.size() - 1)) {
+                ss << "},";
                 break;
             }
-            ss << ',';
+            ss << ",";
         }
         ss << std::endl;
     }
-    target += ss.str();
+    ss << "]," << std::endl;
+    target = ss.str();
 }
+
 }  // namespace WuKong
 }  // namespace OHOS

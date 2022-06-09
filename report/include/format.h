@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_FORMAT
-#define TEST_WUKONG_FORMAT
+#ifndef TEST_WUKONG_FORMAT_H
+#define TEST_WUKONG_FORMAT_H
 
 #include <string>
 

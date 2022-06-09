@@ -14,6 +14,7 @@
  */
 
 #include "test_flow.h"
+
 #include "component_manager.h"
 #include "report.h"
 
@@ -23,7 +24,9 @@ namespace {
 bool isPermissionBundle = false;
 }
 TestFlow::TestFlow(WuKongShellCommand &shellcommand)
-    : shellcommand_(shellcommand), isFinished_(false), semStop_(SEMPHORE_STOP_NAME, 1)
+    : shellcommand_(shellcommand),
+      isFinished_(false),
+      semStop_(SEMPHORE_STOP_NAME, 1)
 {
 }
 
@@ -33,10 +36,9 @@ ErrCode TestFlow::CheckVaildityCmd()
 
     // get command option and argumnets from child class.
     std::string shortOpts = "";
-    struct option *longOpts = nullptr;
-    result = GetOptionArguments(shortOpts, longOpts);
-    if (OHOS::ERR_OK != result) {
-        return result;
+    auto longOpts =  GetOptionArguments(shortOpts);
+    if (longOpts == nullptr) {
+        return OHOS::ERR_INVALID_VALUE;
     }
 
     // get shell command argumnents from shellcommand.
@@ -110,7 +112,9 @@ ErrCode TestFlow::Run()
             DEBUG_LOG_STR("PermoissionInput Result: (%d)", result);
         } else {
             result = RunStep();
-            DEBUG_LOG_STR("Step: (%d) Result: (%d)", ++count, result);
+            if (!isFinished_) {
+                DEBUG_LOG_STR("Step: (%d) Result: (%d)", ++count, result);
+            }
         }
         if (semStop_.GetValue() == 1) {
             TEST_RUN_LOG("Finished: (Stop)");
@@ -118,6 +122,7 @@ ErrCode TestFlow::Run()
         }
     }
 
+    TEST_RUN_LOG("all test Finished");
     // recover stop semaphore.
     if (semStop_.GetValue() == 0) {
         semStop_.Post();

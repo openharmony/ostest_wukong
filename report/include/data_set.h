@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_DATA_SET
-#define TEST_WUKONG_DATA_SET
+#ifndef TEST_WUKONG_DATA_SET_H
+#define TEST_WUKONG_DATA_SET_H
 
 #include <map>
 #include <memory>
@@ -37,13 +37,13 @@ public:
     void SetFilterStragety(std::shared_ptr<Filter> filter);
     void StatisticsData();
     void SetStatisticsStragety(std::shared_ptr<Statistics> statistics);
-    void FormatCSVData(std::string name, std::string &content);
-    void SetFormatCSVStragety(std::shared_ptr<Format> format);
+    void FormatData(std::string name, std::string &content);
+    void SetFormatStragety(std::shared_ptr<Format> format);
 private:
     // filtered data vector
     std::vector<std::map<std::string, std::string>> dataVector_;
     std::shared_ptr<Filter> filter_ = nullptr;
-    std::shared_ptr<Format> formatCSV_;
+    std::shared_ptr<Format> format_;
     std::shared_ptr<Statistics> statistics_ = nullptr;
     // filtered data vector statistical processing tables
     std::map<std::string, std::shared_ptr<Table>> tables_;

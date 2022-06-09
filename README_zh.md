@@ -22,8 +22,10 @@ OpenHarmony稳定性测试自动化工具，通过模拟无序的用户行为，
   - Hardkey事件注入
 - 支持wukong运行日志打印
 - 支持休眠唤醒专项测试
+- 支持录制回放专项测试
 - 支持应用白名单
 - 支持应用黑名单
+- 支持控件顺序遍历截图专项测试
 ---
 
 ## 使用方式
@@ -47,11 +49,11 @@ wukong exec 为主命令，-s 参数设置随机种子，10为种子值；-i 参
 
 | 命令           | 说明                                           | 备注          |
 | -------------- | ---------------------------------------------- | ------------- |
-| wukong version | 获取wukong版本信息                             | -v, --version |
-| wukong help    | 获取wukong帮助信息                             | -h, --help    |
-| wukong appinfo | 查询支持拉起应用entryName和对应的mainAbility名 |               |
-| wukong special | 悟空专项测试                                   |               |
-| wukong exec    | 悟空随机测试                                   |               |
+| version | 获取wukong版本信息                             | -v, --version |
+| help    | 获取wukong帮助信息                             |  --help    |
+| appinfo | 查询支持拉起应用entryName和对应的mainAbility名 |               |
+| special | 悟空专项测试                                   |               |
+| exec    | 悟空随机测试                                   |               |
 
 ----
 ## 命令选项描述
@@ -65,13 +67,15 @@ wukong exec 为主命令，-s 参数设置随机种子，10为种子值；-i 参
 | -c, --count         | 设置执行次数           | 否   | 默认10次            |
 | -i, --interval      | 设置执行间隔           | 否   | 单位ms，默认1500ms  |
 | -S, --swap          | 滑动测试               | 否   | -                   |
-| -s, --start[x,y]    | 设置滑动测试起点坐标   | 否   | -                   |
+|-s, --start[x,y]    | 设置滑动测试起点坐标   | 否   | -                   |
 | -e, --end[x,y]      | 设置滑动测试终点坐标   | 否   | -                   |
 | -b, --bilateral     | 设置往返滑动           | 否   | 默认不往返滑动      |
 | -t, --touch[x,y]    | 点击测试               | 否   | -                   |
 | -T, --time          | 设置测试总时间         | 否   | 单位分钟，默认10分钟 |
 | -C, --component     | 控件顺序遍历测试       | 否   | 需要设置测试应用名称 |
-
+| -r, --record     | 录制       | 否   | 需要指定录制文件 |
+| -R, --replay    |  回放      | 否   | 需要指定回放文件 |
+| -p, --screenshot    |  控件测试截图      | 否   | - |
 ### wukong random描述
 
 | 命令            | 功能                                 | 必选 | 备注                                     |

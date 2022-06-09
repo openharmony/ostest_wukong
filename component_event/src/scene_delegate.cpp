@@ -23,7 +23,9 @@ namespace {
 const float SAMEPERCENT = 0.8;
 const int ONELAYER = 1;
 const int ZEROLAYER = 0;
-const std::vector<std::string> componentType = {"Row", "input", "Column", "ListItem", "TextInput", "Toggle", "Button"};
+const float MINCOVERAGE = 0.9;
+uint8_t LISTITEM_COUNT = 0;
+uint8_t GRID_COUNT = 0;
 }  // namespace
 SceneDelegate::SceneDelegate()
 {
@@ -41,12 +43,34 @@ ErrCode SceneDelegate::GetCurrentComponentInfo(std::shared_ptr<ComponentTree> co
     }
     auto componentinfos = componentinfo->GetChildren();
     if (componentinfos.size() > 0) {
+        bool isListItem = false;
         for (auto it : componentinfos) {
             auto componenttree = std::static_pointer_cast<ComponentTree>(it);
+            if (componenttree->GetType() == "GridContainer") {
+                componentlist.push_back(componenttree);
+                componentType_.push_back("GridContainer");
+                GRID_COUNT++;
+                TRACK_LOG_STR("GridContainer count %u", GRID_COUNT);
+            }
+            if (componenttree->GetType() == "List") {
+                LISTITEM_COUNT = 0;
+            }
+            if (componenttree->GetType() == "ListItem") {
+                isListItem = true;
+                LISTITEM_COUNT++;
+            }
+            if (isListItem && LISTITEM_COUNT > 4) {
+                componenttree = std::static_pointer_cast<ComponentTree>(componentinfos[componentinfos.size() - 1]);
+            }
             GetCurrentComponentInfo(componenttree, componentlist);
+            if (isListItem && LISTITEM_COUNT >= 5) {
+                break;
+            }
         }
-    } else {
-        componentlist.push_back(componentinfo);
+    } else if (GRID_COUNT <= componentlist.size() &&
+               std::static_pointer_cast<ComponentTree>(componentinfo)->IsVisible()) {
+        componentlist.emplace(componentlist.end() - GRID_COUNT, componentinfo);
+        componentType_.push_back(std::static_pointer_cast<ComponentTree>(componentinfo)->GetType());
     }
     return result;
 }
@@ -54,53 +78,64 @@ ErrCode SceneDelegate::GetCurrentComponentInfo(std::shared_ptr<ComponentTree> co
 ErrCode SceneDelegate::ChooseScene(bool isRandom)
 {
     ErrCode result = OHOS::ERR_OK;
-    int layer = 0;
+    GRID_COUNT = 0;
+    componentType_.clear();
     auto treemanager = TreeManager::GetInstance();
     auto newpage = treemanager->GetNewPage();
-    std::shared_ptr<WuKongTree> currentpage = treemanager->GetCurrentPage();
+    if (newpage == nullptr) {
+        ERROR_LOG("newpage is nullptr");
+        return OHOS::ERR_NO_INIT;
+    }
     auto newcomponents = treemanager->GetNewComponents();
+    if (newcomponents == nullptr) {
+        ERROR_LOG("newcomponents is nullptr");
+        return OHOS::ERR_NO_INIT;
+    }
+    std::vector<std::shared_ptr<ComponentTree>> allcomponentlist;
+    GetCurrentComponentInfo(newcomponents, allcomponentlist);
+
+    newpage->SetAllComponentCount(allcomponentlist.size());
+    newpage->SetValidComponentCount(allcomponentlist.size());
+    std::shared_ptr<WuKongTree> currentpage = treemanager->GetCurrentPage();
     if (currentpage == nullptr) {
         DEBUG_LOG("first page");
         treemanager->AddPage();
         result = SetAvailableComponentList(newcomponents, isRandom);
+        TRACK_LOG_STR("new component Node Id: %016llX", newcomponents->GetNodeId());
         return result;
     }
-    DEBUG_LOG_STR("new ID: %lld ,old ID: %lld", newpage->GetNodeId(), currentpage->GetNodeId());
+    DEBUG_LOG_STR("new ID: %016llX ,old ID: %016llX", newpage->GetNodeId(), currentpage->GetNodeId());
     auto currentcomponents = treemanager->GetCurrentComponents();
+    if (currentcomponents == nullptr) {
+        ERROR_LOG("currentcomponents is nullptr");
+        return OHOS::ERR_NO_INIT;
+    }
     if (newpage->IsEqual(currentpage)) {
         treemanager->SamePage();
         DEBUG_LOG("at same page");
         result = SetAvailableComponentList(currentcomponents, isRandom);
         return result;
     } else {
-        while (currentpage->GetParent() != nullptr) {
-            currentpage = currentpage->GetParent();
-            layer--;
-            if (newpage->IsEqual(currentpage)) {
-                DEBUG_LOG_STR("layer: (%d)", layer);
-                treemanager->UpdatePage(layer);
-                DEBUG_LOG("back to same page");
-                auto exsitcomponent = treemanager->GetCurrentComponents();
-                result = SetAvailableComponentList(exsitcomponent, isRandom);
-                return result;
-            }
+        bool isFoundParent = false;
+        result = FindSamePageInParent(isFoundParent, isRandom);
+        if (result != OHOS::ERR_OK || isFoundParent) {
+            return result;
         }
-        std::vector<std::shared_ptr<WuKongTree>> pagechild;
-        if (!pagechild.empty()) {
-            int childIndex = 0;
-            for (auto it : pagechild) {
-                childIndex++;
-                if (newpage->IsEqual(it)) {
-                    auto currentComponentinfo = treemanager->GetCurrentComponents();
-                    DEBUG_LOG("go to same page");
-                    treemanager->UpdatePage(ONELAYER, childIndex);
-                    result = SetAvailableComponentList(currentComponentinfo, isRandom);
-                    return result;
-                }
-            }
+        bool isFoundChildren = false;
+        result = FindSamePageInChildren(isFoundChildren, isRandom);
+        if (result != OHOS::ERR_OK) {
+            return result;
         }
-        CompareComponentInfos(newcomponents, currentcomponents, isRandom);
+        if (!isFoundChildren) {
+            auto currentcomponentinfo = treemanager->GetCurrentComponents();
+            if (currentcomponentinfo == nullptr) {
+                ERROR_LOG("currentcomponentinfo is nullptr");
+                return OHOS::ERR_NO_INIT;
+            }
+            CompareComponentInfos(newcomponents, currentcomponentinfo, isRandom);
+        }
     }
+    pageId_ = treemanager->GetCurrentPage()->GetNodeId();
     return result;
 }
 
@@ -109,33 +144,52 @@ ErrCode SceneDelegate::CompareComponentInfos(std::shared_ptr<ComponentTree> newc
 {
     ErrCode result = OHOS::ERR_OK;
     DEBUG_LOG("compare page");
+    GRID_COUNT = 0;
+    componentType_.clear();
     std::vector<std::shared_ptr<ComponentTree>> newChildList;
     GetCurrentComponentInfo(newcomponentinfo, newChildList);
+    GRID_COUNT = 0;
+    componentType_.clear();
     std::vector<std::shared_ptr<ComponentTree>> currentChildList;
     GetCurrentComponentInfo(oldcomponentinfo, currentChildList);
     auto treemanager = TreeManager::GetInstance();
     if (newChildList.size() < 0 || currentChildList.size() < 0) {
-        return OHOS::ERR_NO_INIT;
+        return OHOS::ERR_INVALID_VALUE;
     }
     DEBUG_LOG_STR("childlist size %d", currentChildList.size());
-    float samePercent = (float)((FindSame(newChildList, currentChildList)) / (float)(currentChildList.size()));
+    float samePercent = 0.0;
+    uint32_t samecount = FindSame(newChildList, currentChildList);
+    if (newChildList.size() > currentChildList.size()) {
+        samePercent = (float)samecount / (float)currentChildList.size();
+    } else {
+        samePercent = (float)samecount / (float)newChildList.size();
+    }
 
     DEBUG_LOG_STR("same percent: %2f", samePercent);
     if (samePercent > SAMEPERCENT) {
+        if (!treemanager->UpdatePage(ZEROLAYER)) {
+            DEBUG_LOG("update failed");
+            return OHOS::ERR_NO_INIT;
+        }
         auto currentComponentinfo = treemanager->GetCurrentComponents();
-        treemanager->UpdatePage(ZEROLAYER);
+        if (currentComponentinfo == nullptr) {
+            ERROR_LOG("current component is nullptr");
+            return OHOS::ERR_NO_INIT;
+        }
         result = SetAvailableComponentList(currentComponentinfo, isRandom);
     } else {
+        auto newcomponent = treemanager->GetNewComponents();
         DEBUG_LOG("add new page");
-        auto newComponentinfo = treemanager->GetNewComponents();
         treemanager->AddPage();
-        result = SetAvailableComponentList(newComponentinfo, isRandom);
+        result = SetAvailableComponentList(newcomponent, isRandom);
     }
     return result;
 }
 
 ErrCode SceneDelegate::SetAvailableComponentList(std::shared_ptr<ComponentTree> componentinfo, bool isRandom)
 {
+    GRID_COUNT = 0;
+    componentType_.clear();
     ErrCode result = OHOS::ERR_OK;
     NormalScene normalsecen;
     std::vector<std::shared_ptr<ComponentTree>> componentlist;
@@ -170,6 +224,79 @@ uint32_t SceneDelegate::FindSame(const std::vector<std::shared_ptr<ComponentTree
         }
     }
     return count;
+}
+
+ErrCode SceneDelegate::FindSamePageInChildren(bool &isFound, bool isRandom)
+{
+    ErrCode result = OHOS::ERR_OK;
+    auto treemanager = TreeManager::GetInstance();
+    auto newpage = treemanager->GetNewPage();
+    std::shared_ptr<WuKongTree> currentpage = treemanager->GetCurrentPage();
+    auto pagechild = currentpage->GetChildren();
+    if (pagechild.empty()) {
+        return result;
+    }
+    int childIndex = -1;
+    for (auto it : pagechild) {
+        TRACK_LOG_STR("current child ID: %016llX ", it->GetNodeId());
+        childIndex++;
+        if (newpage->IsEqual(it)) {
+            DEBUG_LOG("go to same page");
+            if (!treemanager->UpdatePage(ONELAYER, childIndex)) {
+                DEBUG_LOG("update failed");
+                return OHOS::ERR_NO_INIT;
+            }
+            auto gotocurrent = treemanager->GetCurrentComponents();
+            if (gotocurrent == nullptr) {
+                ERROR_LOG("goto current is nullptr");
+                return OHOS::ERR_NO_INIT;
+            }
+            result = SetAvailableComponentList(gotocurrent, isRandom);
+            isFound = true;
+            return result;
+        }
+    }
+    return result;
+}
+
+ErrCode SceneDelegate::FindSamePageInParent(bool &isFound, bool isRandom)
+{
+    ErrCode result = OHOS::ERR_OK;
+    auto treemanager = TreeManager::GetInstance();
+    auto newpage = treemanager->GetNewPage();
+    std::shared_ptr<WuKongTree> currentpage = treemanager->GetCurrentPage();
+    int layer = 0;
+    auto parentpage = currentpage->GetParent();
+    while (parentpage != nullptr) {
+        TRACK_LOG_STR("current parent ID: %016llX ", parentpage->GetNodeId());
+        layer--;
+        if (newpage->IsEqual(parentpage)) {
+            auto oldpage = treemanager->GetCurrentPage();
+            if (oldpage == nullptr) {
+                ERROR_LOG("old page is nullptr");
+                return OHOS::ERR_NO_INIT;
+            }
+            float coverage = (float)oldpage->GetInputCount() / (float)oldpage->GetValidComponentCount();
+
+            TRACK_LOG_STR("layer: (%d)", layer);
+            if (!treemanager->UpdatePage(layer)) {
+                DEBUG_LOG("update failed");
+                return OHOS::ERR_NO_INIT;
+            }
+            if (coverage < MINCOVERAGE) {
+                DEBUG_LOG("continue to same page");
+                treemanager->SetActiveComponent(
+                    std::static_pointer_cast<PageTree>(parentpage)->GetCurrentComponentNode());
+            } else {
+                DEBUG_LOG("back to same page");
+                result = SetAvailableComponentList(treemanager->GetCurrentComponents(), isRandom);
+            }
+            isFound = true;
+            return result;
+        }
+        parentpage = parentpage->GetParent();
+    }
+    return result;
 }
 }  // namespace WuKong
 }  // namespace OHOS

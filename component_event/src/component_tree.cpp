@@ -26,7 +26,7 @@ const uint8_t COMPONENT_WIDTH_POSION = 36;
 const uint8_t COMPONENT_HEIGHT_POSION = 24;
 const uint8_t COMPONENT_CONTENT_POSION = 8;
 const uint8_t COMPONENT_RESERVED_POSION = 0;
-uint64_t GetSubName(std::string name, int count)
+uint64_t GetSubName(std::string name, uint32_t count)
 {
     TRACK_LOG_STR("name %s", name.c_str());
     const uint8_t heightPosion = 8;
@@ -46,6 +46,10 @@ uint64_t GetSubName(std::string name, int count)
 }  // namespace
 bool ComponentTree::RecursUpdateInfo(const std::shared_ptr<ComponentTree>& source)
 {
+    if (source == nullptr) {
+        ERROR_LOG("the argument source is nullptr.");
+        return false;
+    }
     // Copy source count info to new component node.
     expectedInputCount_ = source->expectedInputCount_;
     inputCount_ = source->inputCount_;
@@ -74,33 +78,33 @@ bool ComponentTree::SetNodeId()
 {
     const uint8_t typeCount = 2;
     const uint8_t contentCount = 2;
-    const uint8_t div = 16;
     nodeId_ = 0;
-    auto treeMgr = TreeManager::GetInstance();
-    auto elementInfo = treeMgr->GetNewElementInfoList(index_);
+    auto elementInfo = TreeManager::GetInstance()->GetNewElementInfoList(index_);
     if (elementInfo == nullptr) {
         ERROR_LOG("get new element info is nullptr");
         return false;
     }
 
     auto rect = elementInfo->GetRectInScreen();
+    isVisible_ = elementInfo->IsVisible();
     // type is component type or component id of the ElementInfo
-    uint64_t type = GetSubName(elementInfo->GetComponentType(), typeCount);
+    type_ = elementInfo->GetComponentType();
+    uint64_t type = GetSubName(type_, typeCount);
     // w is width of the ElementInfo
-    uint64_t w = rect.GetRightBottomXScreenPostion() - rect.GetLeftTopXScreenPostion();
+    int64_t w = (int64_t)(rect.GetRightBottomXScreenPostion() - rect.GetLeftTopXScreenPostion());
     // h is width of the ElementInfo
-    uint64_t h = rect.GetRightBottomYScreenPostion() - rect.GetLeftTopYScreenPostion();
+    int64_t h = (int64_t)(rect.GetRightBottomYScreenPostion() - rect.GetLeftTopYScreenPostion());
     // the ElementInfo content of 2 length
     uint64_t str = GetSubName(elementInfo->GetContent(), contentCount);
 
     // the ElementInfo name of 4 length
-    uint64_t xy = (rect.GetLeftTopXScreenPostion() / div + rect.GetLeftTopYScreenPostion() / div);
-    TRACK_LOG_STR("component Type: (%d), Width: (%d), Height: (%d)", (uint32_t)type, (uint32_t)w, (uint32_t)h);
+    // uint64_t xy = (rect.GetLeftTopXScreenPostion() / div + rect.GetLeftTopYScreenPostion() / div);
+    TRACK_LOG_STR("component Type: (%d), Width: (%d), Height: (%d)", (uint32_t)type, (int32_t)w, (int32_t)h);
     nodeId_ |= type << COMPONENT_TYPE_POSION;
     nodeId_ |= w << COMPONENT_WIDTH_POSION;
     nodeId_ |= h << COMPONENT_HEIGHT_POSION;
     nodeId_ |= str << COMPONENT_CONTENT_POSION;
-    nodeId_ |= xy << COMPONENT_RESERVED_POSION;
+    nodeId_ |= index_ << COMPONENT_RESERVED_POSION;
     TRACK_LOG_STR("component Node ID: (0x%016llX)", nodeId_);
     return true;
 }

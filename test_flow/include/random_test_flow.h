@@ -43,7 +43,7 @@ public:
     virtual ErrCode RunStep() override;
 
 private:
-    virtual ErrCode GetOptionArguments(std::string &shortOpts, const struct option *opts) override;
+    virtual const struct option* GetOptionArguments(std::string &shortOpts) override;
     ErrCode HandleUnknownOption(const char optopt) override;
     ErrCode HandleNormalOption(const int option) override;
 
@@ -61,9 +61,8 @@ private:
     ErrCode InitEventPercent();
     /**
      * @brief shuffle the elements in event list
-     * @param eventlist event list
      */
-    void RandomShuffle(std::vector<int> &eventlist);
+    void RandomShuffle();
 
     /**
      * @brief registered timer to monitor test time

@@ -37,7 +37,9 @@ using namespace std;
 class TestFlow : public ComponentManagerListener {
 public:
     TestFlow(WuKongShellCommand &shellcommand);
-    virtual ~TestFlow() {};
+    virtual ~TestFlow()
+    {
+    }
 
     /**
      * @brief Check the command arguments, and set the command result receiver.
@@ -67,10 +69,9 @@ protected:
      * @brief Get child class cammand formant for the getopt to parse command
      * arguments.
      * @param shortOpts Output command short arguments.
-     * @param opts Output command options.
      * @return Return ERR_OK to continue.
      */
-    virtual ErrCode GetOptionArguments(std::string &shortOpts, const struct option *opts) = 0;
+    virtual const struct option* GetOptionArguments(std::string &shortOpts) = 0;
 
     /**
      * @brief parse command unknown option, and print invaild information.

@@ -22,6 +22,7 @@
 #include "mouse_input.h"
 #include "hardkey_input.h"
 #include "touch_input.h"
+#include "record_input.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -55,6 +56,14 @@ std::shared_ptr<InputAction> InputFactory::GetInputAction(InputType type)
         }
         case INPUTTYPE_HARDKEYINPUT: {
             input_action = std::make_shared<HardkeyInput>();
+            break;
+        }
+        case INPUTTYPE_RECORDINPUT: {
+            input_action = std::make_shared<RecordInput>();
+            break;
+        }
+        case INPUTTYPE_REPPLAYINPUT: {
+            input_action = std::make_shared<RecordInput>();
             break;
         }
         default: {

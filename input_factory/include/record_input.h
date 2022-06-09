@@ -13,30 +13,20 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_KEYBOARD_INPUT_H
-#define TEST_WUKONG_KEYBOARD_INPUT_H
-
-#include <string>
+#ifndef TEST_WUKONG_RECORD_INPUT_H
+#define TEST_WUKONG_RECORD_INPUT_H
 
 #include "input_action.h"
-#include "input_msg_object.h"
+#include "special_test_object.h"
 
 namespace OHOS {
 namespace WuKong {
-class KeyboardInput : public InputAction {
+class RecordInput : public InputAction {
 public:
-    KeyboardInput();
-    ~KeyboardInput();
-
-    /**
-     * @brief input a keyboard event in random test.
-     * @return Return ERR_OK on success， others on failure.
-     */
-    ErrCode RandomInput();
-    ErrCode GetInputInfo();
-private:
-    std::shared_ptr<InputedMsgObject> inputedMsgObject_;
+    RecordInput();
+    ~RecordInput();
+    ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject);
 };
 }  // namespace WuKong
 }  // namespace OHOS
-#endif  // TEST_WUKONG_KEYBOARD_INPUT_H
+#endif  // TEST_WUKONG_RECORD_INPUT_H

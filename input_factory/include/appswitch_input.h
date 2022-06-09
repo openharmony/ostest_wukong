@@ -20,7 +20,7 @@
 
 #include "input_action.h"
 #include "special_test_object.h"
-
+#include "input_msg_object.h"
 namespace OHOS {
 namespace WuKong {
 class AppswitchInput : public InputAction {
@@ -28,7 +28,7 @@ public:
     AppswitchInput();
     ~AppswitchInput();
 
-    ErrCode OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject);
+    ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject);
 
     /**
      * @brief started up a app by ability.
@@ -58,6 +58,8 @@ private:
      * @return Return ERR_OK on success,others on failure.
      */
     uint32_t GetAbilityIndex(std::vector<std::string> &bundleList);
+
+    std::shared_ptr<InputedMsgObject> inputedMsgObject_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

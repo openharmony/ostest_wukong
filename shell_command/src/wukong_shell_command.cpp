@@ -14,7 +14,10 @@
  */
 
 #include "wukong_shell_command.h"
+
 #include "ability_manager_client.h"
+#include "accessibility_element_info.h"
+#include "accessibility_ui_test_ability.h"
 #include "appexecfwk_errors.h"
 #include "bundle_mgr_proxy.h"
 #include "component_manager.h"
@@ -32,17 +35,22 @@ const std::string WUKONG_TOOL_NAME = "wukong";
 
 const std::string WUKONG_TOOL_VERSION = "1.1.0\n";
 
+const std::string ACE_ENABLE_INFO =
+    "please run 'hdc_std shell param set persist.ace.testmode.enabled 1' and reboot your device\n";
+
 const std::string WUKONG_HELP_MSG =
     "usage: wukong <command> [<arguments>]\n"
     "These are common wukong command list:\n"
-    "   -h/help                    wukong help information\n"
+    "   help                       wukong help information\n"
     "   -v/--version               wukong version\n"
     "   exec                       run random test\n"
     "   special                    run special test\n"
     "   appinfo                    show all app information\n";
 }  // namespace
 
-WuKongShellCommand::WuKongShellCommand(int argc, char *argv[]) : ShellCommand(argc, argv, WUKONG_TOOL_NAME) {}
+WuKongShellCommand::WuKongShellCommand(int argc, char *argv[]) : ShellCommand(argc, argv, WUKONG_TOOL_NAME)
+{
+}
 
 ErrCode WuKongShellCommand::init()
 {
@@ -101,7 +109,15 @@ ErrCode WuKongShellCommand::RunTestCommand()
     int res = OHOS::ERR_OK;
     // get testFlow by cmd_ of ShellCommand
     std::shared_ptr<TestFlow> testFlow = TestFlowFactory::GetTestFlow(*this, cmd_);
-    uint32_t handle = ComponentManager::GetInstance()->AddRegisterListener(testFlow);
+    if (testFlow == nullptr) {
+        ERROR_LOG_STR("GetTestFlow TestFlow is null command (%s)", cmd_.c_str());
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    auto cm = ComponentManager::GetInstance();
+    if (cm == nullptr) {
+    }
+    uint32_t handle = cm->AddRegisterListener(testFlow);
 
     // check the command arguments
     // if argument is not ok, exit wukong command.
@@ -112,19 +128,26 @@ ErrCode WuKongShellCommand::RunTestCommand()
     }
 
     // connect to accessibility
-    if (!ComponentManager::GetInstance()->Connect()) {
+    if (!cm->Connect()) {
         ERROR_LOG("ComponentManager Connect failed");
         return OHOS::ERR_INVALID_OPERATION;
     }
     DEBUG_LOG("connected sucessfully");
 
+    auto aacPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
+    OHOS::Accessibility::AccessibilityElementInfo root;
+    if (!aacPtr->GetRoot(root)) {
+        resultReceiver_.append(ACE_ENABLE_INFO);
+        return OHOS::ERR_INVALID_OPERATION;
+    }
     // run test flow.
     res = testFlow->Run();
     if (res != OHOS::ERR_OK) {
         DEBUG_LOG("Test flow run failed");
     }
-    ComponentManager::GetInstance()->Disconnect();
-    ComponentManager::GetInstance()->DeleteRegisterListener(handle);
+    cm->Disconnect();
+    cm->DeleteRegisterListener(handle);
+
     TRACK_LOG_END();
     return res;
 }
@@ -156,15 +179,18 @@ ErrCode WuKongShellCommand::ShowAllAppInfo()
 {
     TRACK_LOG_STD();
     ErrCode result = WuKongUtil::GetInstance()->GetAllAppInfo();
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
+    DEBUG_LOG_STR("GetAllAppInfo result: (%u)", result);
     std::vector<std::string> bundleList;
     std::vector<std::string> abilityList;
     std::string iconpath;
     WuKongUtil::GetInstance()->GetIconPath(iconpath);
     WuKongUtil::GetInstance()->GetBundleList(bundleList, abilityList);
-    if (result != OHOS::ERR_OK) {
-        return result;
-    }
+
     std::stringstream appInfo;
+    DEBUG_LOG_STR("bundleList size: (%u)", bundleList.size());
     for (unsigned index = 0; index < bundleList.size(); index++) {
         DEBUG_LOG_STR("Bundle Name: (%s), Ability Name: (%s)", bundleList[index].c_str(), abilityList[index].c_str());
         appInfo << "BundleName:  " << bundleList[index] << std::endl;

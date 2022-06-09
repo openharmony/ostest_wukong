@@ -41,9 +41,8 @@ public:
      */
     virtual ErrCode RunStep() override;
 
-    virtual ErrCode GetOptionArguments(std::string &shortOpts, const struct option *opts) override;
-
 private:
+    virtual const struct option *GetOptionArguments(std::string &shortOpts) override;
     virtual ErrCode HandleUnknownOption(const char optopt) override;
     virtual ErrCode HandleNormalOption(const int option) override;
 
@@ -94,6 +93,8 @@ private:
 
     // the total time of test
     float totalTime_ = 10.0;
+
+    std::string specialRecordName_;
 
     // the list of touch params
     std::vector<std::string> touchParam_;

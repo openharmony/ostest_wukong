@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_STATISTICS_COMPONMENT
-#define TEST_WUKONG_STATISTICS_COMPONMENT
+#ifndef TEST_WUKONG_STATISTICS_COMPONMENT_H
+#define TEST_WUKONG_STATISTICS_COMPONMENT_H
 
 #include <iomanip>
 #include <string>
@@ -25,6 +25,13 @@
 
 namespace OHOS {
 namespace WuKong {
+namespace {
+struct coverageDetail {
+    uint32_t times;
+    uint32_t inputedTimes;
+    uint32_t componmentTotals;
+};
+}  // namespace
 class StatisticsComponment : public Statistics {
 public:
     StatisticsComponment() = default;
@@ -41,23 +48,22 @@ private:
     bool SrcDatasPreprocessing(std::vector<std::map<std::string, std::string>> srcDatas);
     // Record the apps that appear in the statistical process
     std::vector<std::string> apps_;
-    std::vector<std::string>::iterator appsIter_;
     // Record the componment that appear in the statistical process
     std::vector<std::string> componments_;
-    std::vector<std::string>::iterator componmentsIter_;
+    // global componment statistics
+    std::map<std::string, coverageDetail> allStatistic_;
     /*
      * Record the componment type corresponding to the app,
      * key is app,value is multimap used to count occurrences of componmentType
      * multimap key is componmentType, value is const string event
      */
-    std::map<std::string, std::map<std::string, std::vector<std::string>>> coverages_;
+    std::map<std::string, std::map<std::string, coverageDetail>> coverages_;
     /*
      * Record the componment type corresponding to the app,
      * key is app,value is multimap used to count occurrences of componmentType
      * multimap key is componmentType, value is const string componment
      */
     std::map<std::string, std::multimap<std::string, std::string>> appContainer_;
-    std::map<std::string, std::multimap<std::string, std::string>>::iterator appContainerIter_;
     /*
      * data structure of the table depends
      * key is app,value is map used to record execTimes

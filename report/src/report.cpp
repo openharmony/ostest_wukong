@@ -21,106 +21,139 @@
 #include <iostream>
 #include <sstream>
 #include <sys/stat.h>
+#include <unistd.h>
 
+#include "ability_manager_client.h"
+#include "element_name.h"
 #include "exception_manager.h"
 #include "filter_category.h"
 #include "format_csv.h"
-#include "input_info.h"
+#include "format_json.h"
+#include "statistics_ability.h"
 #include "statistics_componment.h"
 #include "statistics_event.h"
+#include "statistics_exception.h"
 #include "string_ex.h"
 #include "wukong_define.h"
 #include "wukong_util.h"
 
 namespace OHOS {
 namespace WuKong {
+
 namespace {
 const std::string DEFAULT_DIR = "/data/local/wukong/report/";
 }  // namespace
+using namespace OHOS::AAFwk;
 
 Report::Report()
 {
-    DIR* rootDir = nullptr;
-    std::string dirStr = "/";
-    std::vector<std::string> strs;
-    OHOS::SplitStr(DEFAULT_DIR, "/", strs);
-    bool dirStatus = true;
-    for (auto str : strs) {
-        dirStr.append(str);
-        dirStr.append("/");
-        if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
-            int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
-            if (ret != 0) {
-                dirStatus = false;
-                std::cerr << "failed to create dir: " << DEFAULT_DIR << std::endl;
-                break;
-            }
-        }
-    }
-    if (dirStatus) {
-        reportCsvFileName_.append(DEFAULT_DIR);
-        reportCsvFileName_ += "wukong_report_" + WuKongUtil::GetInstance()->GetStartRunTime() + ".csv";
-        INFO_LOG_STR("Report CSV: (%s)", reportCsvFileName_.c_str());
-    }
+    EnvInit();
+    DataSetInit();
+}
 
-    time_t currentTime = time(0);
-    if (currentTime > 0) {
-        startTime_ = currentTime;
-    }
+void Report::EnvInit()
+{
+    // setting filename
+    reportCsvFileName_ = WuKongUtil::GetInstance()->GetCurrentTestDir() + "wukong_report.csv";
+    reportJsonFileName_ = WuKongUtil::GetInstance()->GetCurrentTestDir() + "data.js";
+    INFO_LOG_STR("Report CSV: (%s)", reportCsvFileName_.c_str());
+    INFO_LOG_STR("Report JSON: (%s)", reportJsonFileName_.c_str());
+
+    // clear crash dir file
+    CrashFileClear();
+    // register crash catcher
     ExceptionManager::GetInstance()->StartCatching();
-    // set event filter,statistics,format
-    std::shared_ptr<Filter> inputFilter = std::make_shared<FilterCategory>();
-    eventDataSet_->SetFilterStragety(inputFilter);
-    eventDataSet_->SetFilterType("event");
-    std::shared_ptr<Statistics> eventSatistics = std::make_shared<StatisticsEvent>();
-    eventDataSet_->SetStatisticsStragety(eventSatistics);
-    std::shared_ptr<FormatCSV> formatCSV = std::make_shared<FormatCSV>();
+}
 
-    eventDataSet_->SetFormatCSVStragety(formatCSV);
+void Report::DataSetInit()
+{
+    std::shared_ptr<Filter> categoryFilter = std::make_shared<FilterCategory>();
+    eventDataSet_->SetFilterStragety(categoryFilter);
+    eventDataSet_->SetFilterType("event");
+    std::shared_ptr<Statistics> eventSatistics = std::make_shared<StatisticsElemnt>();
+    eventDataSet_->SetStatisticsStragety(eventSatistics);
+
     // set componment filter,statistics,format
-    componmentDataSet_->SetFilterStragety(inputFilter);
+    componmentDataSet_->SetFilterStragety(categoryFilter);
     componmentDataSet_->SetFilterType("componment");
     std::shared_ptr<Statistics> componmentSatistics = std::make_shared<StatisticsComponment>();
     componmentDataSet_->SetStatisticsStragety(componmentSatistics);
-    componmentDataSet_->SetFormatCSVStragety(formatCSV);
+
+    // set ability filter,statistics,format
+    abilityDataSet_->SetFilterStragety(categoryFilter);
+    abilityDataSet_->SetFilterType("abilityName");
+    std::shared_ptr<Statistics> abilitySatistics = std::make_shared<StatisticsAbility>();
+    abilityDataSet_->SetStatisticsStragety(abilitySatistics);
+
+    // set exception filter,statistics,format
+    exceptionDataSet_->SetFilterStragety(categoryFilter);
+    exceptionDataSet_->SetFilterType("exception");
+    std::shared_ptr<Statistics> exceptionSatistics = std::make_shared<StatisticsException>();
+    exceptionDataSet_->SetStatisticsStragety(exceptionSatistics);
 }
 
-void Report::SyncInputInfo()
+void Report::SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject)
 {
-    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
+    TRACK_LOG_STD();
+    std::shared_ptr<AbilityManagerClient> abilityManagerClient = AbilityManagerClient::GetInstance();
+    OHOS::AppExecFwk::ElementName elementName = abilityManagerClient->GetTopAbility();
     std::map<std::string, std::string> data;
-    data["bundleName"] = inputInfo->GetBundleName();
-    // record app used to control data display
-    appsIter_ = std::find(apps_.begin(), apps_.end(), data["bundleName"]);
-    if (appsIter_ == apps_.end()) {
-        apps_.push_back(data["bundleName"]);
+    data["bundleName"] = elementName.GetBundleName();
+    data["abilityName"] = elementName.GetAbilityName();
+    inputedMode inputMode = inputedMsgObject->GetInputedMode();
+    switch (inputMode) {
+        case multimodeInput: {
+            auto inputMutlMsgPtr = std::static_pointer_cast<MultimodeInputMsg>(inputedMsgObject);
+            data["event"] = inputMutlMsgPtr->GetInputType();
+            break;
+        }
+
+        case componmentInput: {
+            auto inputCompMsgPtr = std::static_pointer_cast<ComponmentInputMsg>(inputedMsgObject);
+            ComponmentInfoArrange(data["bundleName"], inputCompMsgPtr, data);
+            break;
+        }
+        default:
+            break;
     }
-    // inputInfo conversion `k => v`
-    data["abilityName"] = inputInfo->GetAbilityName();
-    data["event"] = inputInfo->InputTypeToString();
-    data["componment"] = inputInfo->GetComponmentName();
-    data["inputedTimes"] = inputInfo->GetComponmentInputedTimes();
-    data["componmentTotals"] = inputInfo->GetComponmentTotals();
+    DEBUG_LOG_STR("bundleName{%s} abilityName{%s} ", data["bundleName"].c_str(), data["abilityName"].c_str());
+    // record app used to control data display
+    std::vector<std::string>::iterator bundleIter;
+    bundleIter = std::find(bundles_.begin(), bundles_.end(), data["bundleName"]);
+    if (bundleIter == bundles_.end()) {
+        DEBUG_LOG_STR("push apps item{%s}", data["bundleName"].c_str());
+        bundles_.push_back(data["bundleName"]);
+    }
     // send `k => v` to filter
     eventDataSet_->FilterData(data);
     componmentDataSet_->FilterData(data);
+    abilityDataSet_->FilterData(data);
     taskCount_++;
+    DEBUG_LOG_STR("taskCount{%d}", taskCount_);
     // statistics and storage every 100 data
     if ((taskCount_ % 100) == 0) {
-        SegmentedWrite();
+        SegmentedWriteCSV();
+        SegmentedWriteJson();
     }
+    TRACK_LOG_END();
 }
 
 Report::~Report()
 {
 }
 
-void Report::SegmentedWrite()
+void Report::SegmentedWriteCSV()
 {
+    TRACK_LOG_STD();
     // csv report format
     if (reportCsvFileName_.empty()) {
         return;
     }
+    std::shared_ptr<FormatCSV> formatCSV = std::make_shared<FormatCSV>();
+    eventDataSet_->SetFormatStragety(formatCSV);
+    componmentDataSet_->SetFormatStragety(formatCSV);
+    abilityDataSet_->SetFormatStragety(formatCSV);
+    exceptionDataSet_->SetFormatStragety(formatCSV);
     std::stringstream modules;
     modules << "moudule    , Base Info" << std::endl;
     modules << "task status, success" << std::endl;
@@ -129,40 +162,286 @@ void Report::SegmentedWrite()
         modules << "seed , " << seed_ << std::endl;
     }
     modules << "task count , " << taskCount_ << std::endl;
+    DEBUG_LOG("start event statistics");
     eventDataSet_->StatisticsData();
+    DEBUG_LOG("end event statistics");
+    DEBUG_LOG("start componment statistics");
     componmentDataSet_->StatisticsData();
+    DEBUG_LOG("end componment statistics");
     std::string moduleInput;
     modules << "module, Input Message Statistics" << std::endl;
     modules << "name, all";
     // show all app and detail
-    for (appsIter_ = apps_.begin(); appsIter_ != apps_.end(); appsIter_++) {
-        modules << ", " << *appsIter_;
+    for (auto bundleIter : bundles_) {
+        modules << ", " << bundleIter;
     }
     modules << std::endl;
-    eventDataSet_->FormatCSVData("all", moduleInput);
     modules << "detail, event, componment" << std::endl;
+    eventDataSet_->FormatData("all", moduleInput);
+    componmentDataSet_->FormatData("all", moduleInput);
     // loop app show name-type statistics content
-    for (appsIter_ = apps_.begin(); appsIter_ != apps_.end(); appsIter_++) {
-        eventDataSet_->FormatCSVData(*appsIter_, moduleInput);
-        componmentDataSet_->FormatCSVData(*appsIter_, moduleInput);
+    for (auto bundleIter : bundles_) {
+        eventDataSet_->FormatData(bundleIter, moduleInput);
+        componmentDataSet_->FormatData(bundleIter, moduleInput);
     }
-
     modules << moduleInput;
+    modules << "module, ability Statistics" << std::endl;
+    modules << "name, all";
+    modules << "detail, ability" << std::endl;
+    moduleInput = "";
+    abilityDataSet_->StatisticsData();
+    abilityDataSet_->FormatData("all", moduleInput);
+    modules << moduleInput;
+
+    std::unique_lock<std::mutex> locker(crashMtx_);
+    modules << "module, Exception Message Statistics" << std::endl;
+    modules << "name, exception" << std::endl;
+    modules << "detail, statistics" << std::endl;
+    moduleInput = "";
+    exceptionDataSet_->StatisticsData();
+    exceptionDataSet_->FormatData("exception", moduleInput);
+    modules << moduleInput;
+    locker.unlock();
     std::string csvContent = modules.str();
     std::fstream csvFileStream(reportCsvFileName_, std::ios::out | std::ios::trunc);
     csvFileStream << csvContent << std::endl;
     csvFileStream.close();
+    TRACK_LOG_END();
+}
+
+void Report::SegmentedWriteJson()
+{
+    TRACK_LOG_STD();
+    DEBUG_LOG("SegmentedWriteJson start");
+    // csv report format
+    if (reportCsvFileName_.empty()) {
+        return;
+    }
+    std::shared_ptr<FormatJSON> formatJSON = std::make_shared<FormatJSON>();
+    eventDataSet_->SetFormatStragety(formatJSON);
+    componmentDataSet_->SetFormatStragety(formatJSON);
+    abilityDataSet_->SetFormatStragety(formatJSON);
+    exceptionDataSet_->SetFormatStragety(formatJSON);
+    std::stringstream modules;
+    std::string moduleInput;
+    modules << "var reportJson = {" << std::endl;
+    modules << "base: [" << std::endl;
+    modules << "{ item: \"tast status\", detail: \" success \"}," << std::endl;
+    modules << "{ item: \"tast time\", detail: \" " << time(0) - startTime_ << "s\"}," << std::endl;
+    modules << "{ item: \"tast cout\", detail: \" " << taskCount_ << "\"}," << std::endl;
+    if (!seed_.empty()) {
+        modules << "{ item: \"seed\", detail: \" " << seed_ << "\"}," << std::endl;
+    }
+    modules << "]," << std::endl;
+    modules << "detailApps:{" << std::endl;
+    modules << "names:[ \"all\"";
+    // show all app and detail
+    for (auto bundleIter : bundles_) {
+        modules << ", \"" << bundleIter << " \"";
+    }
+    modules << "]," << std::endl;
+    modules << "details: [" << std::endl;
+    modules << "{" << std::endl;
+    modules << "eventStatistics:" << std::endl;
+    eventDataSet_->FormatData("all", moduleInput);
+    modules << moduleInput;
+    modules << "controlStatistics:";
+    componmentDataSet_->FormatData("all", moduleInput);
+    modules << moduleInput;
+    modules << "},";
+    // loop app show name-type statistics content
+    for (auto bundleIter : bundles_) {
+        modules << "{" << std::endl;
+        modules << "eventStatistics:";
+        eventDataSet_->FormatData(bundleIter, moduleInput);
+        modules << moduleInput;
+        modules << "controlStatistics:";
+        componmentDataSet_->FormatData(bundleIter, moduleInput);
+        modules << moduleInput;
+        modules << "},";
+    }
+    modules << "]" << std::endl;
+    modules << "}," << std::endl;
+    modules << "abilityStatistics:";
+    abilityDataSet_->FormatData("all", moduleInput);
+    modules << moduleInput;
+    modules << "detailException: {" << std::endl;
+    modules << "names: [\"exception statistics\", \"cpp crash statistics\", \"js crash statistics\"]," << std::endl;
+    modules << "details: [" << std::endl;
+    modules << "{" << std::endl;
+    modules << "exception_statistics: {" << std::endl;
+    modules << "header: [\"Type\", \"Times\", \"Proportion\"]," << std::endl;
+    modules << "content: " << std::endl;
+    exceptionDataSet_->FormatData("exception", moduleInput);
+    modules << moduleInput;
+    modules << "}," << std::endl;
+    modules << "}," << std::endl;
+    modules << "]" << std::endl;
+    modules << "}," << std::endl;
+    unsigned int index = 0;
+    modules << "screens:[" << std::endl;
+    for (auto srceen : screenPaths_) {
+        modules << "{index:\"" << index << "\","
+                << "path:\"" << srceen << "\"}," << std::endl;
+        index++;
+    }
+    modules << "]," << std::endl;
+    modules << "};" << std::endl;
+    std::string jsonContent = modules.str();
+    std::fstream jsonFileStream(reportJsonFileName_, std::ios::out | std::ios::trunc);
+    jsonFileStream << jsonContent << std::endl;
+    jsonFileStream.close();
+    DEBUG_LOG("SegmentedWriteJson end");
+    TRACK_LOG_END();
+}
+
+void Report::CrashFileRecord()
+{
+    std::unique_lock<std::mutex> locker(crashMtx_);
+    for (auto iter : crashDirs_) {
+        DIR *dirp;
+        struct dirent *dp;
+        dirp = opendir(iter.c_str());
+        std::vector<std::string>::iterator iterDir;
+        while ((dp = readdir(dirp)) != NULL) {
+            std::string targetFile(dp->d_name);
+            if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
+                iterDir = find(crashFiles_.begin(), crashFiles_.end(), targetFile);
+                if (iterDir == crashFiles_.end()) {
+                    std::string destLocation = currentTestDir_ + targetFile;
+                    std::string srcFilePath = iter + targetFile;
+                    CopyFile(srcFilePath.c_str(), destLocation.c_str());
+                    crashFiles_.push_back(std::string(dp->d_name));
+                    ExceptionRecord(targetFile);
+                }
+            }
+        }
+        (void)closedir(dirp);
+    }
+}
+
+void Report::ExceptionRecord(const std::string &exceptionFilename)
+{
+    std::map<std::string, std::string> data;
+    std::string exceptionType;
+    if (exceptionFilename.find("cppcrash") != std::string::npos) {
+        exceptionType = "cppcrash";
+    }
+
+    if (exceptionFilename.find("appfreeze") != std::string::npos) {
+        exceptionType = "appfreeze";
+    }
+
+    if (exceptionFilename.find("jscrash") != std::string::npos) {
+        exceptionType = "jscrash";
+    }
+
+    if (exceptionFilename.find("service-block") != std::string::npos) {
+        exceptionType = "service-block";
+    }
+
+    data["exception"] = exceptionType;
+    exceptionDataSet_->FilterData(data);
+}
+
+bool Report::CopyFile(const char *sourceFile, const char *destFile)
+{
+    std::ifstream in;
+    std::ofstream out;
+    in.open(sourceFile, std::ios::binary);
+
+    if (in.fail()) {
+        std::cout << "Error 1: Fail to open the source file." << std::endl;
+        in.close();
+        out.close();
+        return false;
+    }
+    out.open(destFile, std::ios::binary);
+    if (out.fail()) {
+        std::cout << "Error 2: Fail to create the new file." << std::endl;
+        out.close();
+        in.close();
+        return false;
+    }
+    out << in.rdbuf();
+    out.close();
+    in.close();
+    return true;
+}
+
+void Report::CrashFileClear()
+{
+    for (auto iter : crashDirs_) {
+        DIR *dirp;
+        struct dirent *dp;
+        dirp = opendir(iter.c_str());
+        while ((dp = readdir(dirp)) != NULL) {
+            std::string targetFile(dp->d_name);
+            if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
+                std::string srcFilePath = iter + targetFile;
+                int ret = unlink(srcFilePath.c_str());
+                if (ret != 0) {
+                    std::cout << "file clear error" << std::endl;
+                }
+            }
+        }
+        (void)closedir(dirp);
+    }
 }
 
 void Report::Finish()
 {
-    SegmentedWrite();
+    SegmentedWriteCSV();
+    SegmentedWriteJson();
     ExceptionManager::GetInstance()->StopCatching();
 }
 
 void Report::SetSeed(std::string seed)
 {
     seed_ = seed;
+}
+
+void Report::ComponmentInfoArrange(const std::string &bundle, std::shared_ptr<ComponmentInputMsg> inputCompMsgPtr,
+                                   std::map<std::string, std::string> &data)
+{
+    std::map<std::string, componmentRecord>::iterator bundleComponmentRecordIter;
+    componmentRecord componmentRecord;
+    bundleComponmentRecordIter = bundleComponmentRecord_.find(bundle);
+    if (bundleComponmentRecordIter != bundleComponmentRecord_.end()) {
+        componmentRecord = bundleComponmentRecordIter->second;
+    }
+    componmentRecord.pageIdComponments[inputCompMsgPtr->pageId_] = inputCompMsgPtr->pageComponments;
+    std::map<std::string, uint32_t>::iterator componmentTypeCountIter;
+    uint32_t componmentTypeInputedCount = 0, componmentTypeTotal = 0;
+    componmentTypeCountIter = componmentRecord.componmentTypeCount.find(inputCompMsgPtr->componmentType_);
+    if (componmentTypeCountIter != componmentRecord.componmentTypeCount.end()) {
+        componmentTypeInputedCount = componmentTypeCountIter->second;
+    }
+    componmentTypeInputedCount++;
+
+    for (auto pageIdComponmentsIter : componmentRecord.pageIdComponments) {
+        for (auto componmentVectorIter : pageIdComponmentsIter.second) {
+            if (componmentVectorIter.compare(inputCompMsgPtr->componmentType_) == 0) {
+                componmentTypeTotal++;
+            }
+        }
+    }
+    if (componmentTypeInputedCount > componmentTypeTotal) {
+        componmentTypeInputedCount = componmentTypeTotal;
+    }
+
+    componmentRecord.componmentTypeCount[inputCompMsgPtr->componmentType_] = componmentTypeInputedCount;
+    data["componment"] = inputCompMsgPtr->componmentType_;
+    data["inputedTimes"] = std::to_string(componmentTypeInputedCount);
+    data["componmentTotals"] = std::to_string(componmentTypeTotal);
+    DEBUG_LOG_STR("componmentType{%s} inputedTimes{%s} componmentTotals{%s}", data["componment"].c_str(),
+                  data["inputedTimes"].c_str(), data["componmentTotals"].c_str());
+    bundleComponmentRecord_[bundle] = componmentRecord;
+}
+
+void Report::RecordScreenPath(const std::string &screenPath)
+{
+    screenPaths_.push_back(screenPath);
 }
 }  // namespace WuKong
 }  // namespace OHOS

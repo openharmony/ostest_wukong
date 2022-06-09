@@ -19,7 +19,6 @@
 #include <string>
 
 #include "accessibility_element_info.h"
-#include "accessibility_ui_test_ability.h"
 #include "component_tree.h"
 #include "input_action.h"
 #include "special_test_object.h"
@@ -31,12 +30,12 @@ class ComponentInput : public InputAction {
 public:
     ComponentInput();
     ~ComponentInput();
-    ErrCode OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject);
+    ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject);
     ErrCode RandomInput();
     ErrCode GetInputInfo();
 
 private:
-    OHOS::Accessibility::ActionType JudgeComponentType(OHOS::Accessibility::AccessibilityElementInfo& elementInfo);
+    int JudgeComponentType(OHOS::Accessibility::AccessibilityElementInfo& elementInfo);
 };
 }  // namespace WuKong
 }  // namespace OHOS

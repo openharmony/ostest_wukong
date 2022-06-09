@@ -19,7 +19,7 @@
 #include <string>
 
 #include "input_action.h"
-
+#include "input_msg_object.h"
 namespace OHOS {
 namespace WuKong {
 class SwapInput : public InputAction {
@@ -27,7 +27,7 @@ public:
     SwapInput();
     ~SwapInput();
 
-    ErrCode OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject);
+    ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject);
 
     /**
      * @brief input a power event in random test.
@@ -36,6 +36,8 @@ public:
     ErrCode RandomInput();
 
     ErrCode GetInputInfo();
+private:
+    std::shared_ptr<InputedMsgObject> inputedMsgObject_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

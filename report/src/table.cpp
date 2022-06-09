@@ -15,14 +15,18 @@
 
 #include "table.h"
 
+#include <iomanip>
+#include <iostream>
+
 namespace OHOS {
 namespace WuKong {
+
 Table::Table(std::vector<std::string> cloumn_header, std::vector<std::vector<std::string>> record)
 {
-    int cols = cloumn_header.size(), rows = record.size();
-    for (int col = 0; col < cols; col++) {
-        int max = cloumn_header[col].size();
-        for (int row = 0; row < rows; row++) {
+    uint32_t cols = cloumn_header.size(), rows = record.size();
+    for (uint32_t col = 0; col < cols; col++) {
+        uint32_t max = cloumn_header[col].size();
+        for (uint32_t row = 0; row < rows; row++) {
             max = record[row][col].size() > max ? record[row][col].size() : max;
         }
         column_size_.push_back(max);

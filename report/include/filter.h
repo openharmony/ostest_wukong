@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_FILTER
-#define TEST_WUKONG_FILTER
+#ifndef TEST_WUKONG_FILTER_H
+#define TEST_WUKONG_FILTER_H
 
 #include <map>
 #include <string>

@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_STATISTICS_EVENT
-#define TEST_WUKONG_STATISTICS_EVENT
+#ifndef TEST_WUKONG_STATISTICS_EVENT_H
+#define TEST_WUKONG_STATISTICS_EVENT_H
 
 #include <iomanip>
 #include <string>
@@ -25,10 +25,10 @@
 
 namespace OHOS {
 namespace WuKong {
-class StatisticsEvent : public Statistics {
+class StatisticsElemnt : public Statistics {
 public:
-    StatisticsEvent() = default;
-    ~StatisticsEvent() = default;
+    StatisticsElemnt() = default;
+    ~StatisticsElemnt() = default;
     void StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
                           std::map<std::string, std::shared_ptr<Table>> &destTables);
 
@@ -41,10 +41,8 @@ private:
     bool SrcDatasPreprocessing(std::vector<std::map<std::string, std::string>> srcDatas);
     // Record the apps that appear in the statistical process
     std::vector<std::string> apps_;
-    std::vector<std::string>::iterator appsIter_;
     // Record the events that appear in the statistical process
     std::vector<std::string> events_;
-    std::vector<std::string>::iterator eventsIter_;
     // global event statistics
     std::map<std::string, int> allStatistic_;
     /*
@@ -53,16 +51,16 @@ private:
      * multimap key is eventType, value is const string event
      */
     std::map<std::string, std::multimap<std::string, std::string>> appContainer_;
-    std::map<std::string, std::multimap<std::string, std::string>>::iterator appContainerIter_;
+
     /*
      * data structure of the table depends
      * key is app,value is map used to record execTimes
      * map key is eventType, value is `execTimes,proportion` vector
      */
     std::map<std::string, std::map<std::string, std::vector<std::string>>> tablesItems_;
-    int execCount_ = 0;
     std::vector<std::string> headers_ = {"type", "execTimes", "proportion"};
     std::vector<std::vector<std::string>> record_;
+    int execCount_ = 0;
 };
 }  // namespace WuKong
 }  // namespace OHOS

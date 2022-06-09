@@ -22,6 +22,8 @@
 
 namespace OHOS {
 namespace WuKong {
+#define COMPONENT_LEFT_SWAP 0X10000000
+
 #define PARAM_COUNT_TIME_ERROR "has set '-T', can not set '-T' and '-c' at the same time"
 #define PARAM_TIME_COUNT_ERROR "has set '-c', can not set '-c' and '-T' at the same time"
 

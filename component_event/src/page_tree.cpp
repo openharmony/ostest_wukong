@@ -74,8 +74,7 @@ void RecursStatistics(std::shared_ptr<ComponentTree> parent)
 bool PageTree::SetNodeId()
 {
     nodeId_ = 0;
-    auto treeMgr = TreeManager::GetInstance();
-    auto componentTree = treeMgr->GetNewComponents();
+    auto componentTree = TreeManager::GetInstance()->GetNewComponents();
     if (componentTree->GetNodeId() == 0) {
         WARN_LOG("Component Tree is Empty");
         return false;
@@ -98,7 +97,7 @@ bool PageTree::SetNodeId()
     RecursStatistics(componentTree);
 
     uint32_t twoWidth = componentTree->GetChildren().size();
-    TRACK_LOG_STR("Page Count: (%d), Node: (%d), Branch: (%d), Height: (%d), Two Width: (%d), Last Width: (%d)",
+    DEBUG_LOG_STR("Page Count: (%d), Node: (%d), Branch: (%d), Height: (%d), Two Width: (%d), Last Width: (%d)",
                   (uint32_t)pageCount, (uint32_t)nodeCount, (uint32_t)branchCount, height, lastWidth, twoWidth);
     count_ = (uint32_t)pageCount;
 

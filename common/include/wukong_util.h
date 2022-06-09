@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <vector>
 
+#include "bundle_mgr_proxy.h"
 #include "errors.h"
 #include "semaphore_ex.h"
 #include "singleton.h"
@@ -110,6 +111,32 @@ public:
         return startRunTime_;
     }
 
+    /**
+     * @brief get screenshot.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode WukongScreenCap(std::string &screenStorePath);
+
+    /**
+     * @brief get all abilities by bundleName string.
+     * @param bundleName bundle name.
+     * @param abilities all abilities find by bundle name.
+     */
+    void GetAllAbilitiesByBundleName(std::string bundleName, std::vector<std::string> &abilities);
+
+    /**
+     * @brief Check if param is valid
+     * @param argumentlist argument list.
+     * @return Return ERR_OK argument is valid, others is invalid.
+     */
+    ErrCode CheckArgumentList(std::vector<std::string> &arguments);
+
+    /**
+     * @brief get current test wukong base dir.
+     * @return dir string
+     */
+    std::string GetCurrentTestDir();
+
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 
 private:
@@ -126,11 +153,10 @@ private:
     ErrCode CheckBundleNameList();
 
     /**
-     * @brief Check if param is valid
-     * @param argumentlist argument list.
-     * @return Return ERR_OK argument is valid, others is invalid.
+     * @brief get bundle manager proxy for get abilitys.
+     * @return return bundleManager instance.
      */
-    ErrCode CheckArgumentList(std::vector<std::string> &arguments);
+    sptr<OHOS::AppExecFwk::IBundleMgr> GetBundleMgrProxy() const;
 
     std::string iconPath_;
     std::vector<std::string> bundleList_;
@@ -144,6 +170,7 @@ private:
     int32_t screenHeight_ = -1;
 
     std::string startRunTime_;
+    std::string curDir_;
 };
 
 class WukongSemaphore {

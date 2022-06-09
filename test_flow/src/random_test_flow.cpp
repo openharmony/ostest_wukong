@@ -113,6 +113,9 @@ ErrCode RandomTestFlow::InitEventPercent()
     int sumPercent = 0;
     int sumLastDefaultPercent = ONE_HUNDRED_PERCENT;
     vector<int> lastDefaultPercent = DEFAULT_INPUT_PERCENT;
+    for (auto input : inputPercent_) {
+        TRACK_LOG_STR("input: (%02d)", input);
+    }
     for (int type = 0; type < INPUTTYPE_INVALIDINPUT; type++) {
         // add type to count input list for random algorithm.
         for (int index = 0; index < inputPercent_[type]; index++) {
@@ -174,7 +177,7 @@ ErrCode RandomTestFlow::EnvInit()
     TEST_RUN_LOG(("Seed: " + std::to_string(seedArgs_)).c_str());
 
     // shuffle the event list.
-    RandomShuffle(eventList_);
+    RandomShuffle();
 
     // if time test flow, registe timer.
     if (g_commandTIMEENABLE) {
@@ -205,8 +208,8 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
     }
 
     // check vaild of the option argument
-    if (percent > 1) {
-        shellcommand_.ResultReceiverAppend("the input percent more than 1 (100&).\n");
+    if (percent > 1 || percent < 0) {
+        shellcommand_.ResultReceiverAppend("the input percent more than 1 (100%).\n");
         shellcommand_.ResultReceiverAppend(RANDOM_TEST_HELP_MSG);
         return OHOS::ERR_INVALID_VALUE;
     }
@@ -233,7 +236,6 @@ ErrCode RandomTestFlow::RunStep()
     InputType eventTypeId = (InputType)(eventList_.at(eventindex));
     std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(eventTypeId);
     result = inputaction->RandomInput();
-    Report::GetInstance()->SyncInputInfo();
     usleep(intervalArgs_ * oneSecond_);
     return result;
 }
@@ -269,7 +271,7 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         }
         case 'i': {
             intervalArgs_ = std::stoi(optarg);
-            DEBUG_LOG_STR("Interval: (%ld)", intervalArgs_);
+            TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
             break;
         }
         case 's': {
@@ -303,7 +305,7 @@ ErrCode RandomTestFlow::CheckArgument(const int option)
             if (g_commandTIMEENABLE == false) {
                 g_commandCOUNTENABLE = true;
                 countArgs_ = std::stoi(optarg);
-                DEBUG_LOG_STR("Count: (%d)", countArgs_);
+                TEST_RUN_LOG(("Count: " + std::to_string(countArgs_)).c_str());
                 totalCount_ = countArgs_;
             } else {
                 DEBUG_LOG(PARAM_COUNT_TIME_ERROR);
@@ -316,7 +318,7 @@ ErrCode RandomTestFlow::CheckArgument(const int option)
             // check if the '-c' and 'T' is exist at the same time
             if (g_commandCOUNTENABLE == false) {
                 totalTime_ = std::stof(optarg);
-                DEBUG_LOG_STR("Time: (%ld)", totalTime_);
+                TEST_RUN_LOG(("Time: " + std::to_string(totalTime_)).c_str());
                 g_commandTIMEENABLE = true;
             } else {
                 DEBUG_LOG(PARAM_TIME_COUNT_ERROR);
@@ -333,11 +335,10 @@ ErrCode RandomTestFlow::CheckArgument(const int option)
     return result;
 }
 
-ErrCode RandomTestFlow::GetOptionArguments(std::string &shortOpts, const struct option *opts)
+const struct option* RandomTestFlow::GetOptionArguments(std::string &shortOpts)
 {
     shortOpts = SHORT_OPTIONS;
-    opts = LONG_OPTIONS;
-    return OHOS::ERR_OK;
+    return LONG_OPTIONS;
 }
 
 ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
@@ -358,7 +359,7 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
         case 'm':
         case 'C':
             // error: option 'x' requires a value.
-            shellcommand_.ResultReceiverAppend("error: option '");
+            shellcommand_.ResultReceiverAppend("error: option '-");
             shellcommand_.ResultReceiverAppend(string(1, optopt));
             shellcommand_.ResultReceiverAppend("' requires a value.\n");
             result = OHOS::ERR_INVALID_VALUE;
@@ -379,7 +380,7 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
     return result;
 }
 
-void RandomTestFlow::RandomShuffle(std::vector<int> &eventlist)
+void RandomTestFlow::RandomShuffle()
 {
     for (uint32_t i = eventList_.size() - 1; i > 0; --i) {
         std::swap(eventList_[i], eventList_[std::rand() % (i + 1)]);

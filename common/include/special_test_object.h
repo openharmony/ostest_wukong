@@ -17,7 +17,9 @@
 #define TEST_WUKONG_SPECAIL_TEST_OBJECT_H
 
 #include <cstdio>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "securec.h"
 
@@ -37,6 +39,7 @@ public:
         return std::to_string(objectType_);
     }
     int objectType_ = -1;
+    bool isAllFinished_ = false;
 };
 class SwapParam : public SpcialTestObject {
 public:
@@ -80,7 +83,7 @@ public:
     {
         char buffer[50];
         int result = sprintf_s(buffer, sizeof(buffer), "Point: (%d, %d)", x_, y_);
-        if (result == -1) {
+        if (result < 0) {
             return SpcialTestObject::toString();
         }
         return std::string(buffer);
@@ -106,6 +109,51 @@ public:
         return std::string(buffer);
     }
     std::string bundlename_ = " ";
+};
+class ComponentParam : public SpcialTestObject {
+public:
+    ComponentParam()
+    {
+        bundleName_.clear();
+        bundleRunning_.clear();
+        bundleFinish_.clear();
+    }
+    virtual ~ComponentParam()
+    {
+    }
+    virtual std::string toString()
+    {
+        std::stringstream ss;
+        ss << "Bundle : ";
+        for (uint32_t index = 0; index < bundleName_.size(); index++) {
+            ss << "[" << bundleName_[index] << ":" << bundleRunning_[index] << ":" << bundleFinish_[index] << "]";
+        }
+        ss << "AllFinished: " << isAllFinished_;
+        return ss.str();
+    }
+
+    void PushBundleName(const std::string& name)
+    {
+        bundleName_.push_back(name);
+        bundleRunning_.push_back(false);
+        bundleFinish_.push_back(false);
+        pageBack_.push_back(0);
+    }
+    std::vector<std::string> bundleName_;
+    std::vector<bool> bundleRunning_;
+    std::vector<bool> bundleFinish_;
+    std::vector<uint32_t> pageBack_;
+};
+class RecordParam : public SpcialTestObject {
+public:
+    RecordParam()
+    {
+    }
+    virtual ~RecordParam()
+    {
+    }
+    std::string recordName_;
+    bool recordStatus_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

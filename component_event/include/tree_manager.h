@@ -63,7 +63,7 @@ public:
      * @param index index of active element info list.
      * @param actionType component input type.
      */
-    void SetInputcomponentIndex(OHOS::Accessibility::ActionType actionType, uint32_t index = INVALIDED_INPUT_INDEX);
+    void SetInputcomponentIndex(int actionType, uint32_t index = INVALIDED_INPUT_INDEX);
 
     /**
      * for scene update tree.
@@ -85,7 +85,7 @@ public:
      * @brief get current component tree.
      * @return A ComponentTree
      */
-    std::shared_ptr<ComponentTree> GetCurrentComponents()
+    const std::shared_ptr<ComponentTree>& GetCurrentComponents()
     {
         return currentComponentNode_;
     }
@@ -93,7 +93,7 @@ public:
      * @brief get new component tree
      * @return A ComponentTree
      */
-    std::shared_ptr<ComponentTree> GetNewComponents()
+    const std::shared_ptr<ComponentTree>& GetNewComponents()
     {
         return newComponentNode_;
     }
@@ -102,7 +102,7 @@ public:
      * @brief get current page node.
      * @return A ComponentTree
      */
-    std::shared_ptr<PageTree> GetCurrentPage()
+    const std::shared_ptr<PageTree>& GetCurrentPage()
     {
         return currentPageNode_;
     }
@@ -111,10 +111,29 @@ public:
      * @brief get new page node
      * @return A ComponentTree
      */
-    std::shared_ptr<PageTree> GetNewPage()
+    const std::shared_ptr<PageTree>& GetNewPage()
     {
         return newPageNode_;
     }
+
+    /**
+     * @brief get current ability node.
+     * @return A AblilityTree
+     */
+    const std::shared_ptr<AbilityTree>& GetCurrentAbility()
+    {
+        return currentAbilityNode_;
+    }
+
+    /**
+     * @brief get all app bundle tree.
+     * @return A AblilityTree list
+     */
+    const std::vector<std::shared_ptr<AbilityTree>>& GetBundleList()
+    {
+        return abilityTreeList_;
+    }
+
     /**
      * @brief add current page as a new page
      * @return add new page result
@@ -132,7 +151,7 @@ public:
      * @param index child index
      * @return update page result
      */
-    bool UpdatePage(int layer, int index = -1);
+    bool UpdatePage(int layer, uint32_t index = INVALIDED_INPUT_INDEX);
 
     const std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo> GetNewElementInfoList(uint32_t index)
     {
@@ -142,20 +161,13 @@ public:
             return {};
         }
     }
-    const std::shared_ptr<ComponentTree> GetComponents(uint32_t index)
-    {
-        if (index < componentTreeList_.size()) {
-            return componentTreeList_[index];
-        } else {
-            return {};
-        }
-    }
+
+    bool RecursComponent(const std::shared_ptr<ComponentTree>& componentTree);
     DECLARE_DELAYED_SINGLETON(TreeManager);
 
 private:
-    bool RecursGetChildElementInfo(std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>& parent,
-                                   std::shared_ptr<WuKongTree> componentParent);
-    bool RecursComponent(std::shared_ptr<ComponentTree> componentTree);
+    bool RecursGetChildElementInfo(const std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>& parent,
+                                   const std::shared_ptr<ComponentTree>& componentParent);
     bool FindAbility(const std::shared_ptr<AbilityTree>& abilityNode);
     ErrCode MakeAndCheckNewAbility();
     bool UpdateCurrentPage(bool isAdd = false);
@@ -178,16 +190,13 @@ private:
     std::vector<std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>> newElementInfoList_;
 
     std::vector<std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>> elementInfoList_;
-    std::vector<std::shared_ptr<ComponentTree>> componentTreeList_;
 
     std::vector<std::shared_ptr<AbilityTree>> abilityTreeList_;
-    std::vector<std::shared_ptr<PageTree>> pageTreeList_;
+    std::map<std::uint32_t, std::shared_ptr<PageTree>> pageTreeList_;
+    std::map<std::uint32_t, std::shared_ptr<ComponentTree>> componentTreeList_;
 
-    bool isUpdateComponentFinished_;
-    bool isNewAbility_;
-    std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo> invaledElementInfo_;
-    std::shared_ptr<ComponentTree> invaledComponent_;
-    std::shared_ptr<PageTree> invaledPage_;
+    bool isUpdateComponentFinished_ = false;
+    bool isNewAbility_ = false;
 };
 }  // namespace WuKong
 }  // namespace OHOS

@@ -15,10 +15,10 @@
 
 #include "mouse_input.h"
 
-#include "input_info.h"
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
+#include "report.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -29,6 +29,9 @@ const int mouseMidPercent = 10;
 }  // namespace
 MouseInput::MouseInput() : InputAction()
 {
+    std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
+    multimodeInputMsg->inputType_ = INPUTTYPE_MOUSEINPUT;
+    inputedMsgObject_ = multimodeInputMsg;
 }
 
 MouseInput::~MouseInput()
@@ -70,8 +73,7 @@ ErrCode MouseInput::RandomInput()
     if (result != OHOS::ERR_OK) {
         return result;
     }
-    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
-    inputInfo->SetInputType(INPUTTYPE_MOUSEINPUT);
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     return result;
 }
 

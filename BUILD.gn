@@ -23,19 +23,13 @@ config("wukong_common_config") {
 }
 
 accessibility_include_dirs = [
-  "//base/accessibility/frameworks/aafwk/include",
-  "//base/accessibility/interfaces/innerkits/common/include/",
+  "//base/accessibility/interfaces",
   "//foundation/bundlemanager/bundle_framework/common/log/include",
-  "//foundation/multimodalinput/input/interfaces/native/innerkits/common/include",
-  "//foundation/multimodalinput/input/interfaces/native/innerkits/event/include",
-  "//foundation/multimodalinput/input/interfaces/native/innerkits/proxy/include",
-  "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager/include",
-  "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent/include",
-  "//base/hiviewdfx/hisysevent/adapter/native/idl/include",
+  "//foundation/multimodalinput/input/interfaces",
+  "//base/hiviewdfx/hisysevent/interfaces",
   "//utils/native/base/include",
   "//utils/system/safwk/native/include",
   "//third_party/json/include",
-  "//base//accessibility/interfaces/innerkits/aafwk/include",
   "include",
 ]
 
@@ -62,6 +56,7 @@ ohos_executable("wukong") {
     "${wukong_root}/input_factory/src/input_factory.cpp",
     "${wukong_root}/input_factory/src/keyboard_input.cpp",
     "${wukong_root}/input_factory/src/mouse_input.cpp",
+    "${wukong_root}/input_factory/src/record_input.cpp",
     "${wukong_root}/input_factory/src/swap_input.cpp",
     "${wukong_root}/input_factory/src/touch_input.cpp",
     "${wukong_root}/report/src/data_set.cpp",
@@ -70,11 +65,13 @@ ohos_executable("wukong") {
     "${wukong_root}/report/src/filter_category.cpp",
     "${wukong_root}/report/src/format.cpp",
     "${wukong_root}/report/src/format_csv.cpp",
-    "${wukong_root}/report/src/input_info.cpp",
+    "${wukong_root}/report/src/format_json.cpp",
     "${wukong_root}/report/src/report.cpp",
     "${wukong_root}/report/src/statistics.cpp",
+    "${wukong_root}/report/src/statistics_ability.cpp",
     "${wukong_root}/report/src/statistics_componment.cpp",
     "${wukong_root}/report/src/statistics_event.cpp",
+    "${wukong_root}/report/src/statistics_exception.cpp",
     "${wukong_root}/report/src/sysevent_listener.cpp",
     "${wukong_root}/report/src/table.cpp",
     "${wukong_root}/shell_command/src/wukong_main.cpp",
@@ -96,7 +93,10 @@ ohos_executable("wukong") {
 
   include_dirs += accessibility_include_dirs
 
-  deps = [ "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager" ]
+  deps = [
+    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
+    "//third_party/libpng:libpng",
+  ]
 
   external_deps = [
     "ability_base:want",

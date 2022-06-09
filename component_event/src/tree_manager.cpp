@@ -34,19 +34,17 @@ class ComponentManagerMonitor : public ComponentManagerListener {
 };
 }  // namespace
 
-TreeManager::TreeManager()
-    : isUpdateComponentFinished_(false),
-      invaledElementInfo_(nullptr),
-      invaledComponent_(nullptr),
-      invaledPage_(nullptr)
+TreeManager::TreeManager() : isUpdateComponentFinished_(false), isNewAbility_(false)
 {
 }
 TreeManager::~TreeManager()
 {
+    TRACK_LOG_STD();
 }
 
-bool TreeManager::RecursGetChildElementInfo(std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>& parent,
-                                            std::shared_ptr<WuKongTree> componentParent)
+bool TreeManager::RecursGetChildElementInfo(
+    const std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>& parent,
+    const std::shared_ptr<ComponentTree>& componentParent)
 {
     bool res = true;
     if (componentParent == nullptr) {
@@ -85,17 +83,26 @@ bool TreeManager::RecursGetChildElementInfo(std::shared_ptr<OHOS::Accessibility:
     componentParent->SetNodeId();
     return res;
 }
-bool TreeManager::RecursComponent(std::shared_ptr<ComponentTree> componentTree)
+bool TreeManager::RecursComponent(const std::shared_ptr<ComponentTree>& componentTree)
 {
+    if (LOG_LEVEL_TRACK < WuKongLogger::GetInstance()->GetLogLevel()) {
+        return false;
+    }
     if (componentTree == nullptr) {
         return false;
     }
     auto children = componentTree->GetChildren();
 
     auto elementInfo = GetNewElementInfoList(componentTree->GetIndex());
-    TRACK_LOG_STR("Component Node Indxe: (%d), Child Count: (%d), Component Tree child ID (%d), Type (%s)",
-                  componentTree->GetIndex(), children.size(), elementInfo->GetAccessibilityId(),
-                  elementInfo->GetComponentType().c_str());
+    if (elementInfo != nullptr) {
+        TRACK_LOG_STR("Component Node Indxe:(%d), NodeId:(0x%016llX), input count:(%u), Element ID(%d), Type(%s)",
+                      componentTree->GetIndex(), componentTree->GetNodeId(), componentTree->GetInputCount(),
+                      elementInfo->GetAccessibilityId(), elementInfo->GetComponentType().c_str());
+    } else {
+        TRACK_LOG_STR("Component Node Indxe:(%d), NodeId:(0x%016llX), input count:(%u)", componentTree->GetIndex(),
+                      componentTree->GetNodeId(), componentTree->GetInputCount());
+    }
+
     for (auto tree : children) {
         RecursComponent(std::static_pointer_cast<ComponentTree>(tree));
     }
@@ -120,7 +127,6 @@ bool TreeManager::FindAbility(const std::shared_ptr<AbilityTree>& abilityNode)
 
 ErrCode TreeManager::MakeAndCheckNewAbility()
 {
-    isNewAbility_ = false;
     // Check ability state
     newAbilityNode_ = std::make_shared<AbilityTree>();
     newAbilityNode_->SetNodeId();
@@ -163,15 +169,16 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
         currentComponentNode_ = nullptr;
         currentPageNode_ = nullptr;
         isNewAbility_ = true;
-    } else if (!isNewBundle && !isNewAbility) {
+    } else {
         // set old screen to current screen data when it is old ability.
-        if (currentAbilityNode_->GetIndex() >= pageTreeList_.size()) {
+        if (pageTreeList_.find(currentAbilityNode_->GetIndex()) == pageTreeList_.end()) {
             ERROR_LOG_STR("ability index (%d) more than pageTreeList count (%d)", currentAbilityNode_->GetIndex(),
                           pageTreeList_.size());
             return OHOS::ERR_INVALID_OPERATION;
         }
         currentPageNode_ = pageTreeList_[currentAbilityNode_->GetIndex()];
-        if (currentPageNode_->GetIndex() >= componentTreeList_.size()) {
+
+        if (componentTreeList_.find(currentPageNode_->GetIndex()) == componentTreeList_.end()) {
             ERROR_LOG_STR("page index (%d) more than componentTreeList count (%d)", currentPageNode_->GetIndex(),
                           componentTreeList_.size());
             return OHOS::ERR_INVALID_OPERATION;
@@ -187,7 +194,16 @@ ErrCode TreeManager::UpdateComponentInfo()
     ErrCode result = OHOS::ERR_OK;
     // start update component tree.
     isUpdateComponentFinished_ = false;
+    isNewAbility_ = false;
     newElementInfoList_.clear();
+    if (WuKongLogger::GetInstance()->GetLogLevel() == LOG_LEVEL_TRACK) {
+        DEBUG_LOG_STR("CompoentNode shared  new (%p) count = (%ld) unique (%d)", newComponentNode_.get(),
+                      newComponentNode_.use_count(), newComponentNode_.unique());
+        DEBUG_LOG_STR("CompoentNode shared (%p) count = (%ld) unique (%d)", currentComponentNode_.get(),
+                      currentComponentNode_.use_count(), currentComponentNode_.unique());
+    }
+    // Generate Ability Node
+    MakeAndCheckNewAbility();
 
     auto root = std::make_shared<OHOS::Accessibility::AccessibilityElementInfo>();
     auto aacPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
@@ -213,22 +229,17 @@ ErrCode TreeManager::UpdateComponentInfo()
         if (!bResult) {
             return OHOS::ERR_INVALID_OPERATION;
         }
-        if (LOG_LEVEL_DEBUG >= WuKongLogger::GetInstance()->GetLogLevel()) {
-            RecursComponent(newComponentNode_);
-        }
+        RecursComponent(newComponentNode_);
     }
     // Generate Page Node
     newPageNode_ = std::make_shared<PageTree>();
     newPageNode_->SetNodeId();
 
-    // Generate Ability Node
-    result = MakeAndCheckNewAbility();
-
     TRACK_LOG_END();
     return result;
 }
 
-void TreeManager::SetInputcomponentIndex(OHOS::Accessibility::ActionType actionType, uint32_t index)
+void TreeManager::SetInputcomponentIndex(int actionType, uint32_t index)
 {
     DEBUG_LOG_STR("Input: (%d), Input Type: (%d)", index, actionType);
     if (currentPageNode_ == nullptr) {
@@ -248,6 +259,8 @@ void TreeManager::SetInputcomponentIndex(OHOS::Accessibility::ActionType actionT
         }
         inputComponentList_[index]->AddInputCount();
         inputComponentList_[index]->AddTypeInputCount(actionType);
+        DEBUG_LOG_STR("inputComponent: GetNodeId (0x%016llX)", inputComponentList_[index]->GetNodeId());
+
     } else {
         if (inputComponent_ == nullptr) {
             ERROR_LOG("inputComponent_ is nullptr");
@@ -255,14 +268,19 @@ void TreeManager::SetInputcomponentIndex(OHOS::Accessibility::ActionType actionT
         }
         inputComponent_->AddInputCount();
         inputComponent_->AddTypeInputCount(actionType);
-        DEBUG_LOG_STR("inputComponent_: GetNodeId (0x%016llX)", inputComponent_->GetNodeId());
+        DEBUG_LOG_STR("inputComponent: GetNodeId (0x%016llX)", inputComponent_->GetNodeId());
     }
-
+    RecursComponent(currentComponentNode_);
     // ability input count statistics
     currentAbilityNode_->AddInputCount();
 
     // page input count statistics
     currentPageNode_->AddInputCount();
+    if (index != INVALIDED_INPUT_INDEX) {
+        currentPageNode_->SetCurrentComponentNode(inputComponentList_[index]);
+    } else {
+        currentPageNode_->SetCurrentComponentNode(inputComponent_);
+    }
 }
 
 void TreeManager::SetActiveComponent(const std::vector<std::shared_ptr<ComponentTree>>& inputComponentList)
@@ -287,12 +305,12 @@ void TreeManager::SetActiveComponent(const std::vector<std::shared_ptr<Component
 
 void TreeManager::SetActiveComponent(const std::shared_ptr<ComponentTree>& inputComponent)
 {
-    DEBUG_LOG_STR("Active component: GetNodeId (0x%016llX)", inputComponent->GetNodeId());
     // Save one input pointer.
     if (inputComponent == nullptr) {
         ERROR_LOG("argument failed inputComponent is nullptr");
         return;
     }
+    DEBUG_LOG_STR("Active component: GetNodeId (0x%016llX)", inputComponent->GetNodeId());
     inputComponent_ = inputComponent;
     if (elementInfoList_.size() > inputComponent->GetIndex()) {
         inputElementInfo_ = elementInfoList_[inputComponent->GetIndex()];
@@ -313,18 +331,24 @@ bool TreeManager::AddPage()
         ERROR_LOG("the new Page Node is null");
         return false;
     }
-    if (currentPageNode_ != nullptr) {
-        newPageNode_->SetParent(currentPageNode_);
-        currentPageNode_->AddChild(newPageNode_);
-    }
-    newPageNode_->SetIndex(componentTreeList_.size() - 1);
-    currentPageNode_ = newPageNode_;
 
-    // ability tree growth
-    if (isNewAbility_) {
-        pageTreeList_.push_back(currentPageNode_);
-        currentAbilityNode_->SetIndex(pageTreeList_.size() - 1);
+    uint32_t key = componentTreeList_.size();
+    componentTreeList_[key] = currentComponentNode_;
+    newPageNode_->SetIndex(key);
+    if (!isNewAbility_) {
+        if (currentPageNode_ != nullptr) {
+            newPageNode_->SetParent(currentPageNode_);
+            currentPageNode_->AddChild(newPageNode_);
+        }
+    } else {
+        // ability tree growth
+        key = pageTreeList_.size();
+        pageTreeList_[key] = newPageNode_;
+        currentAbilityNode_->SetIndex(key);
     }
+    currentPageNode_ = newPageNode_;
+    currentAbilityNode_->AddAllComponentCount(currentPageNode_->GetAllComponentCount());
+
     TRACK_LOG_END();
     return SamePage();
 }
@@ -334,6 +358,10 @@ bool TreeManager::SamePage()
     TRACK_LOG_STD();
     isUpdateComponentFinished_ = true;
     newElementInfoList_.clear();
+    if (WuKongLogger::GetInstance()->GetLogLevel() == LOG_LEVEL_TRACK) {
+        DEBUG_LOG_STR("CompoentNode shared  new (%p) count = (%ld) unique (%d)", newComponentNode_.get(),
+                      newComponentNode_.use_count(), newComponentNode_.unique());
+    }
     newComponentNode_.reset();
     newPageNode_.reset();
     newAbilityNode_.reset();
@@ -341,20 +369,20 @@ bool TreeManager::SamePage()
     return true;
 }
 
-bool TreeManager::UpdatePage(int layer, int index)
+bool TreeManager::UpdatePage(int layer, uint32_t index)
 {
     TRACK_LOG_STD();
-    DEBUG_LOG_STR("UpdatePage: layer (%d), index (%d)", layer, index);
+    DEBUG_LOG_STR("UpdatePage: layer (%d), index (%u)", layer, index);
     std::shared_ptr<WuKongTree> pageNode = currentPageNode_;
     if (layer > 0) {
         if (pageNode->GetChildren().size() <= index) {
-            ERROR_LOG_STR("UpdatePage child index (%d) more than elementInfoList_ GetChildren() size (%d)", index,
+            ERROR_LOG_STR("UpdatePage child index (%d) more than elementInfoList_ GetChildren() size (%u)", index,
                           pageNode->GetChildren().size());
             return false;
         }
         currentPageNode_ = std::static_pointer_cast<PageTree>(pageNode->GetChildren()[index]);
     } else {
-        while (layer >= 0) {
+        while (layer < 0) {
             layer++;
             pageNode = pageNode->GetParent();
             if (pageNode == nullptr) {
@@ -366,14 +394,22 @@ bool TreeManager::UpdatePage(int layer, int index)
         currentPageNode_ = std::static_pointer_cast<PageTree>(pageNode);
     }
 
-    if (!RemovePage()) {
+    if (componentTreeList_.find(currentPageNode_->GetIndex()) == componentTreeList_.end()) {
+        ERROR_LOG_STR("currentPageNode_ index (%u) more than componentTreeList_ size (%u)",
+                      currentPageNode_->GetIndex(), componentTreeList_.size());
         return false;
     }
+
+    TRACK_LOG_STR("currentPageNode_->GetIndex(): %d", currentPageNode_->GetIndex());
+    currentComponentNode_ = componentTreeList_[currentPageNode_->GetIndex()];
+
+    // if (!RemovePage()) {
+    //     return false;
+    // }
 
     if (!UpdateCurrentPage()) {
         return false;
     }
-
     TRACK_LOG_END();
     return SamePage();
 }
@@ -381,24 +417,37 @@ bool TreeManager::UpdatePage(int layer, int index)
 bool TreeManager::RemovePage()
 {
     TRACK_LOG_STD();
-    uint32_t startIndex = currentPageNode_->GetIndex();
-    uint32_t endIndex = startIndex + currentPageNode_->count_ - 1;
+    uint32_t componentNodeIndex = currentPageNode_->GetIndex();
     uint32_t componentTreeListCount = componentTreeList_.size();
-    if (startIndex >= componentTreeListCount || endIndex >= componentTreeListCount) {
-        ERROR_LOG_STR("currentPageNode StartIndex (%d) EndIndex (%d) more than componentTreeList_ size (%d)",
-                      startIndex, endIndex, componentTreeListCount);
+
+    if (componentNodeIndex >= componentTreeListCount) {
+        ERROR_LOG_STR("currentPageNode index (%u) more than componentTreeList_ size (%u)", componentNodeIndex,
+                      componentTreeListCount);
         return false;
     }
+    if (WuKongLogger::GetInstance()->GetLogLevel() == LOG_LEVEL_TRACK) {
+        DEBUG_LOG_STR("CompoentNode shared (%p) count = (%ld) unique (%d)",
+                      componentTreeList_[componentNodeIndex].get(), componentTreeList_[componentNodeIndex].use_count(),
+                      componentTreeList_[componentNodeIndex].unique());
+    }
+    auto componentNode = componentTreeList_[componentNodeIndex];
+    if (componentNode == nullptr) {
+        ERROR_LOG("componentNode point is nullptr of currentPageNode");
+        return false;
+    }
+    uint32_t startIndex = componentNode->GetIndex();
+    componentTreeList_[componentNodeIndex].reset();
+    uint32_t endIndex = startIndex + currentPageNode_->count_ - 1;
     uint32_t elementInfoListCount = elementInfoList_.size();
+    DEBUG_LOG_STR(
+        "currentPageNode StartIndex (%u) EndIndex (%u) componentTreeList_ size (%u) elementInfoList_ size (%u)",
+        startIndex, endIndex, componentTreeListCount, elementInfoListCount);
     if (startIndex >= elementInfoListCount || endIndex >= elementInfoListCount) {
-        ERROR_LOG_STR("currentPageNode StartIndex (%d) EndIndex (%d) more than elementInfoList_ size (%d)", startIndex,
+        ERROR_LOG_STR("currentPageNode StartIndex (%u) EndIndex (%u) more than elementInfoList_ size (%u)", startIndex,
                       endIndex, elementInfoListCount);
         return false;
     }
-
-    componentTreeList_.erase(componentTreeList_.begin() + startIndex, componentTreeList_.begin() + endIndex);
     elementInfoList_.erase(elementInfoList_.begin() + startIndex, elementInfoList_.begin() + endIndex);
-
     TRACK_LOG_END();
     return true;
 }
@@ -406,36 +455,41 @@ bool TreeManager::RemovePage()
 bool TreeManager::UpdateCurrentPage(bool isAdd)
 {
     TRACK_LOG_STD();
-    if (newComponentNode_ == nullptr || newPageNode_ == nullptr) {
-        ERROR_LOG_STR("new list is nullptr: (%p), (%p)", newComponentNode_.get(), newPageNode_.get());
-        return false;
-    }
-
-    // push new element info to list for check old screen specification info.
     uint32_t count = elementInfoList_.size();
     DEBUG_LOG_STR("elementInfoList_: %d", count);
     for (auto elementInfo : newElementInfoList_) {
         elementInfoList_.push_back(elementInfo);
     }
-
+    if (WuKongLogger::GetInstance()->GetLogLevel() == LOG_LEVEL_TRACK) {
+        DEBUG_LOG_STR("CompoentNode shared  new (%p) count = (%ld) unique (%d)", newComponentNode_.get(),
+                      newComponentNode_.use_count(), newComponentNode_.unique());
+        DEBUG_LOG_STR("CompoentNode shared (%p) count = (%ld) unique (%d)", currentComponentNode_.get(),
+                      currentComponentNode_.use_count(), currentComponentNode_.unique());
+    }
     // update component tree index
     newComponentNode_->RecursUpdateNodeIndex(count);
-    if (isAdd) {
-        componentTreeList_.push_back(newComponentNode_);
-    } else {
+    if (!isAdd) {
         newComponentNode_->RecursUpdateInfo(currentComponentNode_);
     }
-
     // set current sreen componentNode to new screen
     currentComponentNode_ = newComponentNode_;
-    if (!isAdd) {
-        if (currentPageNode_->GetIndex() >= componentTreeList_.size()) {
-            ERROR_LOG_STR("UpdatePage currentPageNode_ index (%d) more than componentTreeList_ szie (%d)",
-                          currentPageNode_->GetIndex(), componentTreeList_.size());
-            return false;
+    if (WuKongLogger::GetInstance()->GetLogLevel() == LOG_LEVEL_TRACK) {
+        DEBUG_LOG_STR("CompoentNode shared (%p) count = (%ld) unique (%d)", currentComponentNode_.get(),
+                      currentComponentNode_.use_count(), currentComponentNode_.unique());
+        if (currentPageNode_ != nullptr) {
+            DEBUG_LOG_STR("CompoentNode shared (%p) index (%u) count = (%ld) unique (%d)",
+                          componentTreeList_[currentPageNode_->GetIndex()].get(), currentPageNode_->GetIndex(),
+                          componentTreeList_[currentPageNode_->GetIndex()].use_count(),
+                          componentTreeList_[currentPageNode_->GetIndex()].unique());
         }
-        // update component tree data.
+    }
+
+    if (!isAdd) {
         componentTreeList_[currentPageNode_->GetIndex()] = currentComponentNode_;
+        currentAbilityNode_->allComponentCount_ -= currentPageNode_->GetAllComponentCount();
+        currentAbilityNode_->allComponentCount_ += newPageNode_->GetAllComponentCount();
+        currentPageNode_->nodeId_ = newPageNode_->nodeId_;
+        currentPageNode_->allComponentCount_ = newPageNode_->allComponentCount_;
     }
     TRACK_LOG_END();
     return true;

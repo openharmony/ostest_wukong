@@ -15,22 +15,24 @@
 
 #include "swap_input.h"
 
-#include "input_info.h"
 #include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
-
+#include "report.h"
 namespace OHOS {
 namespace WuKong {
 SwapInput::SwapInput() : InputAction()
 {
+    std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
+    multimodeInputMsg->inputType_ = INPUTTYPE_TOUCHINPUT;
+    inputedMsgObject_ = multimodeInputMsg;
 }
 
 SwapInput::~SwapInput()
 {
 }
 
-ErrCode SwapInput::OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject)
+ErrCode SwapInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
     static bool isBack = true;
     ErrCode result = OHOS::ERR_OK;
@@ -75,8 +77,7 @@ ErrCode SwapInput::RandomInput()
     if (result != OHOS::ERR_OK) {
         return result;
     }
-    std::shared_ptr<InputInfo> inputInfo = InputInfo::GetInstance();
-    inputInfo->SetInputType(INPUTTYPE_SWAPINPUT);
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     return result;
 }
 

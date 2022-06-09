@@ -16,13 +16,35 @@
 #include <cstdio>
 #include <sys/stat.h>
 
+#include "app_manager.h"
+#include "component_manager.h"
+#include "exception_manager.h"
+#include "multimode_manager.h"
+#include "report.h"
+#include "scene_delegate.h"
 #include "string_ex.h"
+#include "tree_manager.h"
 #include "wukong_define.h"
+#include "wukong_logger.h"
 #include "wukong_shell_command.h"
+#include "wukong_util.h"
 
 using namespace OHOS::WuKong;
 
 static unsigned int NUMBER_TWO = 2;
+
+static bool FreeSingtion()
+{
+    AppManager::DestroyInstance();
+    ComponentManager::DestroyInstance();
+    ExceptionManager::DestroyInstance();
+    MultimodeManager::DestroyInstance();
+    Report::DestroyInstance();
+    SceneDelegate::DestroyInstance();
+    TreeManager::DestroyInstance();
+    WuKongUtil::DestroyInstance();
+    return true;
+}
 
 static void WuKongMutexFile()
 {
@@ -147,6 +169,8 @@ int main(int argc, char* argv[])
             semRun.Close();
         }
     }
+    FreeSingtion();
     WuKonglogger->Stop();
+    WuKongLogger::DestroyInstance();
     return 0;
 }

@@ -16,18 +16,20 @@
 #ifndef TEST_WUKONG_SCENE_DELEGATE_H
 #define TEST_WUKONG_SCENE_DELEGATE_H
 
+#include "singleton.h"
 #include "tree_manager.h"
 #include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
-class SceneDelegate {
+class SceneDelegate : public DelayedSingleton<SceneDelegate> {
 public:
     SceneDelegate();
     ~SceneDelegate();
 
     /**
      * @brief judge the scene
+     * @param isRandom whether it is a random test
      * @return ERR_OK is success,other is fail
      */
     ErrCode ChooseScene(bool isRandom);
@@ -39,6 +41,16 @@ public:
     bool IsBackToPrePage()
     {
         return isBack_;
+    }
+
+    std::vector<std::string> GetComponentTypeList()
+    {
+        return componentType_;
+    }
+    
+    uint64_t GetCurrentPageId()
+    {
+        return pageId_;
     }
 
 private:
@@ -75,8 +87,26 @@ private:
     uint32_t FindSame(const std::vector<std::shared_ptr<ComponentTree>> &newcomponentlist,
                       const std::vector<std::shared_ptr<ComponentTree>> &oldcomponentlist);
 
+    /**
+     * @brief set the available component
+     * @param isFound whether newcomponentinfos is same with its parent node
+     * @param isRandom whether it is a random test
+     * @return ERR_OK is success,other is fail
+     */
+    ErrCode FindSamePageInChildren(bool &isFound, bool isRandom);
+
+    /**
+     * @brief set the available component
+     * @param isFound whether newcomponentinfos is same with its child node
+     * @param isRandom whether it is a random test
+     * @return ERR_OK is success,other is fail
+     */
+    ErrCode FindSamePageInParent(bool &isFound, bool isRandom);
+
     std::vector<std::shared_ptr<ComponentTree>> componentList_;
+    std::vector<std::string> componentType_;
     bool isBack_ = false;
+    uint64_t pageId_ = 0;
 };
 }  // namespace WuKong
 }  // namespace OHOS
