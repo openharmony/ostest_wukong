@@ -23,8 +23,6 @@ config("wukong_common_config") {
 }
 
 accessibility_include_dirs = [
-  "//base/accessibility/frameworks/aafwk/include",
-  "//base/accessibility/interfaces/innerkits/common/include/",
   "//foundation/bundlemanager/bundle_framework/common/log/include",
   "//foundation/multimodalinput/input/interfaces/native/innerkits/common/include",
   "//foundation/multimodalinput/input/interfaces/native/innerkits/event/include",
@@ -35,7 +33,6 @@ accessibility_include_dirs = [
   "//utils/native/base/include",
   "//utils/system/safwk/native/include",
   "//third_party/json/include",
-  "//base//accessibility/interfaces/innerkits/aafwk/include",
   "include",
 ]
 
