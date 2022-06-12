@@ -23,7 +23,6 @@ config("wukong_common_config") {
 }
 
 accessibility_include_dirs = [
-  "//base/accessibility/interfaces",
   "//foundation/bundlemanager/bundle_framework/common/log/include",
   "//foundation/multimodalinput/input/interfaces",
   "//base/hiviewdfx/hisysevent/interfaces",
