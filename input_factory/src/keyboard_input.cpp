@@ -25,7 +25,8 @@ const int singleCodePercent = 30;
 const int oneHundredPercent = 100;
 const int downtime = 100;
 }  // namespace
-KeyboardInput::KeyboardInput() : InputAction() {
+KeyboardInput::KeyboardInput() : InputAction()
+{
     std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
     multimodeInputMsg->inputType_ = INPUTTYPE_KEYBOARDINPUT;
     inputedMsgObject_ = multimodeInputMsg;

@@ -176,7 +176,7 @@ ErrCode SpecialTestFlow::RunStep()
     if (g_commandSCREENSHOTENABLE == true) {
         std::string screenStorePath;
         result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath);
-        if(result == OHOS::ERR_OK) {
+        if (result == OHOS::ERR_OK) {
             Report::GetInstance()->RecordScreenPath(screenStorePath);
         }
     }

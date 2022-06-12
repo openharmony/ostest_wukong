@@ -375,6 +375,5 @@ std::string WuKongUtil::GetCurrentTestDir()
 {
     return curDir_;
 }
-
 }  // namespace WuKong
 }  // namespace OHOS

@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,7 +24,6 @@
 
 namespace OHOS {
 namespace WuKong {
-
 class StatisticsException : public Statistics {
 public:
     StatisticsException() = default;
@@ -38,7 +37,6 @@ private:
     std::vector<std::string> headers_ = {"type", "times", "proportion"};
     std::vector<std::vector<std::string>> record_;
 };
-
 }  // namespace WuKong
 }  // namespace OHOS
 #endif

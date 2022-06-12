@@ -26,9 +26,7 @@
 
 namespace OHOS {
 namespace WuKong {
-
-enum inputedMode
-{
+enum inputedMode {
     multimodeInput = 0,
     componmentInput,
 };
@@ -101,8 +99,6 @@ public:
     unsigned int pageId_;
     std::vector<std::string> pageComponments;
 };
-
 }  // namespace WuKong
 }  // namespace OHOS
-
 #endif

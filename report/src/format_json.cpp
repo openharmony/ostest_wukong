@@ -14,11 +14,8 @@
  */
 
 #include "format_json.h"
-
-#include <iomanip>
-#include <iostream>
 #include <sstream>
-
+#include <vector>
 namespace OHOS {
 namespace WuKong {
 FormatJSON::FormatJSON() : Format()
@@ -51,6 +48,5 @@ void FormatJSON::FormatDetail(std::shared_ptr<Table> tablePtr, std::string &targ
     ss << "]," << std::endl;
     target = ss.str();
 }
-
 }  // namespace WuKong
 }  // namespace OHOS

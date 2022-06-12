@@ -25,7 +25,6 @@
 
 namespace OHOS {
 namespace WuKong {
-
 class Statistics {
 public:
     Statistics();

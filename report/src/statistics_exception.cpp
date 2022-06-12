@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2022 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,6 @@
 
 #include "statistics_exception.h"
 
-#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <map>
@@ -25,13 +24,15 @@
 
 namespace OHOS {
 namespace WuKong {
-using namespace std;
-void StatisticsException::StatisticsDetail(vector<map<string, string>> srcDatas,
-                                           map<string, shared_ptr<Table>> &destTables)
+namespace {
+const uint32_t DECIMAL_LENGTH = 2;
+const float PERCENTAGE = 100.0;
+}  // namespace
+void StatisticsException::StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
+                                           std::map<std::string, std::shared_ptr<Table>> &destTables)
 {
-    string crashType;
-    stringstream bufferStream;
-    std::vector<std::string>::iterator crashTypesIter;
+    std::string crashType;
+    std::stringstream bufferStream;
     for (auto srcDatasIter : srcDatas) {
         // check exception name
         if (srcDatasIter.count("exception") == 0) {
@@ -39,9 +40,9 @@ void StatisticsException::StatisticsDetail(vector<map<string, string>> srcDatas,
         }
         crashType = srcDatasIter["exception"];
         // check app is insert apps
-        crashTypesIter = find(crashTypes_.begin(), crashTypes_.end(), crashType);
+        std::vector<std::string>::iterator crashTypesIter = find(crashTypes_.begin(), crashTypes_.end(), crashType);
         if (crashTypesIter == crashTypes_.end()) {
-            cout << "crashType init:" << crashType << endl;
+            DEBUG_LOG_STR("crashType{%s} init", crashType.c_str());
             crashTypes_.push_back(crashType);
             exceptionTypeCount_[crashType] = 1;
         } else {
@@ -52,30 +53,30 @@ void StatisticsException::StatisticsDetail(vector<map<string, string>> srcDatas,
 
     int curExceptionTypeCount;
     float proportion;
-    string proportionStr;
-    vector<string> line;
+    std::string proportionStr;
+    std::vector<std::string> line;
     for (auto crashTypesIter : crashTypes_) {
         line.push_back(crashTypesIter);
         curExceptionTypeCount = exceptionTypeCount_[crashTypesIter];
-        cout << "curExceptionTypeCount : " << curExceptionTypeCount << endl;
-        line.push_back(to_string(curExceptionTypeCount));
+        DEBUG_LOG_STR("curExceptionTypeCount{%d}", curExceptionTypeCount);
+        line.push_back(std::to_string(curExceptionTypeCount));
         if (exceptionTotal_ <= 0) {
             ERROR_LOG("statistics error");
             return;
         }
-        proportion = (curExceptionTypeCount * 100.0) / exceptionTotal_;
+        proportion = (curExceptionTypeCount * PERCENTAGE) / exceptionTotal_;
         bufferStream.str("");
-        bufferStream << setiosflags(ios::fixed) << setprecision(2) << proportion;
+        bufferStream << std::setiosflags(std::ios::fixed) << std::setprecision(DECIMAL_LENGTH) << proportion;
         proportionStr = bufferStream.str() + "%";
         line.push_back(proportionStr);
         record_.push_back(line);
         line.clear();
     }
     if (exceptionTotal_ != 0) {
-        line = {"total", to_string(exceptionTotal_), "100%"};
+        line = {"total", std::to_string(exceptionTotal_), "100%"};
         record_.push_back(line);
     }
-    shared_ptr<Table> table = make_shared<Table>(headers_, record_);
+    std::shared_ptr<Table> table = std::make_shared<Table>(headers_, record_);
     record_.clear();
     table->SetName("exception");
     table->SetDetail("statistics");

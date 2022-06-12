@@ -15,8 +15,6 @@
 
 #include "filter.h"
 
-#include <iostream>
-
 namespace OHOS {
 namespace WuKong {
 Filter::Filter()

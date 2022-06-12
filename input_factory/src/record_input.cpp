@@ -29,6 +29,8 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
+const int INTERVALTIME = 1000;
+const int NUMTWO = 2;
 std::string DEFAULT_DIR = "/data/local/wukong/record";
 std::ofstream outFile;
 int64_t timeTemp = -1;
@@ -96,7 +98,8 @@ bool InitEventRecordFile(std::ofstream &outFile, std::string recordName_)
     return true;
 }
 
-ErrCode ReadEventLine(std::ifstream &inFile) {
+ErrCode ReadEventLine(std::ifstream &inFile)
+{
     int result = ERR_OK;
     char buffer[50];
     int xPosi = -1;
@@ -114,17 +117,17 @@ ErrCode ReadEventLine(std::ifstream &inFile) {
         auto caseInfo = split(buffer, delim);
         xPosi = std::stoi(caseInfo[0]);
         yPosi = std::stoi(caseInfo[1]);
-        interval = std::stoi(caseInfo[2]);
+        interval = std::stoi(caseInfo[NUMTWO]);
 
         std::cout << xPosi << ";"
                   << yPosi << ";"
                   << interval << std::endl;
         auto recordTouchInput = MultimodeManager::GetInstance();
         result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
-                                      MMI::PointerEvent::POINTER_ACTION_DOWN);
+                                                MMI::PointerEvent::POINTER_ACTION_DOWN);
         result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
-                                      MMI::PointerEvent::POINTER_ACTION_UP);
-        usleep(interval * 1000);
+                                                MMI::PointerEvent::POINTER_ACTION_UP);
+        usleep(interval * INTERVALTIME);
     }
     return result;
 }
@@ -146,7 +149,7 @@ public:
         int64_t currentTime = GetMillisTime();
         if (timeTemp == -1) {
             timeTemp = currentTime;
-            data.interval = 1000;
+            data.interval = INTERVALTIME;
         } else {
             data.interval = currentTime - timeTemp;
             timeTemp = currentTime;
@@ -180,7 +183,7 @@ ErrCode RecordInput::OrderInput(const std::shared_ptr<SpcialTestObject>& special
 {
     int result = ERR_OK;
     auto recordPtr = std::static_pointer_cast<RecordParam>(specialTestObject);
-    if(recordPtr->recordStatus_ == true) {
+    if (recordPtr->recordStatus_ == true) {
         if (!InitEventRecordFile(outFile, recordPtr->recordName_)) {
         return OHOS::ERR_INVALID_VALUE;
         }

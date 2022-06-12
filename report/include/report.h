@@ -30,7 +30,6 @@
 
 namespace OHOS {
 namespace WuKong {
-
 namespace {
 struct componmentRecord {
     std::map<std::string, uint32_t> componmentTypeCount;

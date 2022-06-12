@@ -98,7 +98,6 @@ bool ComponentTree::SetNodeId()
     uint64_t str = GetSubName(elementInfo->GetContent(), contentCount);
 
     // the ElementInfo name of 4 length
-    // uint64_t xy = (rect.GetLeftTopXScreenPostion() / div + rect.GetLeftTopYScreenPostion() / div);
     TRACK_LOG_STR("component Type: (%d), Width: (%d), Height: (%d)", (uint32_t)type, (int32_t)w, (int32_t)h);
     nodeId_ |= type << COMPONENT_TYPE_POSION;
     nodeId_ |= w << COMPONENT_WIDTH_POSION;

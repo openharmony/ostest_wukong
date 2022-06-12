@@ -32,7 +32,6 @@ public:
     }
     virtual ~ComponentTree()
     {
-        // TRACK_LOG_STR("End index (%u), nodeId (0x%016llX),  inputCount (%u)", index_, nodeId_, inputCount_);
     }
 
     const std::string& GetType()

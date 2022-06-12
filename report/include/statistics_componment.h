@@ -16,22 +16,46 @@
 #ifndef TEST_WUKONG_STATISTICS_COMPONMENT_H
 #define TEST_WUKONG_STATISTICS_COMPONMENT_H
 
-#include <iomanip>
 #include <string>
 
-#include "data_set.h"
 #include "statistics.h"
 #include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
-namespace {
-struct coverageDetail {
-    uint32_t times;
-    uint32_t inputedTimes;
-    uint32_t componmentTotals;
+
+class ComponmentStatisticsRecord {
+public:
+    std::string componmentType_ = "";
+    uint32_t execTimes_ = 0;
+    uint32_t inputedTimes_ = 0;
+    uint32_t expectInputTimes_ = 0;
 };
-}  // namespace
+
+class ComponmentStatisticsMsg {
+public:
+    /*
+     * @brief find componmentType position in componmentTypes_
+     * @param componmentType
+     * @return index
+     */
+    uint32_t ComponmentTypesIndex(const std::string &componmentType)
+    {
+        uint32_t index = componmentTypes_.size();
+        DEBUG_LOG_STR("componmentTypes_.size{%d}", index);
+        std::vector<std::string>::iterator componmentTypesIter;
+        componmentTypesIter = find(componmentTypes_.begin(), componmentTypes_.end(), componmentType);
+        if (componmentTypesIter != componmentTypes_.end()) {
+            index = componmentTypesIter - componmentTypes_.begin();
+            DEBUG_LOG_STR("find index{%d}", index);
+        }
+        DEBUG_LOG_STR("find index{%d}", index);
+        return index;
+    }
+    std::vector<std::string> componmentTypes_;
+    std::vector<std::shared_ptr<ComponmentStatisticsRecord>> componmentTypeRecord_;
+    uint32_t componmentTypeTotal_ = 0;
+};
 class StatisticsComponment : public Statistics {
 public:
     StatisticsComponment() = default;
@@ -41,39 +65,35 @@ public:
 
 private:
     /*
-     * @brief source data statistics and convert data structure of the table depends
+     * @brief statistics msg update to line
+     * @param ComponmentStatisticsRecordPtr store statistics msg
+     * @param componmentTypeTotal Proportion to calculate the total
+     * @param line output
+     * @return void
+     */
+    void UpdateLine(std::shared_ptr<ComponmentStatisticsRecord> ComponmentStatisticsRecordPtr, uint32_t componmentTypeTotal,
+                    std::vector<std::string> &line);
+    /*
+     * @brief Realize secondary classification and update statistics of source data through bundleName and componment
+     * methods
      * @param srcDatas filtered data
      * @return void
      */
-    bool SrcDatasPreprocessing(std::vector<std::map<std::string, std::string>> srcDatas);
-    // Record the apps that appear in the statistical process
-    std::vector<std::string> apps_;
-    // Record the componment that appear in the statistical process
-    std::vector<std::string> componments_;
-    // global componment statistics
-    std::map<std::string, coverageDetail> allStatistic_;
+    void SrcDatasPretreatment(std::vector<std::map<std::string, std::string>> srcDatas);
     /*
-     * Record the componment type corresponding to the app,
-     * key is app,value is multimap used to count occurrences of componmentType
-     * multimap key is componmentType, value is const string event
+     * @brief Global Statistics for ComponmentTypesmethods
+     * @return void
      */
-    std::map<std::string, std::map<std::string, coverageDetail>> coverages_;
-    /*
-     * Record the componment type corresponding to the app,
-     * key is app,value is multimap used to count occurrences of componmentType
-     * multimap key is componmentType, value is const string componment
-     */
-    std::map<std::string, std::multimap<std::string, std::string>> appContainer_;
-    /*
-     * data structure of the table depends
-     * key is app,value is map used to record execTimes
-     * map key is componment, value is `execTimes,proportion,inputedTimes,ExpectInputTimes,coverage` vector
-     */
-    std::map<std::string, std::map<std::string, std::vector<std::string>>> tablesItems_;
-    int execCount_ = 0;
+    void GlobalComponmentTypeStatistics();
+
+    // bundle map ComponmentStatisticsMsgPtr
+    std::map<std::string, std::shared_ptr<ComponmentStatisticsMsg>> componmentStatisticsMsg_;
+    // all componmentType record for global statistics used
+    std::vector<std::string> globalComponmentTypes_;
     std::vector<std::string> headers_ = {"type",         "execTimes",        "proportion",
                                          "inputedTimes", "expectInputTimes", "coverage"};
     std::vector<std::vector<std::string>> record_;
+    uint32_t execCount_ = 0;
 };
 }  // namespace WuKong
 }  // namespace OHOS

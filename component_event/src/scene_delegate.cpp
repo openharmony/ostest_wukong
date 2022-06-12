@@ -26,6 +26,9 @@ const int ZEROLAYER = 0;
 const float MINCOVERAGE = 0.9;
 uint8_t LISTITEM_COUNT = 0;
 uint8_t GRID_COUNT = 0;
+uint8_t NUMBER_ZERO = 0;
+uint8_t NUMBER_FOUR = 4;
+uint8_t NUMBER_FIVE = 5;
 }  // namespace
 SceneDelegate::SceneDelegate()
 {
@@ -53,17 +56,17 @@ ErrCode SceneDelegate::GetCurrentComponentInfo(std::shared_ptr<ComponentTree> co
                 TRACK_LOG_STR("GridContainer count %u", GRID_COUNT);
             }
             if (componenttree->GetType() == "List") {
-                LISTITEM_COUNT = 0;
+                LISTITEM_COUNT = NUMBER_ZERO;
             }
             if (componenttree->GetType() == "ListItem") {
                 isListItem = true;
                 LISTITEM_COUNT++;
             }
-            if (isListItem && LISTITEM_COUNT > 4) {
+            if (isListItem && LISTITEM_COUNT > NUMBER_FOUR) {
                 componenttree = std::static_pointer_cast<ComponentTree>(componentinfos[componentinfos.size() - 1]);
             }
             GetCurrentComponentInfo(componenttree, componentlist);
-            if (isListItem && LISTITEM_COUNT >= 5) {
+            if (isListItem && LISTITEM_COUNT >= NUMBER_FIVE) {
                 break;
             }
         }

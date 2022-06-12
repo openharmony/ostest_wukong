@@ -15,10 +15,6 @@
 
 #include "component_manager.h"
 
-#include <iostream>
-#include <string>
-#include <unistd.h>
-
 #include "accessibility_ui_test_ability.h"
 #include "multimode_manager.h"
 

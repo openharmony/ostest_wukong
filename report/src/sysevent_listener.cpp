@@ -24,6 +24,7 @@
 
 #include "csv_utils.h"
 #include "hisysevent.h"
+#include "report.h"
 
 namespace OHOS {
 namespace WuKong {

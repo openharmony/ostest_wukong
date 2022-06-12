@@ -39,12 +39,10 @@
 
 namespace OHOS {
 namespace WuKong {
-
 namespace {
-const std::string DEFAULT_DIR = "/data/local/wukong/report/";
+const uint32_t SEGMENT_STATISTICS_LENGTH = 20;
 }  // namespace
 using namespace OHOS::AAFwk;
-
 Report::Report()
 {
     EnvInit();
@@ -56,8 +54,10 @@ void Report::EnvInit()
     // setting filename
     reportCsvFileName_ = WuKongUtil::GetInstance()->GetCurrentTestDir() + "wukong_report.csv";
     reportJsonFileName_ = WuKongUtil::GetInstance()->GetCurrentTestDir() + "data.js";
+    currentTestDir_ = WuKongUtil::GetInstance()->GetCurrentTestDir();
     INFO_LOG_STR("Report CSV: (%s)", reportCsvFileName_.c_str());
     INFO_LOG_STR("Report JSON: (%s)", reportJsonFileName_.c_str());
+    INFO_LOG_STR("Report currentTestDir: (%s)", currentTestDir_.c_str());
 
     // clear crash dir file
     CrashFileClear();
@@ -70,7 +70,7 @@ void Report::DataSetInit()
     std::shared_ptr<Filter> categoryFilter = std::make_shared<FilterCategory>();
     eventDataSet_->SetFilterStragety(categoryFilter);
     eventDataSet_->SetFilterType("event");
-    std::shared_ptr<Statistics> eventSatistics = std::make_shared<StatisticsElemnt>();
+    std::shared_ptr<Statistics> eventSatistics = std::make_shared<StatisticsEvent>();
     eventDataSet_->SetStatisticsStragety(eventSatistics);
 
     // set componment filter,statistics,format
@@ -118,8 +118,7 @@ void Report::SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject)
     }
     DEBUG_LOG_STR("bundleName{%s} abilityName{%s} ", data["bundleName"].c_str(), data["abilityName"].c_str());
     // record app used to control data display
-    std::vector<std::string>::iterator bundleIter;
-    bundleIter = std::find(bundles_.begin(), bundles_.end(), data["bundleName"]);
+    std::vector<std::string>::iterator bundleIter = std::find(bundles_.begin(), bundles_.end(), data["bundleName"]);
     if (bundleIter == bundles_.end()) {
         DEBUG_LOG_STR("push apps item{%s}", data["bundleName"].c_str());
         bundles_.push_back(data["bundleName"]);
@@ -131,7 +130,7 @@ void Report::SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject)
     taskCount_++;
     DEBUG_LOG_STR("taskCount{%d}", taskCount_);
     // statistics and storage every 100 data
-    if ((taskCount_ % 100) == 0) {
+    if ((taskCount_ % SEGMENT_STATISTICS_LENGTH) == 0) {
         SegmentedWriteCSV();
         SegmentedWriteJson();
     }

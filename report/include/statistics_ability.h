@@ -26,10 +26,12 @@ namespace OHOS {
 namespace WuKong {
 
 namespace {
-struct abilityRecord {
-    uint32_t sumOfAbility;
-    uint32_t sumOfInputedAbility;
-    bool getStatus;
+class AbilityStatisticsRecord {
+public:
+    std::string bundleName_ = "";
+    uint32_t inputedAbilityCount_ = 0;
+    uint32_t abilitiesCount_ = 0;
+    std::vector<std::string> inputedAbilities_;
 };
 }  // namespace
 
@@ -41,10 +43,11 @@ public:
                           std::map<std::string, std::shared_ptr<Table>> &destTables);
 
 private:
-    std::vector<std::string> apps_;
-    std::map<std::string, std::vector<std::string>> appMapAllAbilitys_;
-    std::map<std::string, std::vector<std::string>> appMapInputedAbilitys_;
-    std::map<std::string, abilityRecord> appMapAbilityRecord_;
+    void UpdateLine(std::shared_ptr<AbilityStatisticsRecord> abilityStatisticsRecordPtr,
+                    std::vector<std::string> &line);
+    void SrcDatasPretreatment(std::vector<std::map<std::string, std::string>> srcDatas);
+    std::map<std::string, std::shared_ptr<AbilityStatisticsRecord>> abilityStatisticsMsg_;
+    std::vector<std::string> bundles_;
     std::vector<std::string> headers_ = {"bundleName", "inputedAbilityCount", "abilitiesCount", "coverage"};
     std::vector<std::vector<std::string>> record_;
 };

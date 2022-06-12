@@ -25,95 +25,92 @@
 
 namespace OHOS {
 namespace WuKong {
-using namespace std;
+namespace {
+const uint32_t DECIMAL_LENGTH = 2;
+const float PERCENTAGE = 100.0;
+}
 
-void StatisticsAbility::StatisticsDetail(vector<map<string, string>> srcDatas,
-                                         map<string, shared_ptr<Table>> &destTables)
+void StatisticsAbility::StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
+                                         std::map<std::string, std::shared_ptr<Table>> &destTables)
 {
-    string app;
-    string ability;
-    vector<string> inputedAbility;
-    vector<string> line;
-    vector<string>::iterator appsIter, abilityIter;
-    struct abilityRecord abilityRecord;
-    stringstream bufferStream;
-    for (auto srcDatasIter : srcDatas) {
-        app = srcDatasIter["bundleName"];
-        ability = srcDatasIter["abilityName"];
-        DEBUG_LOG_STR("bundleName{%s} abilityName{%s}", app.c_str(), ability.c_str());
-        // check app is insert apps
-        appsIter = find(apps_.begin(), apps_.end(), app);
-        if (appsIter == apps_.end()) {
-            DEBUG_LOG_STR("bundleName{%s} map init", app.c_str());
-            apps_.push_back(app);
-            vector<string> abilities;
-            appMapInputedAbilitys_[app] = abilities;
-            WuKongUtil::GetInstance()->GetAllAbilitiesByBundleName(app, abilities);
-            DEBUG_LOG_STR("bundleName{%s} all ability size{%d}", app.c_str(), abilities.size());
-            appMapAllAbilitys_[app] = abilities;
-            bool getStatus = true;
-            if (abilities.size() == 0) {
-                getStatus = false;
-            }
-            abilityRecord = {abilities.size(), 0, getStatus};
-            appMapAbilityRecord_[app] = abilityRecord;
-        }
-        inputedAbility = appMapInputedAbilitys_[app];
-        DEBUG_LOG_STR("record sumOfAbility{%d} sumOfInputedAbility{%d}", appMapAbilityRecord_[app].sumOfAbility,
-                     appMapAbilityRecord_[app].sumOfInputedAbility);
-        abilityIter = find(inputedAbility.begin(), inputedAbility.end(), ability);
-        if (abilityIter == inputedAbility.end()) {
-            inputedAbility.push_back(ability);
-            appMapInputedAbilitys_[app] = inputedAbility;
-            abilityRecord = appMapAbilityRecord_[app];
-            abilityRecord.sumOfInputedAbility++;
-            if (abilityRecord.getStatus == false) {
-                appMapAllAbilitys_[app] = inputedAbility;
-            }
-            DEBUG_LOG_STR("push vector current inputedAbility{%d}", abilityRecord.sumOfInputedAbility);
+    SrcDatasPretreatment(srcDatas);
+    std::shared_ptr<AbilityStatisticsRecord> globalAbilityStatisticsRecordPtr =
+        std::make_shared<AbilityStatisticsRecord>();
+    globalAbilityStatisticsRecordPtr->bundleName_ = "total";
+    std::vector<std::string> line;
+    for (auto bundle : abilityStatisticsMsg_) {
+        DEBUG_LOG_STR("start bundlename{%s}", bundle.first.c_str());
+        std::shared_ptr<AbilityStatisticsRecord> curAbilityStatisticsRecordPtr = bundle.second;
+        globalAbilityStatisticsRecordPtr->inputedAbilityCount_ += curAbilityStatisticsRecordPtr->inputedAbilityCount_;
+        globalAbilityStatisticsRecordPtr->abilitiesCount_ += curAbilityStatisticsRecordPtr->abilitiesCount_;
 
-            appMapAbilityRecord_[app] = abilityRecord;
-        }
-    }
-    int inputedAbilityTotal = 0, abilitiesTotal = 0, inputedAbilityCount = 0, abilitiesCount = 0;
-    float proportion;
-    string proportionStr;
-    for (auto appIter : apps_) {
-        line.push_back(appIter);
-        inputedAbilityCount = appMapInputedAbilitys_[appIter].size();
-        inputedAbilityTotal += inputedAbilityCount;
-        line.push_back(to_string(inputedAbilityCount));
-        abilitiesCount = appMapAllAbilitys_[appIter].size();
-        line.push_back(to_string(abilitiesCount));
-        abilitiesTotal += abilitiesCount;
-        DEBUG_LOG_STR("format table action bundleName{%s} , abilitiesCount{%d}", appIter.c_str(), abilitiesCount);
-        if (abilitiesCount <= 0) {
-            ERROR_LOG("statistics error");
-            return;
-        }
-        proportion = (inputedAbilityCount * 100.0) / abilitiesCount;
-        bufferStream.str("");
-        bufferStream << setiosflags(ios::fixed) << setprecision(2) << proportion;
-        proportionStr = bufferStream.str() + "%";
-        line.push_back(proportionStr);
+        UpdateLine(curAbilityStatisticsRecordPtr, line);
         record_.push_back(line);
-        line.clear();
     }
-    if (abilitiesTotal <= 0) {
-        ERROR_LOG("statistics error");
-        return;
-    }
-    proportion = (inputedAbilityTotal * 100.0) / abilitiesTotal;
-    bufferStream.str("");
-    bufferStream << setiosflags(ios::fixed) << setprecision(2) << proportion;
-    proportionStr = bufferStream.str() + "%";
-    line = {"total", to_string(inputedAbilityTotal), to_string(abilitiesTotal), proportionStr};
+    UpdateLine(globalAbilityStatisticsRecordPtr, line);
     record_.push_back(line);
-    shared_ptr<Table> table = make_shared<Table>(headers_, record_);
+    std::shared_ptr<Table> table = std::make_shared<Table>(headers_, record_);
     record_.clear();
     table->SetName("all");
-    table->SetDetail("abilityStatistics");
+    table->SetDetail("ability");
     destTables["all"] = table;
 }
+
+void StatisticsAbility::SrcDatasPretreatment(std::vector<std::map<std::string, std::string>> srcDatas)
+{
+    for (auto srcData : srcDatas) {
+        DEBUG_LOG_STR("bundlename{%s} | abilityName{%s}", srcData["bundleName"].c_str(),
+                      srcData["abilityName"].c_str());
+
+        // check whether bundle is entered resolve create or reuse already exist  StatisticsMsgPtr
+        std::shared_ptr<AbilityStatisticsRecord> curAbilityStatisticsRecordPtr = std::make_shared<AbilityStatisticsRecord>();
+        std::map<std::string, std::shared_ptr<AbilityStatisticsRecord>>::iterator abilityStatisticsRecordIter =
+            abilityStatisticsMsg_.find(srcData["bundleName"]);
+        if (abilityStatisticsRecordIter != abilityStatisticsMsg_.end()) {
+            DEBUG_LOG_STR("use inited curStatisticsMsgPtr by bundleName{%s}", srcData["bundleName"].c_str());
+            curAbilityStatisticsRecordPtr = abilityStatisticsMsg_[srcData["bundleName"]];
+        }
+        curAbilityStatisticsRecordPtr->bundleName_ = srcData["bundleName"];
+        std::vector<std::string>::iterator inputedAbilitiesIter =
+            find(curAbilityStatisticsRecordPtr->inputedAbilities_.begin(),
+                 curAbilityStatisticsRecordPtr->inputedAbilities_.end(), srcData["bundleName"]);
+        if (inputedAbilitiesIter == curAbilityStatisticsRecordPtr->inputedAbilities_.end()) {
+            curAbilityStatisticsRecordPtr->inputedAbilities_.push_back(srcData["bundleName"]);
+        }
+        std::vector<std::string> abilities;
+        WuKongUtil::GetInstance()->GetAllAbilitiesByBundleName(srcData["bundleName"], abilities);
+        DEBUG_LOG_STR("bundleName{%s} all ability size{%d}", srcData["bundleName"].c_str(), abilities.size());
+        curAbilityStatisticsRecordPtr->inputedAbilityCount_ = curAbilityStatisticsRecordPtr->inputedAbilities_.size();
+        if (abilities.size() == 0) {
+            curAbilityStatisticsRecordPtr->abilitiesCount_ = curAbilityStatisticsRecordPtr->inputedAbilities_.size();
+        } else {
+            curAbilityStatisticsRecordPtr->abilitiesCount_ = abilities.size();
+        }
+
+        abilityStatisticsMsg_[srcData["bundleName"]] = curAbilityStatisticsRecordPtr;
+    }
+}
+
+void StatisticsAbility::UpdateLine(std::shared_ptr<AbilityStatisticsRecord> abilityStatisticsRecordPtr,
+                                   std::vector<std::string> &line)
+{
+    std::stringstream bufferStream;
+    std::string bundleName = abilityStatisticsRecordPtr->bundleName_;
+    std::string inputedAbilityCount = std::to_string(abilityStatisticsRecordPtr->inputedAbilityCount_);
+    std::string abilitiesCount = std::to_string(abilityStatisticsRecordPtr->abilitiesCount_);
+    std::string curCoverageStr = "";
+    if (abilityStatisticsRecordPtr->abilitiesCount_ > 0) {
+        float proportion =
+            (abilityStatisticsRecordPtr->inputedAbilityCount_ * PERCENTAGE) / abilityStatisticsRecordPtr->abilitiesCount_;
+        bufferStream.str("");
+        bufferStream << std::setiosflags(std::ios::fixed) << std::setprecision(DECIMAL_LENGTH) << proportion;
+        curCoverageStr = bufferStream.str() + "%";
+    }
+
+    DEBUG_LOG_STR("line content bundleName{%s} | inputedAbilityCount{%s} | abilitiesCount{%s} | curCoverageStr{%s}",
+                  bundleName.c_str(), inputedAbilityCount.c_str(), abilitiesCount.c_str(), curCoverageStr.c_str());
+    line = {bundleName, inputedAbilityCount, abilitiesCount, curCoverageStr};
+}
+
 }  // namespace WuKong
 }  // namespace OHOS

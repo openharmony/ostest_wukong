@@ -130,7 +130,6 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
     // Check ability state
     newAbilityNode_ = std::make_shared<AbilityTree>();
     newAbilityNode_->SetNodeId();
-
     // check same abiliby as current ability
     if (currentAbilityNode_ != nullptr) {
         if (newAbilityNode_->IsEqual(currentAbilityNode_)) {
@@ -138,7 +137,6 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
             return OHOS::ERR_OK;
         }
     }
-
     DEBUG_LOG("Ability changed");
     bool isNewBundle = true;
     bool isNewAbility = false;
@@ -157,13 +155,11 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
             }
         }
     }
-
     // save new bundle for launch multi-application
     if (isNewBundle) {
         abilityTreeList_.push_back(newAbilityNode_);
         currentAbilityNode_ = newAbilityNode_;
     }
-
     // clear current screen data when it is new ability.
     if (isNewBundle || isNewAbility) {
         currentComponentNode_ = nullptr;
@@ -260,7 +256,6 @@ void TreeManager::SetInputcomponentIndex(int actionType, uint32_t index)
         inputComponentList_[index]->AddInputCount();
         inputComponentList_[index]->AddTypeInputCount(actionType);
         DEBUG_LOG_STR("inputComponent: GetNodeId (0x%016llX)", inputComponentList_[index]->GetNodeId());
-
     } else {
         if (inputComponent_ == nullptr) {
             ERROR_LOG("inputComponent_ is nullptr");
@@ -402,10 +397,6 @@ bool TreeManager::UpdatePage(int layer, uint32_t index)
 
     TRACK_LOG_STR("currentPageNode_->GetIndex(): %d", currentPageNode_->GetIndex());
     currentComponentNode_ = componentTreeList_[currentPageNode_->GetIndex()];
-
-    // if (!RemovePage()) {
-    //     return false;
-    // }
 
     if (!UpdateCurrentPage()) {
         return false;

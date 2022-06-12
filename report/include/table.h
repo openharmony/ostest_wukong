@@ -22,13 +22,6 @@
 namespace OHOS {
 namespace WuKong {
 class Table {
-private:
-    std::string name_;
-    std::string detail_;
-    std::vector<std::string> column_header_;
-    std::vector<int> column_size_;
-    std::vector<std::vector<std::string>> record_;
-
 public:
     Table() = default;
     ~Table() = default;
@@ -40,6 +33,13 @@ public:
     std::vector<std::string> GetHeader();
     std::vector<std::vector<std::string>> GetRecord();
     std::vector<int> GetColumnSize();
+
+private:
+    std::string name_;
+    std::string detail_;
+    std::vector<std::string> column_header_;
+    std::vector<int> column_size_;
+    std::vector<std::vector<std::string>> record_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

@@ -25,39 +25,72 @@
 
 namespace OHOS {
 namespace WuKong {
-class StatisticsElemnt : public Statistics {
+class EventStatisticsRecord {
 public:
-    StatisticsElemnt() = default;
-    ~StatisticsElemnt() = default;
+    std::string eventType_ = "";
+    uint32_t execTimes_ = 0;
+};
+
+class EventStatisticsMsg {
+public:
+    /*
+     * @brief find eventType position in eventTypes_
+     * @param eventType
+     * @return index
+     */
+    uint32_t ElementTypesIndex(const std::string &eventType)
+    {
+        uint32_t index = eventTypes_.size();
+        DEBUG_LOG_STR("eventTypes_.size{%d}", index);
+        std::vector<std::string>::iterator eventTypesIter;
+        eventTypesIter = find(eventTypes_.begin(), eventTypes_.end(), eventType);
+        if (eventTypesIter != eventTypes_.end()) {
+            index = eventTypesIter - eventTypes_.begin();
+            DEBUG_LOG_STR("find index{%d}", index);
+        }
+        DEBUG_LOG_STR("find index{%d}", index);
+        return index;
+    }
+    std::vector<std::string> eventTypes_;
+    std::vector<std::shared_ptr<EventStatisticsRecord>> eventTypeRecord_;
+    uint32_t eventTypeTotal_ = 0;
+};
+
+class StatisticsEvent : public Statistics {
+public:
+    StatisticsEvent() = default;
+    ~StatisticsEvent() = default;
     void StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
                           std::map<std::string, std::shared_ptr<Table>> &destTables);
 
 private:
     /*
-     * @brief source data statistics and convert data structure of the table depends
+     * @brief statistics msg update to line
+     * @param EventStatisticsRecordPtr store statistics msg
+     * @param eventTypeTotal Proportion to calculate the total
+     * @param line output
+     * @return void
+     */
+    void UpdateLine(std::shared_ptr<EventStatisticsRecord> eventStatisticsRecordPtr, uint32_t eventTypeTotal,
+                    std::vector<std::string> &line);
+    /*
+     * @brief Realize secondary classification and update statistics of source data through bundleName and event
+     * methods
      * @param srcDatas filtered data
      * @return void
      */
-    bool SrcDatasPreprocessing(std::vector<std::map<std::string, std::string>> srcDatas);
-    // Record the apps that appear in the statistical process
-    std::vector<std::string> apps_;
-    // Record the events that appear in the statistical process
-    std::vector<std::string> events_;
-    // global event statistics
-    std::map<std::string, int> allStatistic_;
+    void SrcDatasPretreatment(std::vector<std::map<std::string, std::string>> srcDatas);
     /*
-     * Record the event type corresponding to the app,
-     * key is app,value is multimap used to count occurrences of eventType
-     * multimap key is eventType, value is const string event
+     * @brief Global Statistics for ElementTypesmethods
+     * @return void
      */
-    std::map<std::string, std::multimap<std::string, std::string>> appContainer_;
+    void GlobalElementTypesStatistics();
 
-    /*
-     * data structure of the table depends
-     * key is app,value is map used to record execTimes
-     * map key is eventType, value is `execTimes,proportion` vector
-     */
-    std::map<std::string, std::map<std::string, std::vector<std::string>>> tablesItems_;
+    // bundle map EventStatisticsMsgPtr
+    std::map<std::string, std::shared_ptr<EventStatisticsMsg>> eventStatisticsMsg_;
+    // all eventTypes record for global statistics used
+    std::vector<std::string> globalElementTypes_;
+    
     std::vector<std::string> headers_ = {"type", "execTimes", "proportion"};
     std::vector<std::vector<std::string>> record_;
     int execCount_ = 0;

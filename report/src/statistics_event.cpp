@@ -22,148 +22,138 @@
 
 namespace OHOS {
 namespace WuKong {
-using namespace std;
+namespace {
+const uint32_t DECIMAL_LENGTH = 2;
+const float PERCENTAGE = 100.0;
+}  // namespace
 
-void StatisticsElemnt::StatisticsDetail(vector<map<string, string>> srcDatas,
-                                        map<string, shared_ptr<Table>> &destTables)
+void StatisticsEvent::StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
+                                       std::map<std::string, std::shared_ptr<Table>> &destTables)
 {
-    if (!SrcDatasPreprocessing(srcDatas)) {
-        return;
-    }
-    multimap<string, string> appRecord;
-    stringstream bufferStream;
-    vector<string> line;
-    map<string, multimap<string, string>>::iterator appContainerIter;
-    int countAllExecTimes = 0;
-    for (auto appsIter : apps_) {
-        // check app is record in appContainer
-        appContainerIter = appContainer_.find(appsIter);
-        if (appContainerIter == appContainer_.end()) {
-            break;
-        }
-        appRecord = appContainer_[appsIter];
-        DEBUG_LOG("appRecord have:");
-        for (auto appRecordIter : appRecord) {
-            DEBUG_LOG_STR("first{%s} second{%s}:", appRecordIter.first.c_str(), appRecordIter.second.c_str());
-        }
-
-        map<string, vector<string>> eventItems;
-        // check whether the current type has established a statistical relationship
-        if (tablesItems_.count(appsIter) != 0) {
-            eventItems = tablesItems_[appsIter];
-        }
-        DEBUG_LOG_STR("app{%s} have:", appsIter.c_str());
-        for (auto eventsIter : eventItems) {
-            DEBUG_LOG_STR("event{%s} execTimes{%s},proportion{%s}:", eventsIter.first.c_str(),(eventsIter.second.at(0)).c_str(),(eventsIter.second.at(1)).c_str());
-        }
-
-        int countExecTimes = appRecord.size();
-        countAllExecTimes += countExecTimes;
-        // record eventType,execTimes,proportion
-        for (auto eventsIter : events_) {
-            DEBUG_LOG_STR("statistics event{%s}:", eventsIter.c_str());
-            line.push_back(eventsIter);
-            int execTimes = 0;
-            if (eventItems.count(eventsIter) != 0) {
-                line = eventItems[eventsIter];
-                execTimes += atoi(line.at(0).c_str());
-            }
-            execTimes += appRecord.count(eventsIter);
-            DEBUG_LOG_STR("appRecord eventCount{%d}:", appRecord.count(eventsIter));
-            line.push_back(to_string(execTimes));
-            if (countExecTimes <= 0) {
-                ERROR_LOG("statistics error");
-                return;
-            }
-            float proportion = (execTimes * 100.0) / countExecTimes;
-            bufferStream.str("");
-            bufferStream << setiosflags(ios::fixed) << setprecision(2) << proportion;
-            string proportionStr = bufferStream.str() + "%";
-            line.push_back(proportionStr);
+    SrcDatasPretreatment(srcDatas);
+    // loop bundle stroe event statistics msg
+    for (auto bundle : eventStatisticsMsg_) {
+        DEBUG_LOG_STR("start bundlename{%s}", bundle.first.c_str());
+        std::shared_ptr<EventStatisticsMsg> curEventStatisticsMsgPtr = bundle.second;
+        uint32_t curElementTypeLength = curEventStatisticsMsgPtr->eventTypes_.size();
+        std::vector<std::string> line;
+        std::shared_ptr<EventStatisticsRecord> curEventStatisticsRecordPtr = nullptr;
+        std::shared_ptr<EventStatisticsRecord> curBundleAllStatisticsPtr =
+            std::make_shared<EventStatisticsRecord>();
+        curBundleAllStatisticsPtr->eventType_ = "total";
+        for (uint32_t i = 0; i < curElementTypeLength; i++) {
+            curEventStatisticsRecordPtr = curEventStatisticsMsgPtr->eventTypeRecord_[i];
+            UpdateLine(curEventStatisticsRecordPtr, curEventStatisticsMsgPtr->eventTypeTotal_, line);
             record_.push_back(line);
-            line.clear();
+            curBundleAllStatisticsPtr->execTimes_ += curEventStatisticsRecordPtr->execTimes_;
         }
-        line = {"total", to_string(countExecTimes), "100.00%"};
+
+        UpdateLine(curBundleAllStatisticsPtr, curEventStatisticsMsgPtr->eventTypeTotal_, line);
         record_.push_back(line);
-        shared_ptr<Table> table = make_shared<Table>(headers_, record_);
+        std::shared_ptr<Table> table = std::make_shared<Table>(headers_, record_);
+        table->SetName(bundle.first);
+        table->SetDetail("event");
+        destTables[bundle.first] = table;
         record_.clear();
-        line.clear();
-        table->SetName(appsIter);
-        table->SetDetail("eventStatistics");
-        destTables[appsIter] = table;
     }
-    for (auto iter : allStatistic_) {
-        int execTimes = iter.second;
-        if (execCount_ <= 0) {
-            ERROR_LOG("statistics error");
-            return;
-        }
-        float proportion = (execTimes * 100.0) / execCount_;
-        bufferStream.str("");
-        bufferStream << setiosflags(ios::fixed) << setprecision(2) << proportion;
-        string proportionStr = bufferStream.str() + "%";
-        line.push_back(iter.first);
-        line.push_back(to_string(execTimes));
-        line.push_back(proportionStr);
-        record_.push_back(line);
-        line.clear();
-    }
-    line = {"total", to_string(execCount_), "100.00%"};
-    record_.push_back(line);
-    shared_ptr<Table> table = make_shared<Table>(headers_, record_);
-    table->SetName("all");
-    table->SetDetail("eventStatistics");
-    destTables["all"] = table;
+
+    GlobalElementTypesStatistics();
+    std::shared_ptr<Table> globalTable = std::make_shared<Table>(headers_, record_);
+    globalTable->SetName("all");
+    globalTable->SetDetail("event");
+    destTables["all"] = globalTable;
     record_.clear();
 }
 
-bool StatisticsElemnt::SrcDatasPreprocessing(std::vector<std::map<std::string, std::string>> srcDatas)
+void StatisticsEvent::SrcDatasPretreatment(std::vector<std::map<std::string, std::string>> srcDatas)
 {
-    string app, event;
-    vector<string>::iterator appsIter;
-    vector<string>::iterator eventsIter;
-    multimap<string, string> appRecord;
-    map<string, multimap<string, string>>::iterator appContainerIter;
-    for (auto srcDatasIter : srcDatas) {
-        app = srcDatasIter["bundleName"];
-        DEBUG_LOG_STR("current bundleName{%s}", app.c_str());
-        // check app is insert apps
-        appsIter = find(apps_.begin(), apps_.end(), app);
-        if (appsIter == apps_.end()) {
-            DEBUG_LOG_STR("push bundleName{%s}", app.c_str());
-            apps_.push_back(app);
+    for (auto srcData : srcDatas) {
+        DEBUG_LOG_STR("bundlename{%s} | eventType{%s}", srcData["bundleName"].c_str(), srcData["event"].c_str());
+        std::vector<std::string>::iterator globalElementTypesIter =
+            find(globalElementTypes_.begin(), globalElementTypes_.end(), srcData["event"]);
+        if (globalElementTypesIter == globalElementTypes_.end()) {
+            DEBUG_LOG_STR("push event{%s} to globalElementTypes_", srcData["event"].c_str());
+            globalElementTypes_.push_back(srcData["event"]);
         }
-        // check appContainer is insert app,get app map record
-        appContainerIter = appContainer_.find(app);
-        if (appContainerIter != appContainer_.end()) {
-            DEBUG_LOG_STR("find appRecord from addContainer bundleName{%s}", app.c_str());
-            appRecord = appContainerIter->second;
+
+        // check whether bundle is entered resolve create or reuse already exist  StatisticsMsgPtr
+        std::shared_ptr<EventStatisticsMsg> curStatisticsMsgPtr = std::make_shared<EventStatisticsMsg>();
+        std::map<std::string, std::shared_ptr<EventStatisticsMsg>>::iterator eventStatisticsMsgIter =
+            eventStatisticsMsg_.find(srcData["bundleName"]);
+        if (eventStatisticsMsgIter != eventStatisticsMsg_.end()) {
+            DEBUG_LOG_STR("use inited curStatisticsMsgPtr by bundleName{%s}", srcData["bundleName"].c_str());
+            curStatisticsMsgPtr = eventStatisticsMsg_[srcData["bundleName"]];
         }
-        // check evnet
-        if (srcDatasIter.count("event") == 0) {
-            return false;
+        // check whether eventType is entered resolve create or reuse already exist EventStatisticsRecordPtr
+        std::shared_ptr<EventStatisticsRecord> curEventStatisticsRecordPtr =
+            std::make_shared<EventStatisticsRecord>();
+        uint32_t index = curStatisticsMsgPtr->ElementTypesIndex(srcData["event"]);
+        uint32_t curElementTypeTotal = curStatisticsMsgPtr->eventTypeTotal_;
+        if (index != curStatisticsMsgPtr->eventTypes_.size()) {
+            curEventStatisticsRecordPtr = curStatisticsMsgPtr->eventTypeRecord_[index];
+            DEBUG_LOG_STR("use inited curEventStatisticsRecordPtr in index{%d} | event{%s}", index,
+                          srcData["event"].c_str());
         }
-        event = srcDatasIter["event"];
-        appRecord.insert({event, "event"});
-        appContainer_[app] = appRecord;
-        eventsIter = find(events_.begin(), events_.end(), event);
-        if (eventsIter == events_.end()) {
-            DEBUG_LOG_STR("init all statistics event{%s}", event.c_str());
-            events_.push_back(event);
-            allStatistic_[event] = 1;
+        // update record msg
+        curEventStatisticsRecordPtr->eventType_ = srcData["event"];
+        curEventStatisticsRecordPtr->execTimes_++;
+
+        if (curStatisticsMsgPtr->eventTypeRecord_.size() > index) {
+            curStatisticsMsgPtr->eventTypeRecord_[index] = curEventStatisticsRecordPtr;
+            curStatisticsMsgPtr->eventTypes_[index] = srcData["event"];
         } else {
-            int total = allStatistic_[event] + 1;
-            allStatistic_[event] = total;
-            DEBUG_LOG_STR("add all statistics event{%s}", event.c_str());
+            curStatisticsMsgPtr->eventTypeRecord_.push_back(curEventStatisticsRecordPtr);
+            curStatisticsMsgPtr->eventTypes_.push_back(srcData["event"]);
         }
-        DEBUG_LOG_STR("all statistics event{%s} total{%d}", event.c_str(), allStatistic_[event]);
+
+        curElementTypeTotal++;
+        DEBUG_LOG_STR("curElementTypeTotal{%d}", curElementTypeTotal);
+        curStatisticsMsgPtr->eventTypeTotal_ = curElementTypeTotal;
+        eventStatisticsMsg_[srcData["bundleName"]] = curStatisticsMsgPtr;
         execCount_++;
-        DEBUG_LOG_STR("execCount_{%d}", execCount_);
-        appRecord.clear();
+    }
+}
+void StatisticsEvent::UpdateLine(std::shared_ptr<EventStatisticsRecord> EventStatisticsRecordPtr,
+                                 uint32_t eventTypeTotal, std::vector<std::string> &line)
+{
+    std::stringstream bufferStream;
+    std::string curElementType = EventStatisticsRecordPtr->eventType_;
+    std::string curExecTimes = std::to_string(EventStatisticsRecordPtr->execTimes_);
+    std::string curProportionStr = "";
+    if (eventTypeTotal > 0) {
+        float proportion = (EventStatisticsRecordPtr->execTimes_ * PERCENTAGE) / eventTypeTotal;
+        bufferStream.str("");
+        bufferStream << std::setiosflags(std::ios::fixed) << std::setprecision(DECIMAL_LENGTH) << proportion;
+        curProportionStr = bufferStream.str() + "%";
     }
 
-    return true;
+    DEBUG_LOG_STR("line content curElementType{%s} | curExecTimes{%s}", curElementType.c_str(), curExecTimes.c_str());
+    line = {curElementType, curExecTimes, curProportionStr};
 }
 
+void StatisticsEvent::GlobalElementTypesStatistics()
+{
+    std::vector<std::string> line;
+    std::shared_ptr<EventStatisticsRecord> globalAllStatisticsPtr = std::make_shared<EventStatisticsRecord>();
+    globalAllStatisticsPtr->eventType_ = "total";
+    for (auto eventType : globalElementTypes_) {
+        std::shared_ptr<EventStatisticsRecord> eventStatisticsRecordPtr = std::make_shared<EventStatisticsRecord>();
+        eventStatisticsRecordPtr->eventType_ = eventType;
+        for (auto bundle : eventStatisticsMsg_) {
+            std::shared_ptr<EventStatisticsMsg> curEventStatisticsMsgPtr = bundle.second;
+            uint32_t index = curEventStatisticsMsgPtr->ElementTypesIndex(eventType);
+            if (curEventStatisticsMsgPtr->eventTypeRecord_.size() > index) {
+                std::shared_ptr<EventStatisticsRecord> curEventStatisticsRecordPtr =
+                    curEventStatisticsMsgPtr->eventTypeRecord_[index];
+                eventStatisticsRecordPtr->execTimes_ += curEventStatisticsRecordPtr->execTimes_;
+            }
+        }
+        globalAllStatisticsPtr->execTimes_ += eventStatisticsRecordPtr->execTimes_;
+        UpdateLine(eventStatisticsRecordPtr, execCount_, line);
+        record_.push_back(line);
+    }
+    UpdateLine(globalAllStatisticsPtr, execCount_, line);
+    record_.push_back(line);
+}
 }  // namespace WuKong
 }  // namespace OHOS

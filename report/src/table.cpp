@@ -15,9 +15,6 @@
 
 #include "table.h"
 
-#include <iomanip>
-#include <iostream>
-
 namespace OHOS {
 namespace WuKong {
 

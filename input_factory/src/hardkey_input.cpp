@@ -25,7 +25,8 @@ namespace {
 const int hardkeyCount = 2;
 const int downtime = 10;
 }  // namespace
-HardkeyInput::HardkeyInput() : InputAction() {
+HardkeyInput::HardkeyInput() : InputAction()
+{
     std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
     multimodeInputMsg->inputType_ = INPUTTYPE_HARDKEYINPUT;
     inputedMsgObject_ = multimodeInputMsg;
