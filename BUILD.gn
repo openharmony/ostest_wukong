@@ -14,7 +14,7 @@
 import("//build/ohos.gni")
 
 wukong_root = "//test/wukong"
-aafwk_root = "//foundation/ability/ability_runtime"
+ability_runtime_root = "//foundation/ability/ability_runtime"
 
 config("wukong_common_config") {
   include_dirs = [ "//third_party/json/single_include/nlohmann" ]
@@ -35,7 +35,7 @@ accessibility_include_dirs = [
 ohos_executable("wukong") {
   configs = [ ":wukong_common_config" ]
   sources = [
-    "${aafwk_root}/tools/aa/src/shell_command.cpp",
+    "${ability_runtime_root}/tools/aa/src/shell_command.cpp",
     "${wukong_root}/common/src/app_manager.cpp",
     "${wukong_root}/common/src/component_manager.cpp",
     "${wukong_root}/common/src/multimode_manager.cpp",
