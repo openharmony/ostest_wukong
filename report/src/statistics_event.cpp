@@ -31,7 +31,7 @@ void StatisticsEvent::StatisticsDetail(std::vector<std::map<std::string, std::st
                                        std::map<std::string, std::shared_ptr<Table>> &destTables)
 {
     SrcDatasPretreatment(srcDatas);
-    // loop bundle stroe event statistics msg
+    // loop bundle store event statistics msg
     for (auto bundle : eventStatisticsMsg_) {
         DEBUG_LOG_STR("start bundlename{%s}", bundle.first.c_str());
         std::shared_ptr<EventStatisticsMsg> curEventStatisticsMsgPtr = bundle.second;

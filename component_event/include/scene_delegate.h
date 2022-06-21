@@ -82,7 +82,7 @@ private:
      * @brief find the same component in new component list and old component list
      * @param newcomponentlist new component list
      * @param oldcomponentlist old component list
-     * @return smae count
+     * @return same count
      */
     uint32_t FindSame(const std::vector<std::shared_ptr<ComponentTree>> &newcomponentlist,
                       const std::vector<std::shared_ptr<ComponentTree>> &oldcomponentlist);

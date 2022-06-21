@@ -180,7 +180,7 @@ ErrCode RandomTestFlow::EnvInit()
     // shuffle the event list.
     RandomShuffle();
 
-    // if time test flow, registe timer.
+    // if time test flow, register timer.
     if (g_commandTIMEENABLE) {
         RegisterTimer();
     }
@@ -208,7 +208,7 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
         return OHOS::ERR_INVALID_VALUE;
     }
 
-    // check vaild of the option argument
+    // check valid of the option argument
     if (percent > 1 || percent < 0) {
         shellcommand_.ResultReceiverAppend("the input percent more than 1 (100%).\n");
         shellcommand_.ResultReceiverAppend(RANDOM_TEST_HELP_MSG);

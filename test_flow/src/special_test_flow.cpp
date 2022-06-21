@@ -148,7 +148,7 @@ ErrCode SpecialTestFlow::EnvInit()
         }
     }
 
-    // if time test flow, registe timer.
+    // if time test flow, register timer.
     if (g_commandTIMEENABLE) {
         RegisterTimer();
     }

@@ -44,7 +44,7 @@ public:
     void Finish();
     void SetSeed(std::string seed);
     /*
-     * @brief  Synchronous inputed information
+     * @brief  Synchronous inputted information
      * @return void
      */
     void SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject);
@@ -99,7 +99,7 @@ private:
     void ExceptionRecord(const std::string &exceptionFilename);
 
     /*
-     * @brief componment infomation arrange
+     * @brief componment information arrange
      * @param bundle bundle name
      * @param inputCompMsgPtr input componment msg ptr
      * @param data out data

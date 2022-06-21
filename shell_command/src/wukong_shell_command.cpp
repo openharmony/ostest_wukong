@@ -126,7 +126,7 @@ ErrCode WuKongShellCommand::RunTestCommand()
     // if argument is not ok, exit wukong command.
     res = testFlow->CheckVaildityCmd();
     if (res != OHOS::ERR_OK) {
-        DEBUG_LOG("Command arguments is invaild and exit");
+        DEBUG_LOG("Command arguments is invalid and exit");
         return res;
     }
 
@@ -135,7 +135,7 @@ ErrCode WuKongShellCommand::RunTestCommand()
         ERROR_LOG("ComponentManager Connect failed");
         return OHOS::ERR_INVALID_OPERATION;
     }
-    DEBUG_LOG("connected sucessfully");
+    DEBUG_LOG("connected successfully");
 
     auto aacPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
     OHOS::Accessibility::AccessibilityElementInfo root;

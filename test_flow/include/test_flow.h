@@ -74,7 +74,7 @@ protected:
     virtual const struct option* GetOptionArguments(std::string &shortOpts) = 0;
 
     /**
-     * @brief parse command unknown option, and print invaild information.
+     * @brief parse command unknown option, and print invalid information.
      * arguments.
      * @param optopt option.
      * @return Return ERR_OK to continue.
