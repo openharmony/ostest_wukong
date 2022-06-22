@@ -194,19 +194,19 @@ ErrCode SceneDelegate::SetAvailableComponentList(std::shared_ptr<ComponentTree> 
     GRID_COUNT = 0;
     componentType_.clear();
     ErrCode result = OHOS::ERR_OK;
-    NormalScene normalsecen;
+    NormalScene normalscene;
     std::vector<std::shared_ptr<ComponentTree>> componentlist;
     std::shared_ptr<ComponentTree> inputcomponent = nullptr;
     auto treemanager = TreeManager::GetInstance();
     GetCurrentComponentInfo(componentinfo, componentlist);
     if (isRandom) {
-        normalsecen.SetInputComponentList(componentlist);
-        isBack_ = normalsecen.IsBackToPrePage();
+        normalscene.SetInputComponentList(componentlist);
+        isBack_ = normalscene.IsBackToPrePage();
         TRACK_LOG_STR("is random back: %d", isBack_);
         treemanager->SetActiveComponent(componentlist);
     } else {
-        normalsecen.SetInputComponent(componentlist, inputcomponent);
-        isBack_ = normalsecen.IsBackToPrePage();
+        normalscene.SetInputComponent(componentlist, inputcomponent);
+        isBack_ = normalscene.IsBackToPrePage();
         TRACK_LOG_STR("is special back: %d", isBack_);
         if (inputcomponent != nullptr) {
             treemanager->SetActiveComponent(inputcomponent);
