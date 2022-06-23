@@ -91,9 +91,9 @@ bool ComponentTree::SetNodeId()
     type_ = elementInfo->GetComponentType();
     uint64_t type = GetSubName(type_, typeCount);
     // w is width of the ElementInfo
-    int64_t w = (int64_t)(rect.GetRightBottomXScreenPostion() - rect.GetLeftTopXScreenPostion());
+    uint64_t w = (uint64_t)(rect.GetRightBottomXScreenPostion() - rect.GetLeftTopXScreenPostion());
     // h is width of the ElementInfo
-    int64_t h = (int64_t)(rect.GetRightBottomYScreenPostion() - rect.GetLeftTopYScreenPostion());
+    uint64_t h = (uint64_t)(rect.GetRightBottomYScreenPostion() - rect.GetLeftTopYScreenPostion());
     // the ElementInfo content of 2 length
     uint64_t str = GetSubName(elementInfo->GetContent(), contentCount);
 

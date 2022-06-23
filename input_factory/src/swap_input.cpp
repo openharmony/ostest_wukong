@@ -24,7 +24,7 @@ namespace WuKong {
 SwapInput::SwapInput() : InputAction()
 {
     std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
-    multimodeInputMsg->inputType_ = INPUTTYPE_TOUCHINPUT;
+    multimodeInputMsg->inputType_ = INPUTTYPE_SWAPINPUT;
     inputedMsgObject_ = multimodeInputMsg;
 }
 

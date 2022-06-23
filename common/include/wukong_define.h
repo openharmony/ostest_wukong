@@ -22,6 +22,8 @@
 
 namespace OHOS {
 namespace WuKong {
+const uint32_t INVALIDVALUE = 0xFFFFFFFF;
+const uint32_t WAIT_TIME = 1000000;
 #define COMPONENT_LEFT_SWAP 0X10000000
 
 #define PARAM_COUNT_TIME_ERROR "has set '-T', can not set '-T' and '-c' at the same time"

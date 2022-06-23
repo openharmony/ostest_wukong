@@ -85,11 +85,12 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
 
 const int ONE_HUNDRED_PERCENT = 100;
 // one minute (ms)
-const int oneMinute = 60000;
+const int ONE_MINUTE = 60000;
 bool g_commandSEEDENABLE = false;
 bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
 bool g_commandCOUNTENABLE = false;
+bool isAppStarted = false;
 }  // namespace
 using namespace std;
 
@@ -221,6 +222,7 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
 
 ErrCode RandomTestFlow::RunStep()
 {
+    ErrCode result = OHOS::ERR_OK;
     // control the count test flow
     if (g_commandCOUNTENABLE == true) {
         totalCount_--;
@@ -230,11 +232,30 @@ ErrCode RandomTestFlow::RunStep()
         }
     }
 
+    std::shared_ptr<InputAction> inputaction = nullptr;
+    if (!isAppStarted) {
+        inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
+        if (inputaction == nullptr) {
+            ERROR_LOG("inputaction is nullptr");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+        result = inputaction->RandomInput();
+        if (result != OHOS::ERR_OK) {
+            ERROR_LOG("launch app failed and exit");
+            return result;
+        }
+        inputaction = nullptr;
+        isAppStarted = true;
+        usleep(intervalArgs_ * oneSecond_);
+    }
     // input event, get event index form event list by random algorithm.
     int eventindex = rand() % ONE_HUNDRED_PERCENT;
-    ErrCode result = OHOS::ERR_OK;
     InputType eventTypeId = (InputType)(eventList_.at(eventindex));
-    std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(eventTypeId);
+    inputaction = InputFactory::GetInputAction(eventTypeId);
+    if (inputaction == nullptr) {
+        ERROR_LOG("inputaction is nullptr");
+        return OHOS::ERR_INVALID_VALUE;
+    }
     result = inputaction->RandomInput();
     usleep(intervalArgs_ * oneSecond_);
     return result;
@@ -335,7 +356,7 @@ ErrCode RandomTestFlow::CheckArgument(const int option)
     return result;
 }
 
-const struct option* RandomTestFlow::GetOptionArguments(std::string &shortOpts)
+const struct option *RandomTestFlow::GetOptionArguments(std::string &shortOpts)
 {
     shortOpts = SHORT_OPTIONS;
     return LONG_OPTIONS;
@@ -391,7 +412,7 @@ void RandomTestFlow::RegisterTimer()
 {
     if (timer_ == nullptr) {
         timer_ = std::make_shared<Utils::Timer>("wukong");
-        timerId_ = timer_->Register(std::bind(&RandomTestFlow::TestTimeout, this), totalTime_ * oneMinute, true);
+        timerId_ = timer_->Register(std::bind(&RandomTestFlow::TestTimeout, this), totalTime_ * ONE_MINUTE, true);
         timer_->Setup();
     }
 }

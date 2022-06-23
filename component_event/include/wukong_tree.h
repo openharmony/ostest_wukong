@@ -24,7 +24,7 @@ namespace OHOS {
 namespace WuKong {
 class WuKongTree {
 public:
-    static const std::shared_ptr<WuKongTree>& GetRoot(const std::shared_ptr<WuKongTree>& child)
+    static const std::shared_ptr<WuKongTree> GetRoot(const std::shared_ptr<WuKongTree>& child)
     {
         if (child->GetParent() == nullptr) {
             return child;

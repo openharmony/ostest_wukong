@@ -142,8 +142,8 @@ ErrCode SceneDelegate::ChooseScene(bool isRandom)
     return result;
 }
 
-ErrCode SceneDelegate::CompareComponentInfos(std::shared_ptr<ComponentTree> newcomponentinfo,
-                                             std::shared_ptr<ComponentTree> oldcomponentinfo, bool isRandom)
+ErrCode SceneDelegate::CompareComponentInfos(std::shared_ptr<ComponentTree> &newcomponentinfo,
+                                             std::shared_ptr<ComponentTree> &oldcomponentinfo, bool isRandom)
 {
     ErrCode result = OHOS::ERR_OK;
     DEBUG_LOG("compare page");
@@ -196,7 +196,7 @@ ErrCode SceneDelegate::SetAvailableComponentList(std::shared_ptr<ComponentTree> 
     ErrCode result = OHOS::ERR_OK;
     NormalScene normalsecen;
     std::vector<std::shared_ptr<ComponentTree>> componentlist;
-    std::shared_ptr<ComponentTree> inputcomponent = nullptr;
+    std::shared_ptr<ComponentTree> inputcomponent = std::make_shared<ComponentTree>();
     auto treemanager = TreeManager::GetInstance();
     GetCurrentComponentInfo(componentinfo, componentlist);
     if (isRandom) {
@@ -286,7 +286,7 @@ ErrCode SceneDelegate::FindSamePageInParent(bool &isFound, bool isRandom)
                 DEBUG_LOG("update failed");
                 return OHOS::ERR_NO_INIT;
             }
-            if (coverage < MINCOVERAGE) {
+            if (coverage < MINCOVERAGE && !isRandom) {
                 DEBUG_LOG("continue to same page");
                 treemanager->SetActiveComponent(
                     std::static_pointer_cast<PageTree>(parentpage)->GetCurrentComponentNode());

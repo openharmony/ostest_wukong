@@ -21,8 +21,7 @@
 
 namespace OHOS {
 namespace WuKong {
-enum ComponentStatus
-{
+enum ComponentStatus {
     COMPONENT_STATUS_DISCONNECT,
     COMPONENT_STATUS_CONNECTED,
     COMPONENT_STATUS_CONNECTING

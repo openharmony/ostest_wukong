@@ -34,26 +34,44 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
 {
     ErrCode result = OHOS::ERR_OK;
     int randomNumber = rand() % ONEHUNDRED;
+    uint32_t count = 0;
     DEBUG_LOG_STR("randomNumber: %d", randomNumber);
+    std::vector<uint32_t> indexList;
     if (randomNumber < NEWPERCENT) {
         for (auto it = componentList.begin(); it != componentList.end(); it++) {
             DEBUG_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
             if ((*it)->GetInputCount() > MAXINPUTNUM) {
-                componentList.erase(it);
-                it--;
+                indexList.push_back((*it)->GetIndex());
+                TRACK_LOG_STR("index0: %d", distance(componentList.begin(), it));
             }
         }
     } else if (randomNumber < (NEWPERCENT + OLDPERCENT)) {
         for (auto it = componentList.begin(); it != componentList.end(); it++) {
             DEBUG_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
             if ((*it)->GetInputCount() <= MAXINPUTNUM) {
-                componentList.erase(it);
-                it--;
+                count++;
+                TRACK_LOG_STR("inputed count: %d, componentList size: %d", count, componentList.size());
+                indexList.push_back((*it)->GetIndex());
+                TRACK_LOG_STR("index: %d", distance(componentList.begin(), it));
             }
         }
-    } else if ((componentList.size() == 0) || randomNumber < ONEHUNDRED) {
+    }
+    if (count < componentList.size()) {
+        TRACK_LOG_STR("componentList size: %d", componentList.size());
+        TRACK_LOG_STR("indexList size: %d", indexList.size());
+        for (auto index : indexList) {
+            for (auto it = componentList.begin(); it != componentList.end(); it++) {
+                if ((*it)->GetIndex() == index) {
+                    componentList.erase(it);
+                    it--;
+                }
+            }
+        }
+    }
+    if ((componentList.size() == 0) || (randomNumber < ONEHUNDRED && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
         isBack_ = true;
     }
+    indexList.clear();
     return result;
 }
 

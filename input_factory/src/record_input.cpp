@@ -15,16 +15,16 @@
 
 #include "record_input.h"
 
-#include <iostream>
-#include <fstream>
 #include <ctime>
 #include <dirent.h>
-#include <sys/stat.h>
+#include <fstream>
+#include <iostream>
 #include <regex>
+#include <sys/stat.h>
 #include <typeinfo>
 
-#include "multimode_manager.h"
 #include "ability_manager_client.h"
+#include "multimode_manager.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -50,8 +50,8 @@ int64_t GetMillisTime()
 static std::vector<std::string> split(const std::string &in, const std::string &delim)
 {
     std::regex reg(delim);
-    std::vector<std::string> res = {
-    std::sregex_token_iterator(in.begin(), in.end(), reg, -1), std::sregex_token_iterator()};
+    std::vector<std::string> res = {std::sregex_token_iterator(in.begin(), in.end(), reg, -1),
+                                    std::sregex_token_iterator()};
     return res;
 }
 
@@ -85,22 +85,23 @@ bool InitReportFolder()
 bool InitEventRecordFile(std::ofstream &outFile, std::string recordName_)
 {
     if (!InitReportFolder()) {
+        ERROR_LOG("init folder failed");
         return false;
     }
     std::string filePath = DEFAULT_DIR + "/" + recordName_ + ".csv";
     outFile.open(filePath, std::ios_base::out | std::ios_base::trunc);
     if (!outFile) {
-        std::cerr << "Failed to create csv file at:" << filePath << std::endl;
+        ERROR_LOG_STR("Failed to create csv file at: %s", filePath.c_str());
         return false;
     }
     WriteEventHead(outFile);
-    std::cout << "The result will be written in csv file at location: " << filePath << std::endl;
+    INFO_LOG_STR("The result will be written in csv file at location: %s", filePath.c_str());
     return true;
 }
 
 ErrCode ReadEventLine(std::ifstream &inFile)
 {
-    int result = ERR_OK;
+    ErrCode result = OHOS::ERR_OK;
     char buffer[50];
     int xPosi = -1;
     int yPosi = -1;
@@ -118,13 +119,14 @@ ErrCode ReadEventLine(std::ifstream &inFile)
         xPosi = std::stoi(caseInfo[0]);
         yPosi = std::stoi(caseInfo[1]);
         interval = std::stoi(caseInfo[NUMTWO]);
-
-        std::cout << xPosi << ";"
-                  << yPosi << ";"
-                  << interval << std::endl;
+        INFO_LOG_STR("Position: (%d,%d)  interval: %d", xPosi, yPosi, interval);
         auto recordTouchInput = MultimodeManager::GetInstance();
         result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                                 MMI::PointerEvent::POINTER_ACTION_DOWN);
+        if (result != OHOS::ERR_OK) {
+            ERROR_LOG("input failed");
+            return result;
+        }
         result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                                 MMI::PointerEvent::POINTER_ACTION_UP);
         usleep(interval * INTERVALTIME);
@@ -136,14 +138,14 @@ class InputEventCallback : public MMI::IInputEventConsumer {
 public:
     virtual void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override
     {
-        std::cout << "keyCode" << keyEvent->GetKeyCode() << std::endl;
+        INFO_LOG_STR("keyCode: %d", keyEvent->GetKeyCode());
     }
     virtual void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override
     {
         MMI::PointerEvent::PointerItem item;
         bool result = pointerEvent->GetPointerItem(pointerEvent->GetPointerId(), item);
         if (!result) {
-            std::cout << "GetPointerItem Fail" << std::endl;
+            ERROR_LOG("GetPointerItem Fail");
         }
         eventData data {};
         int64_t currentTime = GetMillisTime();
@@ -157,12 +159,11 @@ public:
         data.xPosi = item.GetGlobalX();
         data.yPosi = item.GetGlobalY();
         WriteEventData(outFile, data);
-        std::cout << " PointerEvent received."
-                  << " interval: " << data.interval
-                  << " xPosi:" << data.xPosi
-                  << " yPosi:" << data.yPosi << std::endl;
+        INFO_LOG_STR("PointerEvent received. interval: %d xPosi: %d yPosi: %d", data.interval, data.xPosi, data.yPosi);
     }
-    virtual void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override {}
+    virtual void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override
+    {
+    }
     static std::shared_ptr<InputEventCallback> GetPtr();
 };
 
@@ -179,30 +180,42 @@ RecordInput::~RecordInput()
 {
 }
 
-ErrCode RecordInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
+ErrCode RecordInput::OrderInput(const std::shared_ptr<SpcialTestObject> &specialTestObject)
 {
     int result = ERR_OK;
     auto recordPtr = std::static_pointer_cast<RecordParam>(specialTestObject);
-    if (recordPtr->recordStatus_ == true) {
+    if (recordPtr->recordStatus_) {
         if (!InitEventRecordFile(outFile, recordPtr->recordName_)) {
-        return OHOS::ERR_INVALID_VALUE;
+            ERROR_LOG("init file failed");
+            specialTestObject->isAllFinished_ = true;
+            return OHOS::ERR_INVALID_VALUE;
         }
         auto callBackPtr = InputEventCallback::GetPtr();
         if (callBackPtr == nullptr) {
-            std::cout << "nullptr" << std::endl;
+            ERROR_LOG("input callback is nullptr");
+            specialTestObject->isAllFinished_ = true;
+            return OHOS::ERR_INVALID_VALUE;
         }
         int32_t id1 = MMI::InputManager::GetInstance()->AddMonitor(callBackPtr);
         if (id1 == -1) {
-            std::cout << "Startup Failed!" << std::endl;
+            ERROR_LOG("Startup Failed!");
+            specialTestObject->isAllFinished_ = true;
+            return OHOS::ERR_INVALID_VALUE;
         }
-        std::cout << "Started Recording Successfully..." << std::endl;
+        INFO_LOG("Started Recording Successfully...");
         int flag = getc(stdin);
-        std::cout << flag << std::endl;
+        specialTestObject->isAllFinished_ = true;
+        TRACK_LOG_STR("flag: %d", flag);
     } else {
         std::ifstream inFile(DEFAULT_DIR + "/" + recordPtr->recordName_ + ".csv");
         result = ReadEventLine(inFile);
+        if (result != ERR_OK) {
+            WARN_LOG("this input failed");
+            return result;
+        }
+        specialTestObject->isAllFinished_ = true;
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 }  // namespace WuKong
 }  // namespace OHOS

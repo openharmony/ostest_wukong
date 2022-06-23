@@ -1,11 +1,4 @@
 /*
- * @Description:
- * @Date: 2022-04-21 19:40:58
- * @LastEditTime: 2022-04-21 19:54:19
- * @FilePath: /wukong/report/src/sysevent_listener.cpp
- * @author: lemon
- */
-/*
  * Copyright (c) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

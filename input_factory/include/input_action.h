@@ -27,8 +27,7 @@
 
 namespace OHOS {
 namespace WuKong {
-enum InputType
-{
+enum InputType {
     INPUTTYPE_TOUCHINPUT,      // input touch event
     INPUTTYPE_SWAPINPUT,       // input swap event
     INPUTTYPE_MOUSEINPUT,      // input mouse event

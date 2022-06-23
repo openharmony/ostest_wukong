@@ -138,11 +138,13 @@ public:
         bundleRunning_.push_back(false);
         bundleFinish_.push_back(false);
         pageBack_.push_back(0);
+        lanuchCount_.push_back(0);
     }
     std::vector<std::string> bundleName_;
     std::vector<bool> bundleRunning_;
     std::vector<bool> bundleFinish_;
     std::vector<uint32_t> pageBack_;
+    std::vector<uint32_t> lanuchCount_;
 };
 class RecordParam : public SpcialTestObject {
 public:
@@ -153,7 +155,7 @@ public:
     {
     }
     std::string recordName_;
-    bool recordStatus_;
+    bool recordStatus_ = false;
 };
 }  // namespace WuKong
 }  // namespace OHOS

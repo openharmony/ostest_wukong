@@ -17,9 +17,9 @@
 
 #include <string>
 
+#include "report.h"
 #include "string_ex.h"
 #include "wukong_define.h"
-#include "report.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -60,7 +60,7 @@ const struct option LONG_OPTIONS[] = {
     {"record", required_argument, nullptr, 'r'},     // record user operation
     {"replay", required_argument, nullptr, 'R'}      // replay user operation
 };
-const int oneMintue = 60000;
+const int ONE_MINUTE = 60000;
 bool g_commandSWAPENABLE = false;
 bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
@@ -73,7 +73,7 @@ bool g_commandSCREENSHOTENABLE = false;
 bool g_commandRECORDABLE = false;
 bool g_commandREPLAYABLE = false;
 
-static unsigned int NUMBER_TWO = 2;
+const int NUMBER_TWO = 2;
 }  // namespace
 using namespace std;
 
@@ -173,7 +173,7 @@ ErrCode SpecialTestFlow::RunStep()
     if (result != OHOS::ERR_OK) {
         WARN_LOG("This test failed");
     }
-    if (g_commandSCREENSHOTENABLE == true) {
+    if (g_commandSCREENSHOTENABLE) {
         std::string screenStorePath;
         result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath);
         if (result == OHOS::ERR_OK) {
@@ -185,10 +185,10 @@ ErrCode SpecialTestFlow::RunStep()
             isFinished_ = true;
         }
     }
-    if (g_commandRECORDABLE == true) {
+    if (g_commandRECORDABLE) {
         isFinished_ = true;
     }
-    if (g_commandREPLAYABLE == true) {
+    if (g_commandREPLAYABLE) {
         isFinished_ = true;
     }
     usleep(intervalArgs_ * oneSecond_);
@@ -231,7 +231,7 @@ ErrCode SpecialTestFlow::HandleUnknownOption(const char optopt)
         case 's':
         case 'e':
         case 'C':
-            shellcommand_.ResultReceiverAppend("error: option '");
+            shellcommand_.ResultReceiverAppend("error: option '-");
             shellcommand_.ResultReceiverAppend(string(1, optopt));
             shellcommand_.ResultReceiverAppend("' requires a value.\n");
             result = OHOS::ERR_INVALID_VALUE;
@@ -369,7 +369,7 @@ void SpecialTestFlow::RegisterTimer()
 {
     if (timer_ == nullptr) {
         timer_ = std::make_shared<Utils::Timer>("wukong");
-        timerId_ = timer_->Register(std::bind(&SpecialTestFlow::TestTimeout, this), totalTime_ * oneMintue, true);
+        timerId_ = timer_->Register(std::bind(&SpecialTestFlow::TestTimeout, this), totalTime_ * ONE_MINUTE, true);
         timer_->Setup();
     }
 }

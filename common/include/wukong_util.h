@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef TEST_WUKONG_UTIL_H
 #define TEST_WUKONG_UTIL_H
 
@@ -136,6 +137,20 @@ public:
      * @return dir string
      */
     std::string GetCurrentTestDir();
+
+    /*
+     * @brief copy file from soruce to dest
+     * @param sourceFile
+     * @param destFile
+     * @return bool
+     */
+    bool CopyFile(const char *sourceFile, const char *destFile);
+
+    /**
+     * @brief check dir status
+     * @param dir
+     */
+    bool CheckFileStatus(const char *dir);
 
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 

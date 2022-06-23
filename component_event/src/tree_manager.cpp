@@ -173,7 +173,6 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
             return OHOS::ERR_INVALID_OPERATION;
         }
         currentPageNode_ = pageTreeList_[currentAbilityNode_->GetIndex()];
-
         if (componentTreeList_.find(currentPageNode_->GetIndex()) == componentTreeList_.end()) {
             ERROR_LOG_STR("page index (%d) more than componentTreeList count (%d)", currentPageNode_->GetIndex(),
                           componentTreeList_.size());
@@ -410,7 +409,6 @@ bool TreeManager::RemovePage()
     TRACK_LOG_STD();
     uint32_t componentNodeIndex = currentPageNode_->GetIndex();
     uint32_t componentTreeListCount = componentTreeList_.size();
-
     if (componentNodeIndex >= componentTreeListCount) {
         ERROR_LOG_STR("currentPageNode index (%u) more than componentTreeList_ size (%u)", componentNodeIndex,
                       componentTreeListCount);

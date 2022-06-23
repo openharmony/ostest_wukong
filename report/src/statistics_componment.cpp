@@ -26,7 +26,7 @@ namespace WuKong {
 namespace {
 const uint32_t DECIMAL_LENGTH = 2;
 const float PERCENTAGE = 100.0;
-}
+}  // namespace
 
 void StatisticsComponment::StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
                                             std::map<std::string, std::shared_ptr<Table>> &destTables)
@@ -134,12 +134,12 @@ void StatisticsComponment::UpdateLine(std::shared_ptr<ComponmentStatisticsRecord
     if (componmentTypeTotal > 0) {
         float proportion = (ComponmentStatisticsRecordPtr->execTimes_ * PERCENTAGE) / componmentTypeTotal;
         bufferStream.str("");
-        bufferStream << std::setiosflags(std::ios::fixed) << std::setprecision(2) << proportion;
+        bufferStream << std::setiosflags(std::ios::fixed) << std::setprecision(DECIMAL_LENGTH) << proportion;
         curProportionStr = bufferStream.str() + "%";
     }
     if (ComponmentStatisticsRecordPtr->expectInputTimes_ > 0) {
-        float coverage =
-            (ComponmentStatisticsRecordPtr->inputedTimes_ * PERCENTAGE) / ComponmentStatisticsRecordPtr->expectInputTimes_;
+        float coverage = (ComponmentStatisticsRecordPtr->inputedTimes_ * PERCENTAGE) /
+                         ComponmentStatisticsRecordPtr->expectInputTimes_;
         bufferStream.str("");
         bufferStream << std::setiosflags(std::ios::fixed) << std::setprecision(DECIMAL_LENGTH) << coverage;
         curCoverageStr = bufferStream.str() + "%";
@@ -158,7 +158,8 @@ void StatisticsComponment::GlobalComponmentTypeStatistics()
     std::shared_ptr<ComponmentStatisticsRecord> globalAllStatisticsPtr = std::make_shared<ComponmentStatisticsRecord>();
     globalAllStatisticsPtr->componmentType_ = "total";
     for (auto comonmentType : globalComponmentTypes_) {
-        std::shared_ptr<ComponmentStatisticsRecord> componmentTypeRecordPtr = std::make_shared<ComponmentStatisticsRecord>();
+        std::shared_ptr<ComponmentStatisticsRecord> componmentTypeRecordPtr =
+            std::make_shared<ComponmentStatisticsRecord>();
         componmentTypeRecordPtr->componmentType_ = comonmentType;
         for (auto bundle : componmentStatisticsMsg_) {
             std::shared_ptr<ComponmentStatisticsMsg> curComponmentStatisticsMsgPtr = bundle.second;

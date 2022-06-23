@@ -31,8 +31,7 @@ public:
      * @param command Input string wukong command.
      * @return Return the TestFlow object.
      */
-    static std::shared_ptr<TestFlow> GetTestFlow(
-        WuKongShellCommand& shellCommand, std::string& command);
+    static std::shared_ptr<TestFlow> GetTestFlow(WuKongShellCommand& shellCommand, const std::string& command);
 };
 }  // namespace WuKong
 }  // namespace OHOS

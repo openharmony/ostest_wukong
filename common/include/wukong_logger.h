@@ -27,8 +27,7 @@
 
 namespace OHOS {
 namespace WuKong {
-enum LOG_LEVEL
-{
+enum LOG_LEVEL {
     LOG_LEVEL_TRACK = 0,
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_INFO,
@@ -36,8 +35,7 @@ enum LOG_LEVEL
     LOG_LEVEL_ERROR,
 };
 
-enum WK_LOG_OUTPUT_TYPE
-{
+enum WK_LOG_OUTPUT_TYPE {
     STD_OUTPUT = 0x0001,
     FILE_OUTPUT = 0x0002,
     HILOG_OUTPUT = 0x0004,
