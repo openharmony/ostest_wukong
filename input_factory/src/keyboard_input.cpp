@@ -14,16 +14,17 @@
  */
 
 #include "keyboard_input.h"
+
 #include "multimode_manager.h"
-#include "wukong_define.h"
 #include "report.h"
+#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
 namespace {
-const int singleCodePercent = 30;
-const int oneHundredPercent = 100;
-const int downtime = 100;
+const int SINGLE_CODE_PER = 30;
+const int ONE_HUNDRED_PERCENT = 100;
+const int DOWN_TIME = 100;
 }  // namespace
 KeyboardInput::KeyboardInput() : InputAction()
 {
@@ -31,19 +32,21 @@ KeyboardInput::KeyboardInput() : InputAction()
     multimodeInputMsg->inputType_ = INPUTTYPE_KEYBOARDINPUT;
     inputedMsgObject_ = multimodeInputMsg;
 }
-KeyboardInput::~KeyboardInput() {}
+KeyboardInput::~KeyboardInput()
+{
+}
 ErrCode KeyboardInput::RandomInput()
 {
     ErrCode result = OHOS::ERR_OK;
     std::vector<int> keycodelist;
-    int keyCodePercent = rand() % oneHundredPercent;
+    int keyCodePercent = rand() % ONE_HUNDRED_PERCENT;
     MultimodeManager::GetInstance()->GetKeycodeList(keycodelist);
     if (keycodelist.size() > 0) {
-        if (keyCodePercent < singleCodePercent) {
-            int keycode = keycodelist[rand() % keycodelist.size()];
-            result = MultimodeManager::GetInstance()->SingleKeyCodeInput(keycode, downtime);
+        if (keyCodePercent < SINGLE_CODE_PER) {
+            int keycode = keycodelist[(uint32_t)(rand() % keycodelist.size())];
+            result = MultimodeManager::GetInstance()->SingleKeyCodeInput(keycode, DOWN_TIME);
         } else {
-            result = MultimodeManager::GetInstance()->MultiKeyCodeInput(downtime);
+            result = MultimodeManager::GetInstance()->MultiKeyCodeInput(DOWN_TIME);
         }
     } else {
         return OHOS::ERR_NO_INIT;

@@ -20,12 +20,12 @@
 
 namespace OHOS {
 namespace WuKong {
-std::shared_ptr<TestFlow> TestFlowFactory::GetTestFlow(WuKongShellCommand& shellCommand, std::string& command)
+std::shared_ptr<TestFlow> TestFlowFactory::GetTestFlow(WuKongShellCommand& shellCommand, const std::string& command)
 {
     std::shared_ptr<TestFlow> testFlow = nullptr;
-    if (command.compare("exec") == 0) {
+    if (command == "exec") {
         testFlow = std::make_shared<RandomTestFlow>(shellCommand);
-    } else if (command.compare("special") == 0) {
+    } else if (command == "special") {
         testFlow = std::make_shared<SpecialTestFlow>(shellCommand);
     }
     return testFlow;

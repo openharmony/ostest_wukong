@@ -28,6 +28,7 @@ namespace OHOS {
 namespace WuKong {
 namespace {
 const uint32_t PAGE_BACK_COUNT_MAX = 3;
+const uint32_t LANUCH_APP_COUNT_MAX = 5;
 
 ErrCode LauncherApp(const std::string& bundleName)
 {
@@ -135,6 +136,33 @@ bool CheckInputFinished(const std::shared_ptr<ComponentParam>& param)
     TRACK_LOG_END();
     return isFinished;
 }
+
+ErrCode JudgeBackResult(const std::shared_ptr<ComponentParam>& param, uint32_t launchIndex)
+{
+    TRACK_LOG_STD();
+    ErrCode result = OHOS::ERR_OK;
+    param->pageBack_[launchIndex]++;
+    TRACK_LOG_STR("back count: %d", param->pageBack_[launchIndex]);
+    if (param->pageBack_[launchIndex] > PAGE_BACK_COUNT_MAX) {
+        result = LauncherApp(param->bundleName_[launchIndex]);
+        if (result != OHOS::ERR_OK) {
+            return result;
+        }
+        param->pageBack_[launchIndex] = 0;
+        param->lanuchCount_[launchIndex]++;
+        TRACK_LOG_STR("lanuchCount_[%d] = %d", launchIndex, param->lanuchCount_[launchIndex]);
+        if (param->lanuchCount_[launchIndex] > LANUCH_APP_COUNT_MAX) {
+            param->bundleFinish_[launchIndex] = true;
+            ERROR_LOG("Failed to launch the app five times in a row and exit");
+            param->lanuchCount_[launchIndex] = 0;
+            return OHOS::ERR_INVALID_VALUE;
+        }
+    } else {
+        result = ComponentManager::GetInstance()->BackToPrePage();
+    }
+    return result;
+    TRACK_LOG_END();
+}
 }  // namespace
 ComponentInput::ComponentInput() : InputAction()
 {
@@ -160,24 +188,20 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
         ERROR_LOG(componentPtr->toString().c_str());
         return OHOS::ERR_INVALID_VALUE;
     }
-
     auto treemanager = TreeManager::GetInstance();
+    auto delegate = SceneDelegate::GetInstance();
     result = treemanager->UpdateComponentInfo();
     DEBUG_LOG_STR("update componentinfo result (%d)", result);
     if (result == OHOS::ERR_OK) {
-        auto delegate = SceneDelegate::GetInstance();
         result = delegate->ChooseScene(false);
         if (result != OHOS::ERR_OK) {
             ERROR_LOG("choose scene failed");
             return result;
         }
         if (delegate->IsBackToPrePage()) {
-            componentPtr->pageBack_[launchIndex]++;
-            if (componentPtr->pageBack_[launchIndex] > PAGE_BACK_COUNT_MAX) {
-                result = LauncherApp(componentPtr->bundleName_[launchIndex]);
-                componentPtr->pageBack_[launchIndex] = 0;
-            } else {
-                result = ComponentManager::GetInstance()->BackToPrePage();
+            result = JudgeBackResult(componentPtr, launchIndex);
+            if (result != OHOS::ERR_OK) {
+                return result;
             }
         } else {
             auto elementInfo = treemanager->GetElementInfoByOrder();
@@ -193,6 +217,7 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
             if (result == OHOS::ERR_OK) {
                 treemanager->SetInputcomponentIndex(actionType);
                 componentPtr->pageBack_[launchIndex] = 0;
+                componentPtr->lanuchCount_[launchIndex] = 0;
                 std::shared_ptr<ComponmentInputMsg> componentInputMsg = std::make_shared<ComponmentInputMsg>();
                 componentInputMsg->pageComponments = delegate->GetComponentTypeList();
                 componentInputMsg->pageId_ = delegate->GetCurrentPageId();
@@ -201,7 +226,6 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
             }
         }
     }
-
     // check current bundle finished state.
     if (CheckInputFinished(componentPtr)) {
         componentPtr->isAllFinished_ = true;
@@ -232,7 +256,7 @@ ErrCode ComponentInput::RandomInput()
         if (delegate->IsBackToPrePage()) {
             result = ComponentManager::GetInstance()->BackToPrePage();
         } else if (componentInfos.size() > 0) {
-            uint32_t index = rand() % componentInfos.size();
+            uint32_t index = (uint32_t)(rand() % componentInfos.size());
             DEBUG_LOG_STR("component input index (%d)", index);
             int actionType = JudgeComponentType(*(componentInfos[index].get()));
             if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
@@ -280,7 +304,7 @@ int ComponentInput::JudgeComponentType(OHOS::Accessibility::AccessibilityElement
         }
     } else {
         TRACK_LOG_STR("action list size: %u", actionlist.size());
-        auto it = actionlist[rand() % actionlist.size()];
+        auto it = actionlist[(uint32_t)(rand() % actionlist.size())];
         actionType = (int)it.GetActionType();
     }
     TRACK_LOG_STR("action type: %d", actionType);

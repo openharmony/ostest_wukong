@@ -92,14 +92,6 @@ private:
     void CrashFileClear();
 
     /*
-     * @brief copy file from soruce to dest
-     * @param sourceFile
-     * @param destFile
-     * @return bool
-     */
-    bool CopyFile(const char *sourceFile, const char *destFile);
-
-    /*
      * @brief find Exception Type by crash file name
      * @param exceptionFilename
      * @return void
@@ -119,13 +111,16 @@ private:
     // csv filename
     std::string reportCsvFileName_ = "";
     std::string reportJsonFileName_ = "";
+    std::string reportExceptionDir_ = "";
     std::string currentTestDir_ = "";
+    std::string crashDir_ = "/data/log/faultlog/faultlogger/";
     std::vector<std::string> crashFiles_;
     std::string seed_ = "";
     int taskCount_ = 0;
+    bool isFirstAppSwitch_ = false;
     time_t startTime_ = time(0);
     std::mutex crashMtx_;
-    std::vector<std::string> crashDirs_ = {"/data/log/faultlog/faultlogger/", "/data/log/faultlog/temp/"};
+    std::string hilogDirs_ = "/data/log/hilog/";
     // multimodal input data set
     std::shared_ptr<DataSet> eventDataSet_ = std::make_shared<DataSet>();
     // componment input data set

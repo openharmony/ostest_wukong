@@ -15,6 +15,8 @@
 
 #include "wukong_shell_command.h"
 
+#include <cstdlib>
+
 #include "ability_manager_client.h"
 #include "accessibility_element_info.h"
 #include "accessibility_ui_test_ability.h"
@@ -33,10 +35,9 @@ namespace WuKong {
 namespace {
 const std::string WUKONG_TOOL_NAME = "wukong";
 
-const std::string WUKONG_TOOL_VERSION = "1.1.0\n";
+const std::string WUKONG_TOOL_VERSION = "version: 1.1.0\n";
 
-const std::string ACE_ENABLE_INFO =
-    "please run 'hdc_std shell param set persist.ace.testmode.enabled 1' and reboot your device\n";
+const std::string ACE_ENABLE = "param set persist.ace.testmode.enabled 1";
 
 const std::string WUKONG_HELP_MSG =
     "usage: wukong <command> [<arguments>]\n"
@@ -106,7 +107,7 @@ ErrCode WuKongShellCommand::RunStopCommand()
 ErrCode WuKongShellCommand::RunTestCommand()
 {
     TRACK_LOG_STD();
-    int res = OHOS::ERR_OK;
+    ErrCode res = OHOS::ERR_OK;
     // get testFlow by cmd_ of ShellCommand
     std::shared_ptr<TestFlow> testFlow = TestFlowFactory::GetTestFlow(*this, cmd_);
     if (testFlow == nullptr) {
@@ -116,6 +117,8 @@ ErrCode WuKongShellCommand::RunTestCommand()
 
     auto cm = ComponentManager::GetInstance();
     if (cm == nullptr) {
+        ERROR_LOG("cm is nullptr");
+        return OHOS::ERR_INVALID_VALUE;
     }
     uint32_t handle = cm->AddRegisterListener(testFlow);
 
@@ -137,8 +140,7 @@ ErrCode WuKongShellCommand::RunTestCommand()
     auto aacPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
     OHOS::Accessibility::AccessibilityElementInfo root;
     if (!aacPtr->GetRoot(root)) {
-        resultReceiver_.append(ACE_ENABLE_INFO);
-        return OHOS::ERR_INVALID_OPERATION;
+        system(ACE_ENABLE.c_str());
     }
     // run test flow.
     res = testFlow->Run();

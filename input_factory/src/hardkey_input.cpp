@@ -22,8 +22,8 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-const int hardkeyCount = 2;
-const int downtime = 10;
+const int HARDKEY_COUNT = 2;
+const int DOWN_TIME = 10;
 }  // namespace
 HardkeyInput::HardkeyInput() : InputAction()
 {
@@ -37,15 +37,15 @@ HardkeyInput::~HardkeyInput() {}
 ErrCode HardkeyInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
     ErrCode result = OHOS::ERR_OK;
-    result = MultimodeManager::GetInstance()->SingleKeyCodeInput(MMI::KeyEvent::KEYCODE_POWER, downtime);
+    result = MultimodeManager::GetInstance()->SingleKeyCodeInput(MMI::KeyEvent::KEYCODE_POWER, DOWN_TIME);
     return result;
 }
 
 ErrCode HardkeyInput::RandomInput()
 {
     ErrCode result = OHOS::ERR_OK;
-    int keycode = MMI::KeyEvent::KEYCODE_VOLUME_UP + rand() % hardkeyCount;
-    result = MultimodeManager::GetInstance()->SingleKeyCodeInput(keycode, downtime);
+    int keycode = MMI::KeyEvent::KEYCODE_VOLUME_UP + rand() % HARDKEY_COUNT;
+    result = MultimodeManager::GetInstance()->SingleKeyCodeInput(keycode, DOWN_TIME);
     Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     return result;
 }

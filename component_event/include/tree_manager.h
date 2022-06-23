@@ -178,14 +178,14 @@ private:
     std::vector<std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>> inputElementInfoList_;
     std::vector<std::shared_ptr<ComponentTree>> inputComponentList_;
 
-    std::shared_ptr<ComponentTree> currentComponentNode_;
-    std::shared_ptr<ComponentTree> newComponentNode_;
+    std::shared_ptr<ComponentTree> currentComponentNode_ = std::make_shared<ComponentTree>();
+    std::shared_ptr<ComponentTree> newComponentNode_ = std::make_shared<ComponentTree>();
 
-    std::shared_ptr<AbilityTree> currentAbilityNode_;
-    std::shared_ptr<AbilityTree> newAbilityNode_;
+    std::shared_ptr<AbilityTree> currentAbilityNode_ = std::make_shared<AbilityTree>();
+    std::shared_ptr<AbilityTree> newAbilityNode_ = std::make_shared<AbilityTree>();
 
-    std::shared_ptr<PageTree> currentPageNode_;
-    std::shared_ptr<PageTree> newPageNode_;
+    std::shared_ptr<PageTree> currentPageNode_ = std::make_shared<PageTree>();
+    std::shared_ptr<PageTree> newPageNode_ = std::make_shared<PageTree>();
 
     std::vector<std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>> newElementInfoList_;
 

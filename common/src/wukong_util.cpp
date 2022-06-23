@@ -15,8 +15,12 @@
 
 #include "wukong_util.h"
 
+#include <climits>
 #include <dirent.h>
+#include <fstream>
+#include <iostream>
 #include <memory.h>
+#include <sstream>
 #include <sys/stat.h>
 
 #include "display_manager.h"
@@ -59,7 +63,7 @@ bool TakeWuKongScreenCap(std::string wkScreenPath)
     }
     FILE *fp = fopen(wkScreenPath.c_str(), "wb");
     if (fp == nullptr) {
-        DEBUG_LOG("error: open file error!");
+        ERROR_LOG("error: open file error!");
         png_destroy_write_struct(&pngStruct, &pngInfo);
         return false;
     }
@@ -80,8 +84,7 @@ bool TakeWuKongScreenCap(std::string wkScreenPath)
 }  // namespace
 using namespace std;
 using namespace OHOS::AppExecFwk;
-const int userId = 100;
-const uint32_t INVALIDVALUE = 0xFFFFFFFF;
+const int USE_ID = 100;
 WuKongUtil::WuKongUtil()
 {
     TRACK_LOG_STD();
@@ -139,7 +142,7 @@ ErrCode WuKongUtil::GetAllAppInfo()
     AppExecFwk::LauncherService launcherservice;
     std::vector<AppExecFwk::LauncherAbilityInfo> launcherAbilityInfos(0);
 
-    bool result = launcherservice.GetAllLauncherAbilityInfos(userId, launcherAbilityInfos);
+    bool result = launcherservice.GetAllLauncherAbilityInfos(USE_ID, launcherAbilityInfos);
     DEBUG_LOG_STR("GetAllLauncherAbilityInfos: size (%u), result (%d)", launcherAbilityInfos.size(), result);
     if (launcherAbilityInfos.size() <= 0) {
         ERROR_LOG("GetAllLauncherAbilityInfos size is 0");
@@ -309,7 +312,14 @@ ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath)
             result = ERR_NO_INIT;
         }
     }
-    auto wkScreenPath = curDir_ + "screenshot/" + wukongts + ".png";
+    char filepath[PATH_MAX] = {'\0'};
+    char *realPath = realpath((curDir_ + "screenshot/").c_str(), filepath);
+    if (realPath == nullptr) {
+        ERROR_LOG("failed to get file path");
+        return ERR_NO_INIT;
+    }
+    std::string path(filepath);
+    auto wkScreenPath = path + "/" + wukongts + ".png";
     DEBUG_LOG_STR("WukongScreenCap store path is  {%s}", wkScreenPath.c_str());
     bool isTakeScreen = TakeWuKongScreenCap(wkScreenPath);
     if (isTakeScreen == true) {
@@ -318,6 +328,7 @@ ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath)
     } else {
         DEBUG_LOG("This snapshot can not be created.");
     }
+    free(realPath);
     return result;
 }
 
@@ -344,7 +355,7 @@ void WuKongUtil::GetAllAbilitiesByBundleName(std::string bundleName, std::vector
     TRACK_LOG_STD();
     sptr<IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
     std::vector<BundleInfo> bundleInfos;
-    bool getInfoResult = bundleMgrProxy->GetBundleInfos(BundleFlag::GET_BUNDLE_DEFAULT, bundleInfos, userId);
+    bool getInfoResult = bundleMgrProxy->GetBundleInfos(BundleFlag::GET_BUNDLE_DEFAULT, bundleInfos, USE_ID);
     if (!getInfoResult) {
         ERROR_LOG("GetBundleInfos ERR");
         return;
@@ -374,6 +385,58 @@ void WuKongUtil::GetAllAbilitiesByBundleName(std::string bundleName, std::vector
 std::string WuKongUtil::GetCurrentTestDir()
 {
     return curDir_;
+}
+
+bool WuKongUtil::CopyFile(const char *sourceFile, const char *destFile)
+{
+    std::ifstream in;
+    std::ofstream out;
+    in.open(sourceFile, std::ios::binary);
+
+    if (in.fail()) {
+        std::cout << "Error 1: Fail to open the source file." << std::endl;
+        in.close();
+        out.close();
+        return false;
+    }
+    out.open(destFile, std::ios::binary);
+    if (out.fail()) {
+        std::cout << "Error 2: Fail to create the new file." << std::endl;
+        out.close();
+        in.close();
+        return false;
+    }
+    out << in.rdbuf();
+    out.close();
+    in.close();
+    return true;
+}
+
+bool WuKongUtil::CheckFileStatus(const char *dir)
+{
+    char filepath[PATH_MAX] = {'\0'};
+    char *realPath = realpath(dir, filepath);
+    if (realPath == nullptr) {
+        ERROR_LOG("failed to get file path");
+        return false;
+    }
+    DEBUG_LOG_STR("current filepath{%s}", filepath);
+    DIR *rootDir = nullptr;
+    std::string dirStr = "/";
+    std::vector<std::string> strs;
+    std::string usedDir(filepath);
+    OHOS::SplitStr(usedDir, "/", strs);
+    for (auto str : strs) {
+        dirStr.append(str);
+        dirStr.append("/");
+        DEBUG_LOG_STR("opendir{%s}", dirStr.c_str());
+        if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
+            ERROR_LOG("dir is not exist");
+            return false;
+        }
+    }
+    return true;
+    DEBUG_LOG_STR("%s", startRunTime_.c_str());
 }
 }  // namespace WuKong
 }  // namespace OHOS

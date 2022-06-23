@@ -47,7 +47,7 @@ public:
     {
         return componentType_;
     }
-    
+
     uint64_t GetCurrentPageId()
     {
         return pageId_;
@@ -60,8 +60,8 @@ private:
      * @param othercomponentinfo the information of another component tree
      * @return ERR_OK is success,other is fail
      */
-    ErrCode CompareComponentInfos(std::shared_ptr<ComponentTree> newcomponentinfo,
-                                  std::shared_ptr<ComponentTree> oldcomponentinfo, bool isRandom);
+    ErrCode CompareComponentInfos(std::shared_ptr<ComponentTree> &newcomponentinfo,
+                                  std::shared_ptr<ComponentTree> &oldcomponentinfo, bool isRandom);
 
     /**
      * @brief get all componentinfo of active page

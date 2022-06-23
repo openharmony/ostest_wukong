@@ -15,7 +15,6 @@
 
 #include "format_json.h"
 #include <sstream>
-#include <vector>
 namespace OHOS {
 namespace WuKong {
 FormatJSON::FormatJSON() : Format()
@@ -33,9 +32,9 @@ void FormatJSON::FormatDetail(std::shared_ptr<Table> tablePtr, std::string &targ
     std::vector<int> column_size_ = tablePtr->GetColumnSize();
     std::stringstream ss;
     ss << "[" << std::endl;
-    for (int row = 0; row < record.size(); row++) {
+    for (uint32_t row = 0; row < record.size(); row++) {
         ss << "{" << std::endl;
-        for (int col = 0; col < header.size(); col++) {
+        for (uint32_t col = 0; col < header.size(); col++) {
             ss  << header[col] << ":\"" << record[row][col] << "\"";
             if (col == (header.size() - 1)) {
                 ss << "},";

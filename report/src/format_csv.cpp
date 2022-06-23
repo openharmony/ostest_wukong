@@ -36,7 +36,7 @@ void FormatCSV::FormatDetail(std::shared_ptr<Table> tablePtr, std::string &targe
     std::stringstream ss;
 
     ss << "name, " << tablePtr->GetName() << ", detail, " << tablePtr->GetDetail() << std::endl;
-    for (int col = 0; col < header.size(); col++) {
+    for (uint32_t col = 0; col < header.size(); col++) {
         ss << std::setw(column_size_[col]) << std::setiosflags(std::ios::left) << std::setfill(' ') << header[col];
         if (col == (header.size() - 1)) {
             break;

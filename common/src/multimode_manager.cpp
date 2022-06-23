@@ -17,10 +17,10 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-const int shortestLen = 2;
-const int longestLen = 20;
-const int defaultPreesure = 5;
-const int sleepTime = 16000;
+const int SHORTEST_LEN = 2;
+const int LONGEST_LEN = 20;
+const int DEFAULT_PRESSURE = 5;
+const int SLEEP_TIME = 16000;
 }  // namespace
 MultimodeManager::MultimodeManager()
 {
@@ -80,10 +80,10 @@ ErrCode MultimodeManager::MultiKeyCodeInput(int downtime)
 {
     ErrCode result = OHOS::ERR_OK;
     // generate the length of string randomly
-    int stringLen = shortestLen + random() % (longestLen - 1);
+    int stringLen = SHORTEST_LEN + random() % (LONGEST_LEN - 1);
     if (keycodelist_.size() > 0) {
         for (int i = 0; i < stringLen; i++) {
-            int keycode = keycodelist_[rand() % keycodelist_.size()];
+            int keycode = keycodelist_[(uint32_t)(rand() % keycodelist_.size())];
             result = MultimodeManager::GetInstance()->SingleKeyCodeInput(keycode, downtime);
         }
     } else {
@@ -106,7 +106,7 @@ ErrCode MultimodeManager::PointerInput(int x, int y, int pointertype, int action
     item.SetPointerId(0);
     item.SetGlobalX(x);
     item.SetGlobalY(y);
-    item.SetPressure(defaultPreesure);
+    item.SetPressure(DEFAULT_PRESSURE);
     pointerEvent->AddPointerItem(item);
 
     pointerEvent->SetPointerAction(actiontype);
@@ -127,7 +127,7 @@ ErrCode MultimodeManager::IntervalSwap(int xSrcPosition, int ySrcPosition, int x
     if (result != OHOS::ERR_OK) {
         return result;
     }
-    usleep(sleepTime);
+    usleep(SLEEP_TIME);
     int segment = 50;
     float secX = (xDstPosition - xSrcPosition) / (float)segment;
     float secY = (yDstPosition - ySrcPosition) / (float)segment;
@@ -140,7 +140,7 @@ ErrCode MultimodeManager::IntervalSwap(int xSrcPosition, int ySrcPosition, int x
         if (result != OHOS::ERR_OK) {
             return result;
         }
-        usleep(sleepTime);
+        usleep(SLEEP_TIME);
     }
     result = multiinput->PointerInput(xDstPosition, yDstPosition, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_UP);

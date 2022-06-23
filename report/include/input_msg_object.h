@@ -23,12 +23,14 @@
 
 #include "input_action.h"
 #include "singleton.h"
+#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
 enum inputedMode {
     multimodeInput = 0,
     componmentInput,
+    invalidIput
 };
 class InputedMsgObject {
 public:
@@ -44,7 +46,7 @@ public:
     virtual ~InputedMsgObject() = default;
 
 private:
-    inputedMode inputedMode_;
+    inputedMode inputedMode_ = invalidIput;
 };
 
 class MultimodeInputMsg : public InputedMsgObject {
@@ -55,6 +57,7 @@ public:
     std::string GetInputType()
     {
         std::string inputString = "";
+        DEBUG_LOG_STR("inputType{%d}", inputType_);
         switch (inputType_) {
             case INPUTTYPE_TOUCHINPUT:
                 /* code */
@@ -95,8 +98,8 @@ public:
     {
     }
     virtual ~ComponmentInputMsg() = default;
-    std::string componmentType_;
-    unsigned int pageId_;
+    std::string componmentType_ = "";
+    uint32_t pageId_ = 0;
     std::vector<std::string> pageComponments;
 };
 }  // namespace WuKong

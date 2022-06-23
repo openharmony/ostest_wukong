@@ -43,13 +43,12 @@ public:
     {
         uint32_t index = componmentTypes_.size();
         DEBUG_LOG_STR("componmentTypes_.size{%d}", index);
-        std::vector<std::string>::iterator componmentTypesIter;
-        componmentTypesIter = find(componmentTypes_.begin(), componmentTypes_.end(), componmentType);
-        if (componmentTypesIter != componmentTypes_.end()) {
-            index = componmentTypesIter - componmentTypes_.begin();
-            DEBUG_LOG_STR("find index{%d}", index);
+        uint32_t findIndex = WuKongUtil::GetInstance()->FindElement(componmentTypes_, componmentType);
+        if (findIndex != INVALIDVALUE) {
+            DEBUG_LOG_STR("findIndex{%d}", findIndex);
+            index = findIndex;
         }
-        DEBUG_LOG_STR("find index{%d}", index);
+        DEBUG_LOG_STR("current componmentType find index{%d}", index);
         return index;
     }
     std::vector<std::string> componmentTypes_;

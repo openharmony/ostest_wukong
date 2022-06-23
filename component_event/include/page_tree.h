@@ -60,10 +60,10 @@ private:
     {
         inputElementInfo_ = info;
     }
-    std::shared_ptr<ComponentTree> inputElementInfo_;
-    uint32_t validComponentCount_;
-    uint32_t allComponentCount_;
-    uint32_t count_;
+    std::shared_ptr<ComponentTree> inputElementInfo_ = nullptr;
+    uint32_t validComponentCount_ = 0;
+    uint32_t allComponentCount_ = 0;
+    uint32_t count_ = 0;
 };
 }  // namespace WuKong
 }  // namespace OHOS

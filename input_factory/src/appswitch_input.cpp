@@ -21,13 +21,10 @@
 
 namespace OHOS {
 namespace WuKong {
-namespace {
-const uint32_t INVALIDVALUE = 0xFFFFFFFF;
-}
 AppswitchInput::AppswitchInput() : InputAction()
 {
     std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
-    multimodeInputMsg->inputType_ = INPUTTYPE_SWAPINPUT;
+    multimodeInputMsg->inputType_ = INPUTTYPE_APPSWITCHINPUT;
     inputedMsgObject_ = multimodeInputMsg;
 }
 
@@ -61,6 +58,7 @@ ErrCode AppswitchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
     result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
     // print the result of start event
     PrintResultOfStartAbility(result, index);
+    usleep(WAIT_TIME);
     return result;
 }
 
