@@ -139,9 +139,9 @@ void TestFlow::Stop(OHOS::ErrCode code)
 {
     isFinished_ = true;
 }
-void TestFlow::OnStatusUpdated(ComponentStatus stutus)
+void TestFlow::OnStatusUpdated(ComponentStatus status)
 {
-    DEBUG_LOG_STR("Component Status: (%d)", stutus);
+    DEBUG_LOG_STR("Component Status: (%d)", status);
 }
 
 void TestFlow::OnScreenUpdated()
