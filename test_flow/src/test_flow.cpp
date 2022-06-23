@@ -36,7 +36,7 @@ ErrCode TestFlow::CheckVaildityCmd()
 
     // get command option and argumnets from child class.
     std::string shortOpts = "";
-    auto longOpts =  GetOptionArguments(shortOpts);
+    auto longOpts = GetOptionArguments(shortOpts);
     if (longOpts == nullptr) {
         return OHOS::ERR_INVALID_VALUE;
     }

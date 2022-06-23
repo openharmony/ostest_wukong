@@ -53,7 +53,7 @@ const struct option LONG_OPTIONS[] = {
     {"time", required_argument, nullptr, 'T'},       // test time
     {"swap", required_argument, nullptr, 'S'},       // swap
     {"bilateral", no_argument, nullptr, 'b'},        // swap go and back
-    {"statrt", no_argument, nullptr, 's'},           // the start point of swap
+    {"start", no_argument, nullptr, 's'},           // the start point of swap
     {"end", no_argument, nullptr, 'e'},              // the end point of swap
     {"component", required_argument, nullptr, 'C'},  // the end point of swap
     {"screenshot", no_argument, nullptr, 'p'},       // get photo of screenshot
