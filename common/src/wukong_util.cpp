@@ -391,7 +391,13 @@ bool WuKongUtil::CopyFile(const char *sourceFile, const char *destFile)
 {
     std::ifstream in;
     std::ofstream out;
-    in.open(sourceFile, std::ios::binary);
+    char filepath[PATH_MAX] = {'\0'};
+    char *realPath = realpath(sourceFile, filepath);
+    if (realPath == nullptr) {
+        ERROR_LOG("failed to get source file path");
+        return false;
+    }
+    in.open(filepath, std::ios::binary);
 
     if (in.fail()) {
         std::cout << "Error 1: Fail to open the source file." << std::endl;

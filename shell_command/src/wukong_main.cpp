@@ -31,7 +31,7 @@
 
 using namespace OHOS::WuKong;
 
-const int NUMBER_TWO = 2;
+static const int NUMBER_TWO = 2;
 
 static bool FreeSingtion()
 {
@@ -52,9 +52,9 @@ static void WuKongMutexFile()
     if (fileExist == 0) {
         DEBUG_LOG("File exist. Now create wukong test mutex.");
     } else {
-        const int WUKONG_GM = mkdir("/dev/shm", 0777);
+        const int wukong_GM = mkdir("/dev/shm", 0777);
         DEBUG_LOG("File create. Now create wukong test mutex.");
-        if (WUKONG_GM == -1) {
+        if (wukong_GM == -1) {
             DEBUG_LOG("Error creating directory!");
         }
     }

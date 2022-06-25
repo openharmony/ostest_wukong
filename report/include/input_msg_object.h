@@ -89,7 +89,7 @@ public:
         return inputString;
     }
     virtual ~MultimodeInputMsg() = default;
-    InputType inputType_;
+    InputType inputType_ = INPUTTYPE_INVALIDINPUT;
 };
 
 class ComponmentInputMsg : public InputedMsgObject {

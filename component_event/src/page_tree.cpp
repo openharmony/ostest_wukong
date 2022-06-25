@@ -32,7 +32,7 @@ uint64_t branchCount = 0;
 uint32_t layer = 0;
 uint32_t height = 0;
 uint32_t lastWidth = 0;
-bool ISLEFTBRANCH = false;
+bool g_isLeftBranch = false;
 void RecursStatistics(std::shared_ptr<ComponentTree> parent)
 {
     // all page node count Statistics
@@ -91,7 +91,7 @@ bool PageTree::SetNodeId()
     height = 1;
     layer = 0;
     lastWidth = 0;
-    ISLEFTBRANCH = true;
+    g_isLeftBranch = true;
 
     // recurs statistics
     RecursStatistics(componentTree);

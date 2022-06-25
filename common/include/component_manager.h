@@ -29,7 +29,7 @@ enum ComponentStatus {
 
 class ComponentManagerListener {
 public:
-    virtual void OnStatusUpdated(ComponentStatus stutus) = 0;
+    virtual void OnStatusUpdated(ComponentStatus status) = 0;
     virtual void OnScreenUpdated() = 0;
     virtual void OnPermissionScreenShown() = 0;
 };

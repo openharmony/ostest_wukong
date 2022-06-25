@@ -90,7 +90,7 @@ bool g_commandSEEDENABLE = false;
 bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
 bool g_commandCOUNTENABLE = false;
-bool isAppStarted = false;
+bool g_isAppStarted = false;
 }  // namespace
 using namespace std;
 
@@ -233,7 +233,7 @@ ErrCode RandomTestFlow::RunStep()
     }
 
     std::shared_ptr<InputAction> inputaction = nullptr;
-    if (!isAppStarted) {
+    if (!g_isAppStarted) {
         inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
         if (inputaction == nullptr) {
             ERROR_LOG("inputaction is nullptr");
@@ -245,7 +245,7 @@ ErrCode RandomTestFlow::RunStep()
             return result;
         }
         inputaction = nullptr;
-        isAppStarted = true;
+        g_isAppStarted = true;
         usleep(intervalArgs_ * oneSecond_);
     }
     // input event, get event index form event list by random algorithm.

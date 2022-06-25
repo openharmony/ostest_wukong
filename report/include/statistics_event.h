@@ -45,7 +45,7 @@ public:
         std::vector<std::string>::iterator eventTypesIter;
         eventTypesIter = find(eventTypes_.begin(), eventTypes_.end(), eventType);
         if (eventTypesIter != eventTypes_.end()) {
-            index = eventTypesIter - eventTypes_.begin();
+            index = (uint32_t)(eventTypesIter - eventTypes_.begin());
             DEBUG_LOG_STR("find index{%d}", index);
         }
         DEBUG_LOG_STR("find index{%d}", index);
@@ -90,7 +90,7 @@ private:
     std::map<std::string, std::shared_ptr<EventStatisticsMsg>> eventStatisticsMsg_;
     // all eventTypes record for global statistics used
     std::vector<std::string> globalElementTypes_;
-    
+
     std::vector<std::string> headers_ = {"type", "execTimes", "proportion"};
     std::vector<std::vector<std::string>> record_;
     int execCount_ = 0;

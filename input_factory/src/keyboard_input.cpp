@@ -43,7 +43,7 @@ ErrCode KeyboardInput::RandomInput()
     MultimodeManager::GetInstance()->GetKeycodeList(keycodelist);
     if (keycodelist.size() > 0) {
         if (keyCodePercent < SINGLE_CODE_PER) {
-            int keycode = keycodelist[(uint32_t)(rand() % keycodelist.size())];
+            int keycode = keycodelist[(uint32_t)(rand()) % keycodelist.size()];
             result = MultimodeManager::GetInstance()->SingleKeyCodeInput(keycode, DOWN_TIME);
         } else {
             result = MultimodeManager::GetInstance()->MultiKeyCodeInput(DOWN_TIME);

@@ -60,7 +60,7 @@ public:
     void Stop(ErrCode code);
 
 protected:
-    virtual void OnStatusUpdated(ComponentStatus stutus) override;
+    virtual void OnStatusUpdated(ComponentStatus status) override;
     virtual void OnScreenUpdated() override;
     virtual void OnPermissionScreenShown() override;
 

@@ -341,6 +341,9 @@ void Report::CrashFileRecord()
                     utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
                     crashFiles_.push_back(std::string(dp->d_name));
                     ExceptionRecord(targetFile);
+                } else {
+                    ERROR_LOG("failede to get crash file path");
+                    return;
                 }
             }
         }
@@ -359,6 +362,9 @@ void Report::CrashFileRecord()
                 std::string destLocation = reportExceptionDir_ + targetFile;
                 std::string srcFilePath = hilogDirs_ + targetFile;
                 utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
+            } else {
+                ERROR_LOG("failed to get hilog file path");
+                return;
             }
         }
     }

@@ -56,15 +56,20 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
             }
         }
     }
-    if (count < componentList.size()) {
-        TRACK_LOG_STR("componentList size: %d", componentList.size());
-        TRACK_LOG_STR("indexList size: %d", indexList.size());
-        for (auto index : indexList) {
-            for (auto it = componentList.begin(); it != componentList.end(); it++) {
-                if ((*it)->GetIndex() == index) {
-                    componentList.erase(it);
-                    it--;
-                }
+    if (count >= componentList.size()) {
+        if ((componentList.size() == 0) || (randomNumber < ONEHUNDRED && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
+            isBack_ = true;
+        }
+        indexList.clear();
+        return OHOS::ERR_OK;
+    }
+    TRACK_LOG_STR("componentList size: %d", componentList.size());
+    TRACK_LOG_STR("indexList size: %d", indexList.size());
+    for (auto index : indexList) {
+        for (auto it = componentList.begin(); it != componentList.end(); it++) {
+            if ((*it)->GetIndex() == index) {
+                componentList.erase(it);
+                it--;
             }
         }
     }
