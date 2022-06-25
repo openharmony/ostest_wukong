@@ -29,7 +29,7 @@ public:
     virtual ~RandomTestFlow();
 
     /**
-     * @brief to confirm the input of event percent is vaild or not
+     * @brief to confirm the input of event percent is valid or not
      * and distribute the event count randomly according to possibility.
      * @return Return ERR_OK on success, others on failure.
      */

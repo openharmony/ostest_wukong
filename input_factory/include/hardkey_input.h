@@ -36,7 +36,7 @@ public:
     ErrCode RandomInput();
 
     /**
-     * @brief get information of inputed event.
+     * @brief get information of inputted event.
      * @return Return ERR_OK on success， others on failure.
      */
     ErrCode GetInputInfo();

@@ -39,13 +39,13 @@ public:
      * @brief to find  the location of the key bundle in the bundle list.
      * @param bundleList the bundlelist of test
      * @param key the key subscript in the bundle list.
-     * @return tthe location of the key bundle in the bundlelist.
+     * @return the location of the key bundle in the bundlelist.
      */
     uint32_t FindElement(std::vector<std::string> bundleList, std::string key);
 
     /**
      * @brief Set the Allow List.
-     * @param optarg commmand string
+     * @param optarg command string
      * @return Return ERR_OK on success, others on failure.
      */
     ErrCode SetAllowList(const std::string &optarg);

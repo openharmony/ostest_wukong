@@ -32,7 +32,7 @@ void StatisticsComponment::StatisticsDetail(std::vector<std::map<std::string, st
                                             std::map<std::string, std::shared_ptr<Table>> &destTables)
 {
     SrcDatasPretreatment(srcDatas);
-    // loop bundle stroe componment statistics msg
+    // loop bundle store componment statistics msg
     for (auto bundle : componmentStatisticsMsg_) {
         DEBUG_LOG_STR("start bundlename{%s}", bundle.first.c_str());
         std::shared_ptr<ComponmentStatisticsMsg> curComponmentStatisticsMsgPtr = bundle.second;

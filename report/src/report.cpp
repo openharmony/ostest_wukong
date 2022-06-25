@@ -176,7 +176,7 @@ void Report::SegmentedWriteCSV()
     abilityDataSet_->SetFormatStragety(formatCSV);
     exceptionDataSet_->SetFormatStragety(formatCSV);
     std::stringstream modules;
-    modules << "moudule    , Base Info" << std::endl;
+    modules << "module     , Base Info" << std::endl;
     modules << "task status, success" << std::endl;
     modules << "task time  , " << time(0) - startTime_ << std::endl;
     if (!seed_.empty()) {
@@ -247,9 +247,9 @@ void Report::SegmentedWriteJson()
     std::string moduleInput;
     modules << "var reportJson = {" << std::endl;
     modules << "base: [" << std::endl;
-    modules << "{ item: \"tast status\", detail: \" success \"}," << std::endl;
-    modules << "{ item: \"tast time\", detail: \" " << time(0) - startTime_ << "s\"}," << std::endl;
-    modules << "{ item: \"tast cout\", detail: \" " << taskCount_ << "\"}," << std::endl;
+    modules << "{ item: \"task status\", detail: \" success \"}," << std::endl;
+    modules << "{ item: \"task time\", detail: \" " << time(0) - startTime_ << "s\"}," << std::endl;
+    modules << "{ item: \"task count\", detail: \" " << taskCount_ << "\"}," << std::endl;
     if (!seed_.empty()) {
         modules << "{ item: \"seed\", detail: \" " << seed_ << "\"}," << std::endl;
     }

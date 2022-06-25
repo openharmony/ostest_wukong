@@ -80,19 +80,19 @@ public:
     ErrCode ShowAllAppInfo();
 
     /**
-     * @brief Get commnad arguments
-     * @return commnad arguments.
+     * @brief Get command arguments
+     * @return command arguments.
      */
     char **GetArgv();
 
     /**
-     * @brief Get the commnad argument count.
+     * @brief Get the command argument count.
      * @return argument count.
      */
     int GetArgc();
 
     /**
-     * @brief Set command result infomation.
+     * @brief Set command result information.
      * @param receiver command result.
      */
     void ResultReceiverAppend(const std::string receiver);

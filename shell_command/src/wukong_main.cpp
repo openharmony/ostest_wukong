@@ -75,7 +75,7 @@ static void InitSemaphore(NamedSemaphore& sem, const int count)
             DEBUG_LOG_STR("the semaphore value is invalid (%d), and reopen Semaphore", value);
             res = sem.Create();
             if (!res) {
-                ERROR_LOG("creat sem failed");
+                ERROR_LOG("create sem failed");
                 return;
             }
         } else {

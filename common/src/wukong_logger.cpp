@@ -180,7 +180,7 @@ bool WuKongLogger::PrinterThread::Run()
         }
         // read queue buffer to thread buffer.
         self->mtxQueue_.lock();
-        // the buffer queue is empty and main wait stop, retrun this thread.
+        // the buffer queue is empty and main wait stop, return this thread.
         if (self->bufferQueue_.empty() && !self->printerRunning_) {
             self->mtxQueue_.unlock();
             break;
@@ -198,7 +198,7 @@ bool WuKongLogger::PrinterThread::Run()
             if (self->outputType_ & FILE_OUTPUT) {
                 printer << logInfo.logStr_ << std::endl;
             }
-            // doesnot print STDOUT and HILOG, when log level less than output level.
+            // doesn't print STDOUT and HILOG, when log level less than output level.
             if (logInfo.level_ < self->outputLevel_) {
                 continue;
             }

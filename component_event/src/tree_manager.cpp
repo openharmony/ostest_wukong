@@ -245,7 +245,7 @@ void TreeManager::SetInputcomponentIndex(int actionType, uint32_t index)
     // component input count statistics
     if (index != INVALIDED_INPUT_INDEX) {
         if (inputComponentList_.size() <= 0) {
-            ERROR_LOG("input compoent list is null!");
+            ERROR_LOG("input component list is null!");
             return;
         }
         if (index >= inputComponentList_.size()) {
