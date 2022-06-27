@@ -418,7 +418,7 @@ bool WuKongUtil::CopyFile(const char *sourceFile, const char *destFile)
     return true;
 }
 
-bool WuKongUtil::CheckFileStatus(const char *dir)
+bool WuKongUtil::CheckFileStatus(const char *dir, DIR *pdir)
 {
     char filepath[PATH_MAX] = {'\0'};
     char *realPath = realpath(dir, filepath);
@@ -427,7 +427,6 @@ bool WuKongUtil::CheckFileStatus(const char *dir)
         return false;
     }
     DEBUG_LOG_STR("current filepath{%s}", filepath);
-    DIR *rootDir = nullptr;
     std::string dirStr = "/";
     std::vector<std::string> strs;
     std::string usedDir(filepath);
@@ -436,7 +435,7 @@ bool WuKongUtil::CheckFileStatus(const char *dir)
         dirStr.append(str);
         dirStr.append("/");
         DEBUG_LOG_STR("opendir{%s}", dirStr.c_str());
-        if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
+        if ((pdir = opendir(dirStr.c_str())) == nullptr) {
             ERROR_LOG("dir is not exist");
             return false;
         }
