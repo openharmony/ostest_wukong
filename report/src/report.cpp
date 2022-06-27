@@ -334,20 +334,21 @@ void Report::CrashFileRecord()
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
             std::vector<std::string>::iterator iterDir = find(crashFiles_.begin(), crashFiles_.end(), targetFile);
-            if (iterDir == crashFiles_.end()) {
-                if (utilPtr->CheckFileStatus(crashDir_.c_str(), crashDir) &&
-                    utilPtr->CheckFileStatus(reportExceptionDir_.c_str(), reportExceptionDir)) {
-                    DEBUG_LOG("copy action");
-                    std::string destLocation = reportExceptionDir_ + targetFile;
-                    std::string srcFilePath = crashDir_ + targetFile;
-                    utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
-                    crashFiles_.push_back(std::string(dp->d_name));
-                    ExceptionRecord(targetFile);
-                } else {
-                    ERROR_LOG("failede to get crash file path");
-                    (void)closedir(dirpCrash);
-                    return;
-                }
+            if (iterDir != crashFiles_.end()) {
+                break;
+            }
+            if (utilPtr->CheckFileStatus(crashDir_.c_str(), crashDir) &&
+                utilPtr->CheckFileStatus(reportExceptionDir_.c_str(), reportExceptionDir)) {
+                DEBUG_LOG("copy action");
+                std::string destLocation = reportExceptionDir_ + targetFile;
+                std::string srcFilePath = crashDir_ + targetFile;
+                utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
+                crashFiles_.push_back(std::string(dp->d_name));
+                ExceptionRecord(targetFile);
+            } else {
+                ERROR_LOG("failede to get crash file path");
+                (void)closedir(dirpCrash);
+                return;
             }
         }
         if (crashDir == nullptr) {
@@ -370,7 +371,7 @@ void Report::CrashFileRecord()
         return;
     }
     DIR *hilogptr = nullptr;
-    memset_s(reportExceptionDir, sizeof(reportExceptionDir), 0x00, sizeof(reportExceptionDir));
+    reportExceptionDir = nullptr;
     while ((dp = readdir(dirpHilog)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
