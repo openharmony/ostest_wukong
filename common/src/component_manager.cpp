@@ -151,7 +151,7 @@ bool ComponentManager::Connect()
         std::cout << "Failed to connect to AAMS" << std::endl;
         return false;
     }
-    const auto timeout = std::chrono::milliseconds(500);
+    const auto timeout = std::chrono::milliseconds(1000);
     if (condition.wait_for(uLock, timeout) == std::cv_status::timeout) {
         std::cout << "Wait connection to AAMS timed out" << std::endl;
         return false;
