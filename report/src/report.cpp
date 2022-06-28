@@ -335,7 +335,7 @@ void Report::CrashFileRecord()
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
             std::vector<std::string>::iterator iterDir = find(crashFiles_.begin(), crashFiles_.end(), targetFile);
             if (iterDir != crashFiles_.end()) {
-                break;
+                continue;
             }
             if (utilPtr->CheckFileStatus(crashDir_.c_str(), crashDir) &&
                 utilPtr->CheckFileStatus(reportExceptionDir_.c_str(), reportExceptionDir)) {
