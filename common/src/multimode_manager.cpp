@@ -83,7 +83,7 @@ ErrCode MultimodeManager::MultiKeyCodeInput(int downtime)
     int stringLen = SHORTEST_LEN + random() % (LONGEST_LEN - 1);
     if (keycodelist_.size() > 0) {
         for (int i = 0; i < stringLen; i++) {
-            int keycode = keycodelist_[(uint32_t)(rand() % keycodelist_.size())];
+            int keycode = keycodelist_[(uint32_t)(rand()) % keycodelist_.size()];
             result = MultimodeManager::GetInstance()->SingleKeyCodeInput(keycode, downtime);
         }
     } else {

@@ -35,9 +35,9 @@ enum InputType {
     INPUTTYPE_ELEMENTINPUT,    // input element event
     INPUTTYPE_APPSWITCHINPUT,  // input appswitch event
     INPUTTYPE_HARDKEYINPUT,    // input power event
-    INPUTTYPE_INVALIDINPUT,    // input invalid event
     INPUTTYPE_RECORDINPUT,     // input record event
-    INPUTTYPE_REPPLAYINPUT     // input replay event
+    INPUTTYPE_REPPLAYINPUT,    // input replay event
+    INPUTTYPE_INVALIDINPUT     // input invaild event
 };
 
 /**

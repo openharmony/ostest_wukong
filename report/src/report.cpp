@@ -328,22 +328,41 @@ void Report::CrashFileRecord()
         ERROR_LOG_STR("dir{%s} opendir error", crashDir_.c_str());
         return;
     }
+    DIR *crashDir = nullptr;
+    DIR *reportExceptionDir = nullptr;
     while ((dp = readdir(dirpCrash)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
             std::vector<std::string>::iterator iterDir = find(crashFiles_.begin(), crashFiles_.end(), targetFile);
-            if (iterDir == crashFiles_.end()) {
-                if (utilPtr->CheckFileStatus(crashDir_.c_str()) &&
-                    utilPtr->CheckFileStatus(reportExceptionDir_.c_str())) {
-                    DEBUG_LOG("copy action");
-                    std::string destLocation = reportExceptionDir_ + targetFile;
-                    std::string srcFilePath = crashDir_ + targetFile;
-                    utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
-                    crashFiles_.push_back(std::string(dp->d_name));
-                    ExceptionRecord(targetFile);
-                }
+            if (iterDir != crashFiles_.end()) {
+                continue;
+            }
+            if (utilPtr->CheckFileStatus(crashDir_.c_str(), crashDir) &&
+                utilPtr->CheckFileStatus(reportExceptionDir_.c_str(), reportExceptionDir)) {
+                DEBUG_LOG("copy action");
+                std::string destLocation = reportExceptionDir_ + targetFile;
+                std::string srcFilePath = crashDir_ + targetFile;
+                utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
+                crashFiles_.push_back(std::string(dp->d_name));
+                ExceptionRecord(targetFile);
+            } else {
+                ERROR_LOG("failede to get crash file path");
+                (void)closedir(dirpCrash);
+                return;
             }
         }
+        if (crashDir == nullptr) {
+            TRACK_LOG("crashDir is nullptr");
+            (void)closedir(dirpCrash);
+            return;
+        }
+        closedir(crashDir);
+        if (reportExceptionDir == nullptr) {
+            TRACK_LOG("reportExceptionDir is nullptr");
+            (void)closedir(dirpCrash);
+            return;
+        }
+        closedir(reportExceptionDir);
     }
     (void)closedir(dirpCrash);
     dirpHilog = opendir(hilogDirs_.c_str());
@@ -351,16 +370,35 @@ void Report::CrashFileRecord()
         ERROR_LOG_STR("dir{%s} opendir error", hilogDirs_.c_str());
         return;
     }
+    DIR *hilogptr = nullptr;
+    reportExceptionDir = nullptr;
     while ((dp = readdir(dirpHilog)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
-            if (utilPtr->CheckFileStatus(reportExceptionDir_.c_str()) && utilPtr->CheckFileStatus(hilogDirs_.c_str())) {
+            if (utilPtr->CheckFileStatus(reportExceptionDir_.c_str(), reportExceptionDir) &&
+                utilPtr->CheckFileStatus(hilogDirs_.c_str(), hilogptr)) {
                 DEBUG_LOG("copy action");
                 std::string destLocation = reportExceptionDir_ + targetFile;
                 std::string srcFilePath = hilogDirs_ + targetFile;
                 utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
+                } else {
+                    ERROR_LOG("failede to get crash file path");
+                    (void)closedir(dirpCrash);
+                    return;
             }
         }
+        if (hilogptr == nullptr) {
+            TRACK_LOG("hilogptr is nullptr");
+            (void)closedir(dirpCrash);
+            return;
+        }
+        closedir(hilogptr);
+        if (reportExceptionDir == nullptr) {
+            TRACK_LOG("reportExceptionDir is nullptr");
+            (void)closedir(dirpCrash);
+            return;
+        }
+        closedir(reportExceptionDir);
     }
     (void)closedir(dirpHilog);
 }

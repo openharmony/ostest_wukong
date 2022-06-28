@@ -256,7 +256,7 @@ ErrCode ComponentInput::RandomInput()
         if (delegate->IsBackToPrePage()) {
             result = ComponentManager::GetInstance()->BackToPrePage();
         } else if (componentInfos.size() > 0) {
-            uint32_t index = (uint32_t)(rand() % componentInfos.size());
+            uint32_t index = (uint32_t)(rand()) % componentInfos.size();
             DEBUG_LOG_STR("component input index (%d)", index);
             int actionType = JudgeComponentType(*(componentInfos[index].get()));
             if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
@@ -304,7 +304,7 @@ int ComponentInput::JudgeComponentType(OHOS::Accessibility::AccessibilityElement
         }
     } else {
         TRACK_LOG_STR("action list size: %u", actionlist.size());
-        auto it = actionlist[(uint32_t)(rand() % actionlist.size())];
+        auto it = actionlist[(uint32_t)(rand()) % actionlist.size()];
         actionType = (int)it.GetActionType();
     }
     TRACK_LOG_STR("action type: %d", actionType);

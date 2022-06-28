@@ -21,7 +21,7 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-bool ISPERMISSIONBUNDLE = false;
+bool g_isPermissionBundle = false;
 }
 TestFlow::TestFlow(WuKongShellCommand &shellcommand)
     : shellcommand_(shellcommand),
@@ -104,10 +104,10 @@ ErrCode TestFlow::Run()
 
     // run test step, check test status, and control test step.
     while (!isFinished_) {
-        if (ISPERMISSIONBUNDLE == true) {
+        if (g_isPermissionBundle == true) {
             result = ComponentManager::GetInstance()->PermoissionInput();
             if (result == OHOS::ERR_OK) {
-                ISPERMISSIONBUNDLE = false;
+                g_isPermissionBundle = false;
             }
             DEBUG_LOG_STR("PermoissionInput Result: (%d)", result);
         } else {
@@ -154,7 +154,7 @@ void TestFlow::OnPermissionScreenShown()
 {
     TRACK_LOG_STD();
     TRACK_LOG_END();
-    ISPERMISSIONBUNDLE = true;
+    g_isPermissionBundle = true;
 }
 }  // namespace WuKong
 }  // namespace OHOS

@@ -16,6 +16,7 @@
 #ifndef TEST_WUKONG_UTIL_H
 #define TEST_WUKONG_UTIL_H
 
+#include <dirent.h>
 #include <string>
 #include <unistd.h>
 #include <vector>
@@ -150,7 +151,7 @@ public:
      * @brief check dir status
      * @param dir
      */
-    bool CheckFileStatus(const char *dir);
+    bool CheckFileStatus(const char *dir, DIR *pdir);
 
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 
