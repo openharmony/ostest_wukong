@@ -117,7 +117,3 @@ hdc_std file send wukong /
 hdc_std shell chmod a+x /wukong
 hdc_std shell mv /wukong /bin/
 ```
-
-### Reference
-
-[monkey](https://github.com/aosp-mirror/platform_development/tree/master/cmds/monkey)
