@@ -129,7 +129,7 @@ ErrCode RandomTestFlow::InitEventPercent()
         }
         sumPercent += inputPercent_[type];
     }
-
+    TRACK_LOG_STR("sumPercent: %d", sumPercent);
     // check the sum percent more than 100%, and exit wukong.
     if (sumPercent > ONE_HUNDRED_PERCENT) {
         shellcommand_.ResultReceiverAppend("all event percentage more than 1, please reset params.\n");
@@ -163,8 +163,12 @@ ErrCode RandomTestFlow::InitEventPercent()
 
 ErrCode RandomTestFlow::EnvInit()
 {
+    ErrCode result = OHOS::ERR_OK;
     // init event list percent.
-    InitEventPercent();
+    result = InitEventPercent();
+    if (result != OHOS::ERR_OK) {
+        return result;
+    }
 
     // init srand and print seed information.
     if (g_commandSEEDENABLE) {
@@ -184,7 +188,7 @@ ErrCode RandomTestFlow::EnvInit()
     if (g_commandTIMEENABLE) {
         RegisterTimer();
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 
 ErrCode RandomTestFlow::SetInputPercent(const int option)

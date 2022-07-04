@@ -24,7 +24,7 @@ const int SLEEP_TIME = 16000;
 }  // namespace
 MultimodeManager::MultimodeManager()
 {
-    for (int i = OHOS::MMI::KeyEvent::KEYCODE_FN; i <= OHOS::MMI::KeyEvent::KEYCODE_ENDCALL; i++) {
+    for (int i = OHOS::MMI::KeyEvent::KEYCODE_CALL; i <= OHOS::MMI::KeyEvent::KEYCODE_ENDCALL; i++) {
         keycodelist_.push_back(i);
     }
 

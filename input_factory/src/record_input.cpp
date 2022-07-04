@@ -78,6 +78,8 @@ bool InitReportFolder()
             std::cerr << "failed to create dir: " << DEFAULT_DIR << std::endl;
             return false;
         }
+    } else {
+        closedir(rootDir);
     }
     return true;
 }
@@ -147,7 +149,7 @@ public:
         if (!result) {
             ERROR_LOG("GetPointerItem Fail");
         }
-        eventData data {};
+        eventData data{};
         int64_t currentTime = GetMillisTime();
         if (timeTemp == -1) {
             timeTemp = currentTime;
