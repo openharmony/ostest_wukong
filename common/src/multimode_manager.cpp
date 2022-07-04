@@ -104,8 +104,8 @@ ErrCode MultimodeManager::PointerInput(int x, int y, int pointertype, int action
     MMI::PointerEvent::PointerItem item;
 
     item.SetPointerId(0);
-    item.SetGlobalX(x);
-    item.SetGlobalY(y);
+    item.SetDisplayX(x);
+    item.SetDisplayY(y);
     item.SetPressure(DEFAULT_PRESSURE);
     pointerEvent->AddPointerItem(item);
 
