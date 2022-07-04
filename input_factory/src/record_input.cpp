@@ -78,6 +78,8 @@ bool InitReportFolder()
             std::cerr << "failed to create dir: " << DEFAULT_DIR << std::endl;
             return false;
         }
+    } else {
+        closedir(rootDir);
     }
     return true;
 }

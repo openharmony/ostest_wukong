@@ -328,79 +328,54 @@ void Report::CrashFileRecord()
         ERROR_LOG_STR("dir{%s} opendir error", crashDir_.c_str());
         return;
     }
-    DIR *crashDir = nullptr;
     DIR *reportExceptionDir = nullptr;
     while ((dp = readdir(dirpCrash)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
             std::vector<std::string>::iterator iterDir = find(crashFiles_.begin(), crashFiles_.end(), targetFile);
-            if (iterDir != crashFiles_.end()) {
-                continue;
-            }
-            if (utilPtr->CheckFileStatus(crashDir_.c_str(), crashDir) &&
-                utilPtr->CheckFileStatus(reportExceptionDir_.c_str(), reportExceptionDir)) {
+            if (((reportExceptionDir = utilPtr->CheckFileStatus(reportExceptionDir_.c_str())) != nullptr) &&
+                (iterDir == crashFiles_.end())) {
                 DEBUG_LOG("copy action");
+                DEBUG_LOG_STR("open dir: %s successfully", reportExceptionDir_.c_str());
                 std::string destLocation = reportExceptionDir_ + targetFile;
                 std::string srcFilePath = crashDir_ + targetFile;
                 utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
+                DEBUG_LOG_STR("src: %s ,des: %s", srcFilePath.c_str(), destLocation.c_str());
                 crashFiles_.push_back(std::string(dp->d_name));
                 ExceptionRecord(targetFile);
-            } else {
-                ERROR_LOG("failede to get crash file path");
-                (void)closedir(dirpCrash);
-                return;
             }
         }
-        if (crashDir == nullptr) {
-            TRACK_LOG("crashDir is nullptr");
-            (void)closedir(dirpCrash);
-            return;
+        if (reportExceptionDir != nullptr) {
+            int res = closedir(reportExceptionDir);
+            DEBUG_LOG_STR("close dir: %s result (%d)", reportExceptionDir_.c_str(), res);
+            reportExceptionDir = nullptr;
         }
-        closedir(crashDir);
-        if (reportExceptionDir == nullptr) {
-            TRACK_LOG("reportExceptionDir is nullptr");
-            (void)closedir(dirpCrash);
-            return;
-        }
-        closedir(reportExceptionDir);
     }
-    (void)closedir(dirpCrash);
+    if (dirpCrash != nullptr) {
+        (void)closedir(dirpCrash);
+    }
     dirpHilog = opendir(hilogDirs_.c_str());
     if (dirpHilog == nullptr) {
         ERROR_LOG_STR("dir{%s} opendir error", hilogDirs_.c_str());
         return;
     }
-    DIR *hilogptr = nullptr;
     reportExceptionDir = nullptr;
     while ((dp = readdir(dirpHilog)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
-            if (utilPtr->CheckFileStatus(reportExceptionDir_.c_str(), reportExceptionDir) &&
-                utilPtr->CheckFileStatus(hilogDirs_.c_str(), hilogptr)) {
+            if ((reportExceptionDir = utilPtr->CheckFileStatus(reportExceptionDir_.c_str())) != nullptr) {
                 DEBUG_LOG("copy action");
                 std::string destLocation = reportExceptionDir_ + targetFile;
                 std::string srcFilePath = hilogDirs_ + targetFile;
                 utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
-                } else {
-                    ERROR_LOG("failede to get crash file path");
-                    (void)closedir(dirpCrash);
-                    return;
+                int res = closedir(reportExceptionDir);
+                DEBUG_LOG_STR("close dir: %s result (%d)", reportExceptionDir_.c_str(), res);
             }
         }
-        if (hilogptr == nullptr) {
-            TRACK_LOG("hilogptr is nullptr");
-            (void)closedir(dirpCrash);
-            return;
-        }
-        closedir(hilogptr);
-        if (reportExceptionDir == nullptr) {
-            TRACK_LOG("reportExceptionDir is nullptr");
-            (void)closedir(dirpCrash);
-            return;
-        }
-        closedir(reportExceptionDir);
     }
-    (void)closedir(dirpHilog);
+    if (dirpHilog != nullptr) {
+        (void)closedir(dirpHilog);
+    }
 }
 
 void Report::ExceptionRecord(const std::string &exceptionFilename)
@@ -497,7 +472,9 @@ void Report::ComponmentInfoArrange(const std::string &bundle, std::shared_ptr<Co
 
 void Report::RecordScreenPath(const std::string &screenPath)
 {
+    TRACK_LOG_STD();
     screenPaths_.push_back(screenPath);
+    TRACK_LOG_END();
 }
 }  // namespace WuKong
 }  // namespace OHOS

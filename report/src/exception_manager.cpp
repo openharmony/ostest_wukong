@@ -45,6 +45,8 @@ bool InitReportFolder()
             ERROR_LOG_STR("failed to create dir: %s", DEFAULT_DIR.c_str());
             return false;
         }
+    } else {
+        closedir(rootDir);
     }
     return true;
 }

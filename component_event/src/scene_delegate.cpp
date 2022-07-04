@@ -196,7 +196,7 @@ ErrCode SceneDelegate::SetAvailableComponentList(std::shared_ptr<ComponentTree> 
     ErrCode result = OHOS::ERR_OK;
     NormalScene normalscene;
     std::vector<std::shared_ptr<ComponentTree>> componentlist;
-    std::shared_ptr<ComponentTree> inputcomponent = std::make_shared<ComponentTree>();
+    std::shared_ptr<ComponentTree> inputcomponent = nullptr;
     auto treemanager = TreeManager::GetInstance();
     GetCurrentComponentInfo(componentinfo, componentlist);
     if (isRandom) {

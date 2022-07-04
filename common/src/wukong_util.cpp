@@ -123,6 +123,8 @@ WuKongUtil::WuKongUtil()
                 std::cerr << "failed to create dir: " << curDir_ << std::endl;
                 break;
             }
+        } else {
+            closedir(rootDir);
         }
     }
     DEBUG_LOG_STR("%s", startRunTime_.c_str());
@@ -315,7 +317,7 @@ ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath)
     char filepath[PATH_MAX] = {'\0'};
     char *realPath = realpath((curDir_ + "screenshot/").c_str(), filepath);
     if (realPath == nullptr) {
-        ERROR_LOG("failed to get file path");
+        ERROR_LOG_STR("failed to get file path (%s), errno: (%d)", (curDir_ + "screenshot/").c_str(), errno);
         return ERR_NO_INIT;
     }
     std::string path(filepath);
@@ -394,7 +396,7 @@ bool WuKongUtil::CopyFile(const char *sourceFile, const char *destFile)
     char filepath[PATH_MAX] = {'\0'};
     char *realPath = realpath(sourceFile, filepath);
     if (realPath == nullptr) {
-        ERROR_LOG("failed to get source file path");
+        ERROR_LOG_STR("failed to get source file path (%s), errno: (%d)", sourceFile, errno);
         return false;
     }
     in.open(filepath, std::ios::binary);
@@ -418,30 +420,21 @@ bool WuKongUtil::CopyFile(const char *sourceFile, const char *destFile)
     return true;
 }
 
-bool WuKongUtil::CheckFileStatus(const char *dir, DIR *pdir)
+DIR *WuKongUtil::CheckFileStatus(const char *dir)
 {
     char filepath[PATH_MAX] = {'\0'};
     char *realPath = realpath(dir, filepath);
     if (realPath == nullptr) {
-        ERROR_LOG("failed to get file path");
-        return false;
+        ERROR_LOG_STR("failed to get file path (%s),Error: %d", dir, errno);
+        return nullptr;
     }
     DEBUG_LOG_STR("current filepath{%s}", filepath);
-    std::string dirStr = "/";
-    std::vector<std::string> strs;
-    std::string usedDir(filepath);
-    OHOS::SplitStr(usedDir, "/", strs);
-    for (auto str : strs) {
-        dirStr.append(str);
-        dirStr.append("/");
-        DEBUG_LOG_STR("opendir{%s}", dirStr.c_str());
-        if ((pdir = opendir(dirStr.c_str())) == nullptr) {
-            ERROR_LOG("dir is not exist");
-            return false;
-        }
+    DIR *pdir = nullptr;
+    if ((pdir = opendir(filepath)) == nullptr) {
+        ERROR_LOG_STR("dir (%s) is not exist", filepath);
+        return nullptr;
     }
-    return true;
-    DEBUG_LOG_STR("%s", startRunTime_.c_str());
+    return pdir;
 }
 }  // namespace WuKong
 }  // namespace OHOS
