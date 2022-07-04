@@ -149,7 +149,7 @@ public:
         if (!result) {
             ERROR_LOG("GetPointerItem Fail");
         }
-        eventData data{};
+        eventData data {};
         int64_t currentTime = GetMillisTime();
         if (timeTemp == -1) {
             timeTemp = currentTime;
