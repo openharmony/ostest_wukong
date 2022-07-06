@@ -85,15 +85,15 @@ bool ComponentTree::SetNodeId()
         return false;
     }
 
-    auto rect = elementInfo->GetRectInScreen();
+    rect_ = elementInfo->GetRectInScreen();
     isVisible_ = elementInfo->IsVisible();
     // type is component type or component id of the ElementInfo
     type_ = elementInfo->GetComponentType();
     uint64_t type = GetSubName(type_, typeCount);
     // w is width of the ElementInfo
-    uint64_t w = (uint64_t)(rect.GetRightBottomXScreenPostion() - rect.GetLeftTopXScreenPostion());
+    uint64_t w = (uint64_t)(rect_.GetRightBottomXScreenPostion() - rect_.GetLeftTopXScreenPostion());
     // h is width of the ElementInfo
-    uint64_t h = (uint64_t)(rect.GetRightBottomYScreenPostion() - rect.GetLeftTopYScreenPostion());
+    uint64_t h = (uint64_t)(rect_.GetRightBottomYScreenPostion() - rect_.GetLeftTopYScreenPostion());
     // the ElementInfo content of 2 length
     uint64_t str = GetSubName(elementInfo->GetContent(), contentCount);
 

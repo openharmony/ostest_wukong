@@ -103,6 +103,13 @@ private:
      */
     ErrCode FindSamePageInParent(bool &isFound, bool isRandom);
 
+    /**
+     * @brief check if the component is in screen
+     * @param componentinfo the component
+     * @return true is in screen,false is not in screen
+     */
+    bool IsComponentInScreen(const std::shared_ptr<ComponentTree> componentinfo);
+
     std::vector<std::shared_ptr<ComponentTree>> componentList_;
     std::vector<std::string> componentType_;
     bool isBack_ = false;

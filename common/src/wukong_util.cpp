@@ -314,14 +314,7 @@ ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath)
             result = ERR_NO_INIT;
         }
     }
-    char filepath[PATH_MAX] = {'\0'};
-    char *realPath = realpath((curDir_ + "screenshot/").c_str(), filepath);
-    if (realPath == nullptr) {
-        ERROR_LOG_STR("failed to get file path (%s), errno: (%d)", (curDir_ + "screenshot/").c_str(), errno);
-        return ERR_NO_INIT;
-    }
-    std::string path(filepath);
-    auto wkScreenPath = path + "/" + wukongts + ".png";
+    auto wkScreenPath = curDir_ + "screenshot/" + "/" + wukongts + ".png";
     DEBUG_LOG_STR("WukongScreenCap store path is  {%s}", wkScreenPath.c_str());
     bool isTakeScreen = TakeWuKongScreenCap(wkScreenPath);
     if (isTakeScreen == true) {
@@ -330,7 +323,6 @@ ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath)
     } else {
         DEBUG_LOG("This snapshot can not be created.");
     }
-    free(realPath);
     return result;
 }
 
@@ -420,12 +412,12 @@ bool WuKongUtil::CopyFile(const char *sourceFile, const char *destFile)
     return true;
 }
 
-DIR *WuKongUtil::CheckFileStatus(const char *dir)
+DIR *WuKongUtil::CheckFileStatus(const std::string &dir)
 {
     char filepath[PATH_MAX] = {'\0'};
-    char *realPath = realpath(dir, filepath);
+    char *realPath = realpath(dir.c_str(), filepath);
     if (realPath == nullptr) {
-        ERROR_LOG_STR("failed to get file path (%s),Error: %d", dir, errno);
+        ERROR_LOG_STR("failed to get file path (%s),Error: %d", dir.c_str(), errno);
         return nullptr;
     }
     DEBUG_LOG_STR("current filepath{%s}", filepath);

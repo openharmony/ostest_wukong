@@ -151,7 +151,7 @@ public:
      * @brief check dir status
      * @param dir
      */
-    DIR *CheckFileStatus(const char *dir);
+    DIR *CheckFileStatus(const std::string &dir);
 
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 
