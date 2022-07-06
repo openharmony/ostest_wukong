@@ -63,7 +63,7 @@ private:
             inputTypeCountMap_[type] = 1;
         }
     }
-    OHOS::Accessibility::Rect rect_{};
+    OHOS::Accessibility::Rect rect_ {};
     bool isVisible_ = false;
     std::string type_;
     uint32_t expectedInputCount_;
