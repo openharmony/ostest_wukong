@@ -158,8 +158,8 @@ public:
             data.interval = currentTime - timeTemp;
             timeTemp = currentTime;
         }
-        data.xPosi = item.GetGlobalX();
-        data.yPosi = item.GetGlobalY();
+        data.xPosi = item.GetDisplayX();
+        data.yPosi = item.GetDisplayY();
         WriteEventData(outFile, data);
         INFO_LOG_STR("PointerEvent received. interval: %d xPosi: %d yPosi: %d", data.interval, data.xPosi, data.yPosi);
     }
