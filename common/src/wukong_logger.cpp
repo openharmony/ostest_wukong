@@ -104,6 +104,9 @@ void WuKongLogger::Stop()
 
 void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
 {
+    if (!printerRunning_) {
+        return;
+    }
     LOCK_PRINT_BUFFER.lock();
     char writeBuf[LOG_CONTENT_LENGTH] = {0};
     /* check logger_level */

@@ -18,6 +18,7 @@
 
 #include <map>
 
+#include "accessibility_element_info.h"
 #include "wukong_define.h"
 #include "wukong_tree.h"
 
@@ -43,6 +44,12 @@ public:
     {
         return isVisible_;
     }
+
+    OHOS::Accessibility::Rect GetPosition()
+    {
+        return rect_;
+    }
+
 private:
     friend class TreeManager;
     virtual bool SetNodeId() override;
@@ -56,6 +63,7 @@ private:
             inputTypeCountMap_[type] = 1;
         }
     }
+    OHOS::Accessibility::Rect rect_ {};
     bool isVisible_ = false;
     std::string type_;
     uint32_t expectedInputCount_;

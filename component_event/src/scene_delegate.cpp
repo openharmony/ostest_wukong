@@ -16,6 +16,7 @@
 #include "scene_delegate.h"
 
 #include "normal_scene.h"
+#include "wukong_util.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -71,7 +72,8 @@ ErrCode SceneDelegate::GetCurrentComponentInfo(std::shared_ptr<ComponentTree> co
             }
         }
     } else if (GRID_COUNT <= componentlist.size() &&
-               std::static_pointer_cast<ComponentTree>(componentinfo)->IsVisible()) {
+               std::static_pointer_cast<ComponentTree>(componentinfo)->IsVisible() &&
+               IsComponentInScreen(std::static_pointer_cast<ComponentTree>(componentinfo))) {
         componentlist.emplace(componentlist.end() - GRID_COUNT, componentinfo);
         componentType_.push_back(std::static_pointer_cast<ComponentTree>(componentinfo)->GetType());
     }
@@ -300,6 +302,26 @@ ErrCode SceneDelegate::FindSamePageInParent(bool &isFound, bool isRandom)
         parentpage = parentpage->GetParent();
     }
     return result;
+}
+
+bool SceneDelegate::IsComponentInScreen(const std::shared_ptr<ComponentTree> componentinfo)
+{
+    ErrCode result = OHOS::ERR_OK;
+    int32_t width = -1;
+    int32_t height = -1;
+    result = WuKongUtil::GetInstance()->GetScreenSize(width, height);
+    if (result != OHOS::ERR_OK) {
+        ERROR_LOG("failed to determine component position");
+        return false;
+    }
+    auto rect = componentinfo->GetPosition();
+    if ((rect.GetRightBottomXScreenPostion() <= width) && (rect.GetLeftTopXScreenPostion() <= width) &&
+        (rect.GetRightBottomYScreenPostion() <= height) && (rect.GetLeftTopYScreenPostion() <= height) &&
+        (rect.GetRightBottomXScreenPostion() > 0) && (rect.GetLeftTopXScreenPostion() > 0) &&
+        (rect.GetRightBottomYScreenPostion() > 0) && (rect.GetLeftTopYScreenPostion() > 0)) {
+        return true;
+    }
+    return false;
 }
 }  // namespace WuKong
 }  // namespace OHOS

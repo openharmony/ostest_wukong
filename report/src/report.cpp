@@ -333,7 +333,7 @@ void Report::CrashFileRecord()
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
             std::vector<std::string>::iterator iterDir = find(crashFiles_.begin(), crashFiles_.end(), targetFile);
-            if (((reportExceptionDir = utilPtr->CheckFileStatus(reportExceptionDir_.c_str())) != nullptr) &&
+            if (((reportExceptionDir = utilPtr->CheckFileStatus(reportExceptionDir_)) != nullptr) &&
                 (iterDir == crashFiles_.end())) {
                 DEBUG_LOG("copy action");
                 DEBUG_LOG_STR("open dir: %s successfully", reportExceptionDir_.c_str());
@@ -363,7 +363,7 @@ void Report::CrashFileRecord()
     while ((dp = readdir(dirpHilog)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
-            if ((reportExceptionDir = utilPtr->CheckFileStatus(reportExceptionDir_.c_str())) != nullptr) {
+            if ((reportExceptionDir = utilPtr->CheckFileStatus(reportExceptionDir_)) != nullptr) {
                 DEBUG_LOG("copy action");
                 std::string destLocation = reportExceptionDir_ + targetFile;
                 std::string srcFilePath = hilogDirs_ + targetFile;

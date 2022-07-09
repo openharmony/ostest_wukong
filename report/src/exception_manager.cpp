@@ -85,7 +85,8 @@ bool ExceptionManager::StartCatching()
 
 void ExceptionManager::StopCatching()
 {
-    HiSysEventManager::RemoveListener(toolListener);
+    int32_t result = HiSysEventManager::RemoveListener(toolListener);
+    DEBUG_LOG_STR("remove listener result: %d", result);
     if (csvFile.is_open()) {
         csvFile.flush();
         csvFile.close();
