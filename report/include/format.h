@@ -16,6 +16,7 @@
 #ifndef TEST_WUKONG_FORMAT_H
 #define TEST_WUKONG_FORMAT_H
 
+#include "table.h"
 namespace OHOS {
 namespace WuKong {
 class Format {

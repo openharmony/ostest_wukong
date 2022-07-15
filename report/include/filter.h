@@ -17,6 +17,7 @@
 #define TEST_WUKONG_FILTER_H
 
 #include <map>
+#include <string>
 #include <vector>
 
 namespace OHOS {

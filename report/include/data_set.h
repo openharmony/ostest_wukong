@@ -21,6 +21,11 @@
 #include <string>
 #include <vector>
 
+#include "filter.h"
+#include "format.h"
+#include "statistics.h"
+#include "table.h"
+#include "wukong_define.h"
 namespace OHOS {
 namespace WuKong {
 class DataSet {

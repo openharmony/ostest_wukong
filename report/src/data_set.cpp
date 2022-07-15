@@ -15,6 +15,7 @@
 
 #include "data_set.h"
 
+#include <iostream>
 #include <string>
 
 namespace OHOS {
