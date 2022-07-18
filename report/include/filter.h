@@ -20,8 +20,6 @@
 #include <string>
 #include <vector>
 
-#include "wukong_define.h"
-
 namespace OHOS {
 namespace WuKong {
 class Filter {

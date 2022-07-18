@@ -381,25 +381,35 @@ std::string WuKongUtil::GetCurrentTestDir()
     return curDir_;
 }
 
-bool WuKongUtil::CopyFile(const char *sourceFile, const char *destFile)
+bool WuKongUtil::CopyFile(std::string &targetFile, std::string &sourceDir, std::string &destDir)
 {
     std::ifstream in;
     std::ofstream out;
-    char filepath[PATH_MAX] = {'\0'};
-    char *realPath = realpath(sourceFile, filepath);
-    if (realPath == nullptr) {
-        ERROR_LOG_STR("failed to get source file path (%s), errno: (%d)", sourceFile, errno);
+    DEBUG_LOG_STR("targetFile{%s} sourceDir{%s} destDir{%s}", targetFile.c_str(), sourceDir.c_str(), destDir.c_str());
+    char filepathSource[PATH_MAX] = {'\0'};
+    std::string sourceFile = sourceDir + targetFile;
+    char *realPathSource = realpath(sourceFile.c_str(), filepathSource);
+    if (realPathSource == nullptr) {
+        ERROR_LOG_STR("failed to get source file path (%s), errno: (%d)", sourceFile.c_str(), errno);
         return false;
     }
-    in.open(filepath, std::ios::binary);
-
+    in.open(filepathSource, std::ios::binary);
     if (in.fail()) {
         std::cout << "Error 1: Fail to open the source file." << std::endl;
         in.close();
         out.close();
         return false;
     }
-    out.open(destFile, std::ios::binary);
+
+    char filepathDest[PATH_MAX] = {'\0'};
+    char *realPathDest = realpath(destDir.c_str(), filepathDest);
+    if (realPathDest == nullptr) {
+        ERROR_LOG_STR("failed to get dest dir path (%s), errno: (%d)", destDir.c_str(), errno);
+        return false;
+    }
+    DEBUG_LOG_STR("destDir{%s}", filepathDest);
+    std::string destFile = destDir + targetFile;
+    out.open(destFile.c_str(), std::ios::binary);
     if (out.fail()) {
         std::cout << "Error 2: Fail to create the new file." << std::endl;
         out.close();
@@ -410,23 +420,6 @@ bool WuKongUtil::CopyFile(const char *sourceFile, const char *destFile)
     out.close();
     in.close();
     return true;
-}
-
-DIR *WuKongUtil::CheckFileStatus(const std::string &dir)
-{
-    char filepath[PATH_MAX] = {'\0'};
-    char *realPath = realpath(dir.c_str(), filepath);
-    if (realPath == nullptr) {
-        ERROR_LOG_STR("failed to get file path (%s),Error: %d", dir.c_str(), errno);
-        return nullptr;
-    }
-    DEBUG_LOG_STR("current filepath{%s}", filepath);
-    DIR *pdir = nullptr;
-    if ((pdir = opendir(filepath)) == nullptr) {
-        ERROR_LOG_STR("dir (%s) is not exist", filepath);
-        return nullptr;
-    }
-    return pdir;
 }
 }  // namespace WuKong
 }  // namespace OHOS

@@ -16,10 +16,7 @@
 #ifndef TEST_WUKONG_FORMAT_CSV_H
 #define TEST_WUKONG_FORMAT_CSV_H
 
-#include <string>
-
 #include "format.h"
-#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {

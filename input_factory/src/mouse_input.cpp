@@ -14,8 +14,6 @@
  */
 
 #include "mouse_input.h"
-
-#include "input_manager.h"
 #include "multimode_manager.h"
 #include "wukong_define.h"
 #include "report.h"

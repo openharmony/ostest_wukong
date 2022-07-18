@@ -86,10 +86,10 @@ private:
     void CrashFileRecord();
 
     /*
-     * @brief clear cppcrash & jscrash dir when test start
+     * @brief record cppcrash or jscrash  when test start
      * @return void
      */
-    void CrashFileClear();
+    void OldCrashFileRecord();
 
     /*
      * @brief find Exception Type by crash file name
@@ -115,6 +115,7 @@ private:
     std::string currentTestDir_ = "";
     std::string crashDir_ = "/data/log/faultlog/faultlogger/";
     std::vector<std::string> crashFiles_;
+    std::vector<std::string> oldCrashFiles_;
     std::string seed_ = "";
     int taskCount_ = 0;
     bool isFirstAppSwitch_ = false;

@@ -15,7 +15,6 @@
 #ifndef TEST_WUKONG_TABLE_H
 #define TEST_WUKONG_TABLE_H
 
-#include <memory>
 #include <string>
 #include <vector>
 

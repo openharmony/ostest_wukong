@@ -16,8 +16,6 @@
 #ifndef TEST_WUKONG_KEYBOARD_INPUT_H
 #define TEST_WUKONG_KEYBOARD_INPUT_H
 
-#include <string>
-
 #include "input_action.h"
 #include "input_msg_object.h"
 

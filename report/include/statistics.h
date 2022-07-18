@@ -18,10 +18,7 @@
 
 #include <map>
 #include <memory>
-#include <string>
-
 #include "table.h"
-#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {

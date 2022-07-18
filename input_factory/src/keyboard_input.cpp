@@ -17,7 +17,6 @@
 
 #include "multimode_manager.h"
 #include "report.h"
-#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {

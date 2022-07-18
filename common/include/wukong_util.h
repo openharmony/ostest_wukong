@@ -141,17 +141,12 @@ public:
 
     /*
      * @brief copy file from soruce to dest
+     * @param targetFile
      * @param sourceFile
      * @param destFile
      * @return bool
      */
-    bool CopyFile(const char *sourceFile, const char *destFile);
-
-    /**
-     * @brief check dir status
-     * @param dir
-     */
-    DIR *CheckFileStatus(const std::string &dir);
+    bool CopyFile(std::string &targetFile, std::string &sourceDir, std::string &destDir);
 
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 

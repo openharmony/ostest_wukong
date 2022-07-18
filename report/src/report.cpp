@@ -71,8 +71,8 @@ void Report::EnvInit()
         }
     }
 
-    // clear crash dir file
-    CrashFileClear();
+    // record old crash file
+    OldCrashFileRecord();
     // register crash catcher
     ExceptionManager::GetInstance()->StartCatching();
 }
@@ -328,27 +328,21 @@ void Report::CrashFileRecord()
         ERROR_LOG_STR("dir{%s} opendir error", crashDir_.c_str());
         return;
     }
-    DIR *reportExceptionDir = nullptr;
     while ((dp = readdir(dirpCrash)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
-            std::vector<std::string>::iterator iterDir = find(crashFiles_.begin(), crashFiles_.end(), targetFile);
-            if (((reportExceptionDir = utilPtr->CheckFileStatus(reportExceptionDir_)) != nullptr) &&
-                (iterDir == crashFiles_.end())) {
-                DEBUG_LOG("copy action");
-                DEBUG_LOG_STR("open dir: %s successfully", reportExceptionDir_.c_str());
-                std::string destLocation = reportExceptionDir_ + targetFile;
-                std::string srcFilePath = crashDir_ + targetFile;
-                utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
-                DEBUG_LOG_STR("src: %s ,des: %s", srcFilePath.c_str(), destLocation.c_str());
+            std::vector<std::string>::iterator iterDir = find(oldCrashFiles_.begin(), oldCrashFiles_.end(), targetFile);
+            if (iterDir != oldCrashFiles_.end()) {
+                DEBUG_LOG_STR("current targetFile{%s} is old crash file", targetFile.c_str());
+                continue;
+            }
+            iterDir = find(crashFiles_.begin(), crashFiles_.end(), targetFile);
+            if (iterDir == crashFiles_.end()) {
+                DEBUG_LOG(" exception copy action");
+                utilPtr->CopyFile(targetFile, crashDir_, reportExceptionDir_);
                 crashFiles_.push_back(std::string(dp->d_name));
                 ExceptionRecord(targetFile);
             }
-        }
-        if (reportExceptionDir != nullptr) {
-            int res = closedir(reportExceptionDir);
-            DEBUG_LOG_STR("close dir: %s result (%d)", reportExceptionDir_.c_str(), res);
-            reportExceptionDir = nullptr;
         }
     }
     if (dirpCrash != nullptr) {
@@ -359,18 +353,11 @@ void Report::CrashFileRecord()
         ERROR_LOG_STR("dir{%s} opendir error", hilogDirs_.c_str());
         return;
     }
-    reportExceptionDir = nullptr;
     while ((dp = readdir(dirpHilog)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
-            if ((reportExceptionDir = utilPtr->CheckFileStatus(reportExceptionDir_)) != nullptr) {
-                DEBUG_LOG("copy action");
-                std::string destLocation = reportExceptionDir_ + targetFile;
-                std::string srcFilePath = hilogDirs_ + targetFile;
-                utilPtr->CopyFile(srcFilePath.c_str(), destLocation.c_str());
-                int res = closedir(reportExceptionDir);
-                DEBUG_LOG_STR("close dir: %s result (%d)", reportExceptionDir_.c_str(), res);
-            }
+            DEBUG_LOG("hilog copy action");
+            utilPtr->CopyFile(targetFile, hilogDirs_, reportExceptionDir_);
         }
     }
     if (dirpHilog != nullptr) {
@@ -402,7 +389,7 @@ void Report::ExceptionRecord(const std::string &exceptionFilename)
     exceptionDataSet_->FilterData(data);
 }
 
-void Report::CrashFileClear()
+void Report::OldCrashFileRecord()
 {
     DIR *dirp;
     struct dirent *dp;
@@ -410,11 +397,8 @@ void Report::CrashFileClear()
     while ((dp = readdir(dirp)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
-            std::string srcFilePath = crashDir_ + targetFile;
-            int ret = unlink(srcFilePath.c_str());
-            if (ret != 0) {
-                std::cout << "file clear error" << std::endl;
-            }
+            DEBUG_LOG_STR("record old crash file %s", targetFile.c_str());
+            oldCrashFiles_.push_back(targetFile);
         }
     }
     (void)closedir(dirp);
