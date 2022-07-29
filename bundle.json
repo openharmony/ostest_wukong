@@ -33,7 +33,7 @@
         "multimedia_image_standard",
         "resource_management",
         "samgr",
-        "utils_base",
+        "c_utils",
         "window_manager"
       ],
       "third_party": []
