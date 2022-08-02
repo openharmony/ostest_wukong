@@ -97,14 +97,18 @@ ErrCode SceneDelegate::ChooseScene(bool isRandom)
         return OHOS::ERR_NO_INIT;
     }
     std::vector<std::shared_ptr<ComponentTree>> allcomponentlist;
+    // get current component list
     GetCurrentComponentInfo(newcomponents, allcomponentlist);
-
+    // set all component counts of new page
     newpage->SetAllComponentCount(allcomponentlist.size());
+    // set valid component counts of new page
     newpage->SetValidComponentCount(allcomponentlist.size());
+    // get current page node
     std::shared_ptr<WuKongTree> currentpage = treemanager->GetCurrentPage();
     if (currentpage == nullptr) {
         DEBUG_LOG("first page");
         treemanager->AddPage();
+        // set available component list of current page
         result = SetAvailableComponentList(newcomponents, isRandom);
         TRACK_LOG_STR("new component Node Id: %016llX", newcomponents->GetNodeId());
         return result;
@@ -122,11 +126,13 @@ ErrCode SceneDelegate::ChooseScene(bool isRandom)
         return result;
     } else {
         bool isFoundParent = false;
+        // find the same page in parent list
         result = FindSamePageInParent(isFoundParent, isRandom);
         if (result != OHOS::ERR_OK || isFoundParent) {
             return result;
         }
         bool isFoundChildren = false;
+        // find the same page in chidren list
         result = FindSamePageInChildren(isFoundChildren, isRandom);
         if (result != OHOS::ERR_OK) {
             return result;
@@ -137,10 +143,10 @@ ErrCode SceneDelegate::ChooseScene(bool isRandom)
                 ERROR_LOG("currentcomponentinfo is nullptr");
                 return OHOS::ERR_NO_INIT;
             }
+            // compare new component tree and current component tree
             CompareComponentInfos(newcomponents, currentcomponentinfo, isRandom);
         }
     }
-    pageId_ = treemanager->GetCurrentPage()->GetNodeId();
     return result;
 }
 
@@ -163,6 +169,7 @@ ErrCode SceneDelegate::CompareComponentInfos(std::shared_ptr<ComponentTree> &new
     }
     DEBUG_LOG_STR("childlist size %d", currentChildList.size());
     float samePercent = 0.0;
+    // get the same count in new component list and current component list
     uint32_t samecount = FindSame(newChildList, currentChildList);
     if (newChildList.size() > currentChildList.size()) {
         samePercent = (float)samecount / (float)currentChildList.size();
@@ -202,15 +209,19 @@ ErrCode SceneDelegate::SetAvailableComponentList(std::shared_ptr<ComponentTree> 
     auto treemanager = TreeManager::GetInstance();
     GetCurrentComponentInfo(componentinfo, componentlist);
     if (isRandom) {
+        // get valid components from scene
         normalscene.SetInputComponentList(componentlist);
         isBack_ = normalscene.IsBackToPrePage();
         TRACK_LOG_STR("is random back: %d", isBack_);
+        // set valid components to tree manager
         treemanager->SetActiveComponent(componentlist);
     } else {
+        // get valid component from scene
         normalscene.SetInputComponent(componentlist, inputcomponent);
         isBack_ = normalscene.IsBackToPrePage();
         TRACK_LOG_STR("is special back: %d", isBack_);
         if (inputcomponent != nullptr) {
+            // set valid component to tree manager
             treemanager->SetActiveComponent(inputcomponent);
         }
     }

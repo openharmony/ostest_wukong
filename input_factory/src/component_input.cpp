@@ -63,7 +63,6 @@ uint32_t CheckLauncherApp(const std::shared_ptr<ComponentParam>& param)
             if (LauncherApp(param->bundleName_[i]) != OHOS::ERR_OK) {
                 return param->bundleName_.size();
             }
-
             // init bundleRunning status to stop.
             for (auto running : param->bundleRunning_) {
                 running = false;
@@ -180,7 +179,7 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
         ERROR_LOG("specialTestObject param is null");
         return OHOS::ERR_INVALID_VALUE;
     }
-
+    // launch app and check if app has been started
     uint32_t launchIndex = CheckLauncherApp(componentPtr);
     if (launchIndex >= componentPtr->bundleName_.size()) {
         ERROR_LOG("launcher app failed, and stop run test");
@@ -190,31 +189,38 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
     }
     auto treemanager = TreeManager::GetInstance();
     auto delegate = SceneDelegate::GetInstance();
+    // update component information
     result = treemanager->UpdateComponentInfo();
     DEBUG_LOG_STR("update componentinfo result (%d)", result);
     if (result == OHOS::ERR_OK) {
+        // choose scene and set valid components
         result = delegate->ChooseScene(false);
         if (result != OHOS::ERR_OK) {
             ERROR_LOG("choose scene failed");
             return result;
         }
+        // judge if is neccessnary to back to previous page
         if (delegate->IsBackToPrePage()) {
             result = JudgeBackResult(componentPtr, launchIndex);
             if (result != OHOS::ERR_OK) {
                 return result;
             }
         } else {
+            // get the component from tree manager to input action
             auto elementInfo = treemanager->GetElementInfoByOrder();
             if (elementInfo == nullptr) {
                 ERROR_LOG("elementinfo is nullptr");
                 return OHOS::ERR_INVALID_VALUE;
             }
+            // get the actions of component
             int actionType = JudgeComponentType(*(elementInfo.get()));
             if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
                 actionType = OHOS::Accessibility::ACCESSIBILITY_ACTION_CLICK;
             }
+            // input action to component
             result = ComponentManager::GetInstance()->ComponentEventInput(*(elementInfo.get()), actionType);
             if (result == OHOS::ERR_OK) {
+                // record index of inputted component
                 treemanager->SetInputcomponentIndex(actionType);
                 componentPtr->pageBack_[launchIndex] = 0;
                 componentPtr->lanuchCount_[launchIndex] = 0;
@@ -289,6 +295,7 @@ int ComponentInput::JudgeComponentType(OHOS::Accessibility::AccessibilityElement
 {
     int actionType = Accessibility::ACCESSIBILITY_ACTION_INVALID;
     TRACK_LOG_STD();
+    // get action list of component
     std::vector<OHOS::Accessibility::AccessibleAction> actionlist = elementInfo.GetActionList();
     if (actionlist.empty()) {
         std::string componentType = elementInfo.GetComponentType();
