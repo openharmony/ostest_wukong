@@ -20,6 +20,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <sys/inotify.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -41,6 +42,56 @@ namespace OHOS {
 namespace WuKong {
 namespace {
 const uint32_t SEGMENT_STATISTICS_LENGTH = 10;
+std::string crashDir = "/data/log/faultlog/faultlogger/";
+void ListenCrashDir()
+{
+    int fd;
+    int wd;
+    int nread;
+    int len;
+    char buf[BUFSIZ];
+    struct inotify_event *event;
+    fd = inotify_init();
+    INFO_LOG("init notify");
+    if (fd < 0) {
+        return;
+    }
+    wd = inotify_add_watch(fd, "/data/log/faultlog/faultlogger/", IN_CLOSE_WRITE);
+    INFO_LOG("add_watch");
+    if (wd < 0) {
+        ERROR_LOG("inotify_add_watch /data/log/faultlog/faultlogger/ failed");
+        return;
+    }
+    buf[sizeof(buf) - 1] = 0;
+    std::string destDir = Report::GetInstance()->GetReportExceptionDir();
+    while ((len = read(fd, buf, sizeof(buf) - 1)) > 0) {
+        nread = 0;
+        while (len > 0) {
+            event = (struct inotify_event *)&buf[nread];
+            if (event->mask & IN_CLOSE_WRITE) {
+                DEBUG_LOG_STR("event->mask{%x}", event->mask);
+                if (event->len > 0) {
+                    std::string targetFile(event->name);
+                    WuKongUtil::GetInstance()->CopyFile(targetFile, crashDir, destDir);
+                    DEBUG_LOG_STR("%s --- IN_CLOSE_WRITE\n", event->name);
+                    Report::GetInstance()->ExceptionRecord(targetFile);
+                }
+            }
+            nread = nread + sizeof(struct inotify_event) + event->len;
+            len = len - sizeof(struct inotify_event) - event->len;
+        }
+    }
+    INFO_LOG("exit thread");
+    return;
+}
+
+void StartCrashDirListen()
+{
+    std::thread listenerThread(&ListenCrashDir);
+    INFO_LOG("create listener thread");
+    listenerThread.detach();
+    INFO_LOG("thread detach");
+}
 }  // namespace
 using namespace OHOS::AAFwk;
 Report::Report()
@@ -70,9 +121,7 @@ void Report::EnvInit()
             ERROR_LOG("exception dir create fail");
         }
     }
-
-    // record old crash file
-    OldCrashFileRecord();
+    StartCrashDirListen();
     // register crash catcher
     ExceptionManager::GetInstance()->StartCatching();
 }
@@ -153,6 +202,7 @@ void Report::SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject)
     DEBUG_LOG_STR("taskCount{%d}", taskCount_);
     // statistics and storage every 10 data
     if ((taskCount_ % SEGMENT_STATISTICS_LENGTH) == 0) {
+        HilogFileRecord();
         SegmentedWriteCSV();
         SegmentedWriteJson();
     }
@@ -176,7 +226,10 @@ void Report::SegmentedWriteCSV()
     abilityDataSet_->SetFormatStragety(formatCSV);
     exceptionDataSet_->SetFormatStragety(formatCSV);
     std::stringstream modules;
-    modules << "module     , Base Info" << std::endl;
+    modules << "module, Base Info" << std::endl;
+    modules << "name, base" << std::endl;
+    modules << "detail, info" << std::endl;
+    modules << "name, base, detail, info" << std::endl;
     modules << "task status, success" << std::endl;
     modules << "task time  , " << time(0) - startTime_ << std::endl;
     if (!seed_.empty()) {
@@ -207,7 +260,7 @@ void Report::SegmentedWriteCSV()
     }
     modules << moduleInput;
     modules << "module, ability Statistics" << std::endl;
-    modules << "name, all";
+    modules << "name, all" << std::endl;
     modules << "detail, ability" << std::endl;
     moduleInput = "";
     abilityDataSet_->StatisticsData();
@@ -316,38 +369,11 @@ void Report::SegmentedWriteJson()
     TRACK_LOG_END();
 }
 
-void Report::CrashFileRecord()
+void Report::HilogFileRecord()
 {
-    std::unique_lock<std::mutex> locker(crashMtx_);
     struct dirent *dp;
-    DIR *dirpCrash = nullptr;
     DIR *dirpHilog = nullptr;
     std::shared_ptr<WuKongUtil> utilPtr = WuKongUtil::GetInstance();
-    dirpCrash = opendir(crashDir_.c_str());
-    if (dirpCrash == nullptr) {
-        ERROR_LOG_STR("dir{%s} opendir error", crashDir_.c_str());
-        return;
-    }
-    while ((dp = readdir(dirpCrash)) != NULL) {
-        std::string targetFile(dp->d_name);
-        if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
-            std::vector<std::string>::iterator iterDir = find(oldCrashFiles_.begin(), oldCrashFiles_.end(), targetFile);
-            if (iterDir != oldCrashFiles_.end()) {
-                DEBUG_LOG_STR("current targetFile{%s} is old crash file", targetFile.c_str());
-                continue;
-            }
-            iterDir = find(crashFiles_.begin(), crashFiles_.end(), targetFile);
-            if (iterDir == crashFiles_.end()) {
-                DEBUG_LOG(" exception copy action");
-                utilPtr->CopyFile(targetFile, crashDir_, reportExceptionDir_);
-                crashFiles_.push_back(std::string(dp->d_name));
-                ExceptionRecord(targetFile);
-            }
-        }
-    }
-    if (dirpCrash != nullptr) {
-        (void)closedir(dirpCrash);
-    }
     dirpHilog = opendir(hilogDirs_.c_str());
     if (dirpHilog == nullptr) {
         ERROR_LOG_STR("dir{%s} opendir error", hilogDirs_.c_str());
@@ -356,8 +382,12 @@ void Report::CrashFileRecord()
     while ((dp = readdir(dirpHilog)) != NULL) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
-            DEBUG_LOG("hilog copy action");
-            utilPtr->CopyFile(targetFile, hilogDirs_, reportExceptionDir_);
+            std::vector<std::string>::iterator iterDir = find(hilogFiles_.begin(), hilogFiles_.end(), targetFile);
+            if (iterDir == hilogFiles_.end()) {
+                DEBUG_LOG("hilog copy action");
+                utilPtr->CopyFile(targetFile, hilogDirs_, reportExceptionDir_);
+                hilogFiles_.push_back(targetFile);
+            }
         }
     }
     if (dirpHilog != nullptr) {
@@ -367,6 +397,7 @@ void Report::CrashFileRecord()
 
 void Report::ExceptionRecord(const std::string &exceptionFilename)
 {
+    std::unique_lock<std::mutex> locker(crashMtx_);
     std::map<std::string, std::string> data;
     std::string exceptionType;
     if (exceptionFilename.find("cppcrash") != std::string::npos) {
@@ -387,21 +418,6 @@ void Report::ExceptionRecord(const std::string &exceptionFilename)
 
     data["exception"] = exceptionType;
     exceptionDataSet_->FilterData(data);
-}
-
-void Report::OldCrashFileRecord()
-{
-    DIR *dirp;
-    struct dirent *dp;
-    dirp = opendir(crashDir_.c_str());
-    while ((dp = readdir(dirp)) != NULL) {
-        std::string targetFile(dp->d_name);
-        if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
-            DEBUG_LOG_STR("record old crash file %s", targetFile.c_str());
-            oldCrashFiles_.push_back(targetFile);
-        }
-    }
-    (void)closedir(dirp);
 }
 
 void Report::Finish()
@@ -460,5 +476,11 @@ void Report::RecordScreenPath(const std::string &screenPath)
     screenPaths_.push_back(screenPath);
     TRACK_LOG_END();
 }
+
+std::string Report::GetReportExceptionDir()
+{
+    return reportExceptionDir_;
+}
+
 }  // namespace WuKong
 }  // namespace OHOS

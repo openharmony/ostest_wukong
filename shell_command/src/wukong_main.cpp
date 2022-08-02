@@ -169,5 +169,6 @@ int main(int argc, char* argv[])
     FreeSingtion();
     WuKonglogger->Stop();
     WuKongLogger::DestroyInstance();
+    INFO_LOG("exit main");
     return 0;
 }
