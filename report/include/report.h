@@ -18,9 +18,9 @@
 
 #include <map>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "data_set.h"
 #include "input_msg_object.h"
@@ -66,6 +66,18 @@ public:
      */
     void RecordScreenPath(const std::string &screenPath);
 
+    /*
+    * @brief get report exception dir
+    * @return void
+    */
+    std::string GetReportExceptionDir();
+
+    /*
+     * @brief find Exception Type by crash file name
+     * @param exceptionFilename
+     * @return void
+     */
+    void ExceptionRecord(const std::string &exceptionFilename);
 private:
     /*
      * @brief dependent environment init, include create file,dir, setting start time
@@ -80,23 +92,10 @@ private:
     void DataSetInit();
 
     /*
-     * @brief When a crash occurs, include the crash file to the target directory
+     * @brief When a crash occurs check /data/log/hilog/ dir is exist new hilog file then copy
      * @return void
      */
-    void CrashFileRecord();
-
-    /*
-     * @brief record cppcrash or jscrash  when test start
-     * @return void
-     */
-    void OldCrashFileRecord();
-
-    /*
-     * @brief find Exception Type by crash file name
-     * @param exceptionFilename
-     * @return void
-     */
-    void ExceptionRecord(const std::string &exceptionFilename);
+    void HilogFileRecord();
 
     /*
      * @brief componment information arrange
@@ -107,15 +106,13 @@ private:
      */
     void ComponmentInfoArrange(const std::string &bundle, std::shared_ptr<ComponmentInputMsg> inputCompMsgPtr,
                                std::map<std::string, std::string> &data);
-
     // csv filename
     std::string reportCsvFileName_ = "";
     std::string reportJsonFileName_ = "";
     std::string reportExceptionDir_ = "";
     std::string currentTestDir_ = "";
     std::string crashDir_ = "/data/log/faultlog/faultlogger/";
-    std::vector<std::string> crashFiles_;
-    std::vector<std::string> oldCrashFiles_;
+    std::vector<std::string> hilogFiles_;
     std::string seed_ = "";
     int taskCount_ = 0;
     bool isFirstAppSwitch_ = false;

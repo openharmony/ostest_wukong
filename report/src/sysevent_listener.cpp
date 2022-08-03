@@ -40,7 +40,6 @@ void ValueGet(const json& jsonData, const std::string& key, const json::value_t 
 void SysEventListener::OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
                                 const std::string& eventDetail)
 {
-    Report::GetInstance()->CrashFileRecord();
     TRACK_LOG("----------Exception caught----------");
     TRACK_LOG_STR("domain: %s", domain.c_str());
     TRACK_LOG_STR("eventName: %s", eventName.c_str());
