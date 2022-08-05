@@ -47,8 +47,8 @@ void ListenCrashDir()
 {
     int fd;
     int wd;
-    int nread;
-    int len;
+    uint32_t nread;
+    uint32_t len;
     char buf[BUFSIZ];
     struct inotify_event *event;
     fd = inotify_init();
