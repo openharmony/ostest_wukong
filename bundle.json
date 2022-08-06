@@ -32,7 +32,7 @@
         "ipc",
         "multimedia_image_standard",
         "resource_management",
-        "samgr_standard",
+        "samgr",
         "c_utils",
         "window_manager"
       ],

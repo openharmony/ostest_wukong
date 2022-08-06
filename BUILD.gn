@@ -118,7 +118,7 @@ ohos_executable("wukong") {
     "input:libmmi-client",
     "ipc:ipc_core",
     "multimedia_image_standard:image_native",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
     "window_manager:libdm",
     "window_manager:libwm",
   ]
