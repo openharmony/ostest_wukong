@@ -25,23 +25,6 @@ const uint8_t ABILITY_BUNDLE_NAME_SIZE_POSION = 56;
 const uint8_t ABILITY_BUNDLE_NAME_POSION = 32;
 const uint8_t ABILITY_ABILITY_NAME_SIZE_POSION = 24;
 const uint8_t ABILITY_ABILITY_NAME_POSION = 0;
-uint64_t GetSubName(std::string name, uint32_t count)
-{
-    TRACK_LOG_STR("name %s", name.c_str());
-    const uint8_t heightPosion = 8;
-    uint64_t subName = 0;
-    uint32_t nameSize = name.size();
-    for (uint32_t index = count; index > 0; index--) {
-        if (index > nameSize) {
-            continue;
-        }
-        subName |= name[nameSize - index];
-        if (index > 1) {
-            subName = subName << heightPosion;
-        }
-    }
-    return subName;
-}
 }  // namespace
 
 /**

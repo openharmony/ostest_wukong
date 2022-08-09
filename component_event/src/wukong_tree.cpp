@@ -25,5 +25,22 @@ bool WuKongTree::RecursUpdateNodeIndex(const uint32_t offset)
     }
     return true;
 }
+uint64_t WuKongTree::GetSubName(std::string name, uint32_t count)
+{
+    TRACK_LOG_STR("name %s", name.c_str());
+    const uint8_t heightPosion = 8;
+    uint64_t subName = 0;
+    uint32_t nameSize = name.size();
+    for (uint32_t index = count; index > 0; index--) {
+        if (index > nameSize) {
+            continue;
+        }
+        subName |= name[nameSize - index];
+        if (index > 1) {
+            subName = subName << heightPosion;
+        }
+    }
+    return subName;
+}
 }  // namespace WuKong
 }  // namespace OHOS

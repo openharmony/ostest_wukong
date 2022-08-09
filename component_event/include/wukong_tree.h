@@ -118,6 +118,7 @@ protected:
         inputCount_++;
     }
     bool RecursUpdateNodeIndex(const uint32_t offset);
+    uint64_t GetSubName(std::string name, uint32_t count);
 
     /**
      * @brief node specification value.

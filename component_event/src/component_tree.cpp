@@ -26,23 +26,6 @@ const uint8_t COMPONENT_WIDTH_POSION = 36;
 const uint8_t COMPONENT_HEIGHT_POSION = 24;
 const uint8_t COMPONENT_CONTENT_POSION = 8;
 const uint8_t COMPONENT_RESERVED_POSION = 0;
-uint64_t GetSubName(std::string name, uint32_t count)
-{
-    TRACK_LOG_STR("name %s", name.c_str());
-    const uint8_t heightPosion = 8;
-    uint64_t subName = 0;
-    uint32_t nameSize = name.size();
-    for (uint32_t index = count; index > 0; index--) {
-        if (index > nameSize) {
-            continue;
-        }
-        subName |= name[nameSize - index];
-        if (index > 1) {
-            subName = subName << heightPosion;
-        }
-    }
-    return subName;
-}
 }  // namespace
 bool ComponentTree::RecursUpdateInfo(const std::shared_ptr<ComponentTree>& source)
 {
