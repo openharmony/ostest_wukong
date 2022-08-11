@@ -22,7 +22,7 @@
 #include <cstring>
 #include <dirent.h>
 #include <fstream>
-#include <hilog_base/log_base.h>
+#include <hilog/log_c.h>
 #include <iostream>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -211,7 +211,7 @@ bool WuKongLogger::PrinterThread::Run()
             }
             // output HILOG
             if (self->outputType_ & HILOG_OUTPUT) {
-                HILOG_BASE_INFO(LOG_CORE, "%{public}s", logInfo.logStr_.c_str());
+                HILOG_INFO(LOG_CORE, "%{public}s", logInfo.logStr_.c_str());
             }
         }
     }
