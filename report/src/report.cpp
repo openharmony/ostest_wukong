@@ -49,7 +49,9 @@ void ListenCrashDir()
     int wd;
     uint32_t nread;
     uint32_t len;
+	ssize_t readLenght;
     char buf[BUFSIZ];
+	char* bufPtr = nullptr;
     struct inotify_event *event;
     fd = inotify_init();
     INFO_LOG("init notify");
@@ -64,10 +66,12 @@ void ListenCrashDir()
     }
     buf[sizeof(buf) - 1] = 0;
     std::string destDir = Report::GetInstance()->GetReportExceptionDir();
-    while ((len = read(fd, buf, sizeof(buf) - 1)) > 0) {
+    while ((readLenght = read(fd, buf, sizeof(buf) - 1)) > 0) {
+		len = static_cast<uint32_t>(readLenght);
         nread = 0;
         while (len > 0) {
-            void* middleType =  static_cast<void *>(&buf[nread]);
+			bufPtr = &buf[nread];
+            void* middleType =  static_cast<void *>(bufPtr);
             event = static_cast<struct inotify_event *>(middleType);
             if ((event->mask & IN_CLOSE_WRITE) && (event->len > 0)) {
                 DEBUG_LOG_STR("event->mask{%x}", event->mask);
