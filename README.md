@@ -24,7 +24,7 @@ OpenHarmony stability testing automation tool simulates disorderly user behavior
 
 ## Third、constraints
 
-1、WuKong was prefabricated for use after system version 3.2
+1、WuKong was prefabricated for use after system version 3.2<br>
 2、Versions of WuKong prior to version 3.2 do not compile with the version. When using WuKong, you need to compile and push it to the stabbed OpenHarmony device. The steps are as follows：
 ```
 2.1、Build a way
@@ -107,7 +107,7 @@ Random test: wukong exec main command, -s parameter set random seed, 10 is the s
 
 1、3.2.0.0 version
 > Content of the release：Pre-made Wukong supports the following functions
-> 1、Support collecting app pull up, setting random seed, setting app pull up interval, setting app pull up times, and querying app pull up bundle name and ability name；
-> 2、Support random injection of events, support random injection of controls, support sleep and wake up special tests, support control sequence traversal screenshots special tests；
-> 3、Supports WUkong run log printing
-> 4、White and blacklist applications are supported
+> 1、Support collecting app pull up, setting random seed, setting app pull up interval, setting app pull up times, and querying app pull up bundle name and ability name;<br>
+> 2、Support random injection of events, support random injection of controls, support sleep and wake up special tests, support control sequence traversal screenshots special tests;<br>
+> 3、Supports WUkong run log printing;<br>
+> 4、White and blacklist applications are supported;
