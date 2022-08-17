@@ -1,61 +1,55 @@
 # WuKong
-
-## Introduction
+## One、Introduction
 
 OpenHarmony stability testing automation tool simulates disorderly user behavior to stress test the stability of OpenHarmony systems and applications.
 
-## Supported features
+## Two、code directory
 
-> The current version supports the following functions, and the expansion capacity is planned for continuous developing in the future.
-
-- Support RK3568, Hi3516
-- Support shell startup
-- Support whole machine application pull up
-- Support set random seeds, pull up by fixed random sequence
-- Support setting app pull-up interval, default 1000ms
-- Support setting the number of app pulls, the default number of times is 10 times
-- Support query application to pull up bundle name, ability name
-- Support injecting random events
-  - Touch event injection
-  - Swap event injection
-  - Mouse event injection
-  - Keyboard event injection
-  - Hardkey event injection
-- Support wukong run log printing
-- Support sleep wake-up special test
-- Support app whitelisting
-- Support app blacklist
-
----
-
-## How to use?
-
-```bash
-> hdc_std shell
-# wukong exec -s 10 -i 1000 -a 0.28 -t 0.72 -c 100
+```
+├── wukong                              # Wukong main code file
+|   └── common                          # Provides application control capabilities, random event injection capabilities, multi-mode event injection capabilities
+|   └── component_event                 # Define the ability, page, Component tree to provide the ability to add nodes, traverse the tree, find child nodes by NodeId, etc
+|   └── input_factory                   # Realize the screen click, slide, drag, keyboard and other events injection ability    
+|   └── report                          # Monitor abnormal information, collect, collect statistics, and display it
+|   └── shell_command                   # Used to create a command line map, parse the command line parameters, and execute the command line              
+|   └── test_flow                                  
+│       └── include                     # Defining Header files
+│       └── src                     
+│           ├── random_test_flow.cpp    # Inherited from TestFlow, is the execution flow of random tests
+│           ├── special_test_flow.cpp   # Inherited from TestFlow, is the execution flow of sequential specific tests
+│           ├── test_flow.cpp           # Check whether the command line parameters conform to specifications
+│   ── BUILD.gn                         # Store the configuration of WUkong construction, including construction object, method, dependency, hardware architecture, and file format
+│   ── README_zh.md                     # The readme file
 ```
 
-```bash
-> hdc_std shell wukong exec -s 10 -i 1000 -a 0.28 -t 0.72 -c 100
+## Third、constraints
+
+1、WuKong was prefabricated for use after system version 3.2
+2、Versions of WuKong prior to version 3.2 do not compile with the version. When using WuKong, you need to compile and push it to the stabbed OpenHarmony device. The steps are as follows：
+```
+2.1、Build a way
+    ./build.sh --product-name rk3568 --build-target wukong
+2.2、push
+    hdc_std shell mount -o rw,remount /
+    hdc_std file send wukong /
+    hdc_std shell chmod a+x /wukong
+    hdc_std shell mv /wukong /bin/
 ```
 
-`wukong exec` is the main command, the `-s` parameter sets the random seed, and 10 is the seed value; `-i` sets application pull interval, 1500 units ms, -c parameter sets number of executions.
+## Four、functional characteristics
 
----
+### Function Features and Command Description
 
-## Command Description
 
 | Command | Description | Note |
 | -------------- | ---------------------------------------------- | ------------- |
 | wukong version | Get wukong version information | -v, --version |
-| wukong help    | Get wukong help information | -h, --help    |
+| wukong help    | Get wukong help information |               |
 | wukong appinfo | Query support pulling up the application enterName and the corresponding mainAbility name |               |
 | wukong special | wukong special test |               |
 | wukong exec    | wukong randomly tests |               |
 
 ----
-
-## Command option description
 
 ### wukong special description
 
@@ -72,6 +66,13 @@ OpenHarmony stability testing automation tool simulates disorderly user behavior
 | -t, --touch[x,y]    | Click test | No | -                   |
 | -T, --time          | Set the total test time | No | Unit minutes, the default is 10 minutes |
 | -C, --component     | The control sequentially traverses the test | No | You need to set the test app name |
+
+#### Example of Wukong Special test
+```bash
+> hdc_std shell
+# wukong special -C [bundlename] -p
+```
+special test：wukong special main command. -C control iterates the test parameters in sequence. bundlename is the name of the test application. -p indicates the screenshot
 
 ### wukong random description
 
@@ -94,23 +95,19 @@ OpenHarmony stability testing automation tool simulates disorderly user behavior
 
 > Note: Configuring the same random seed results in the same sequence of random events
 
+#### Example of Wukong Special random test
+```bash
+> hdc_std shell
+# wukong exec -s 10 -i 1000 -a 0.28 -t 0.72 -c 100
+```
+Random test: wukong exec main command, -s parameter set random seed, 10 is the seed value; -i Specifies the application pull up interval, 1000 unit ms. -a Indicates the application random pull up test ratio of 28%. -t sets the proportion of random touch tests to 72%. -c Specifies the execution times to 100
 ---
 
-## Push wukong to the device
+## Five、Release Version releaseNote
 
-> Stability test automation tool wukong is not compiled with the version for the time being, and it needs to be compiled by itself and pushed to the OpenHarmony device under test.
-
-### Build
-
-```
-./build.sh --product-name rk3568 --build-target wukong
-```
-
-### Push
-
-```
-hdc_std shell mount -o rw,remount /
-hdc_std file send wukong /
-hdc_std shell chmod a+x /wukong
-hdc_std shell mv /wukong /bin/
-```
+1、3.2.0.0 version
+> Content of the release：Pre-made Wukong supports the following functions
+> 1、Support collecting app pull up, setting random seed, setting app pull up interval, setting app pull up times, and querying app pull up bundle name and ability name；
+> 2、Support random injection of events, support random injection of controls, support sleep and wake up special tests, support control sequence traversal screenshots special tests；
+> 3、Supports WUkong run log printing
+> 4、White and blacklist applications are supported

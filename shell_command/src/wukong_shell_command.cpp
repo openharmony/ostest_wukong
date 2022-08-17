@@ -35,7 +35,7 @@ namespace WuKong {
 namespace {
 const std::string WUKONG_TOOL_NAME = "wukong";
 
-const std::string WUKONG_TOOL_VERSION = "version: 1.1.0\n";
+const std::string WUKONG_TOOL_VERSION = "version: 3.2.0.0\n";
 
 const std::string ACE_ENABLE = "param set persist.ace.testmode.enabled 1";
 
