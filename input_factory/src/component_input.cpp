@@ -52,6 +52,7 @@ ErrCode LauncherApp(const std::string& bundleName)
 uint32_t CheckLauncherApp(const std::shared_ptr<ComponentParam>& param)
 {
     TRACK_LOG_STD();
+    std::vector<std::string> tempAllowList;
     for (uint32_t i = 0; i < param->bundleName_.size(); i++) {
         // do not launch app when bundle is running.
         if (param->bundleRunning_[i] == true && param->bundleFinish_[i] == false) {
@@ -59,6 +60,9 @@ uint32_t CheckLauncherApp(const std::shared_ptr<ComponentParam>& param)
         }
         // launch app when the bundle is stop and not finish.
         if (param->bundleRunning_[i] == false && param->bundleFinish_[i] == false) {
+            tempAllowList.clear();
+            tempAllowList.push_back(param->bundleName_[i]);
+            WuKongUtil::GetInstance()->SetTempAllowList(tempAllowList);
             // launch app by AppSwitchInput function.
             if (LauncherApp(param->bundleName_[i]) != OHOS::ERR_OK) {
                 return param->bundleName_.size();

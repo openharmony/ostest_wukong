@@ -105,6 +105,33 @@ Report::Report()
 
 void Report::EnvInit()
 {
+    const std::string DEFAULT_DIR = "/data/local/wukong/report/";
+    startRunTime_ = WuKongUtil::GetInstance()->GetStartRunTime();
+    //Get a screenshot within the previous timestamp of the current timestamp
+    DIR *dirp = nullptr;
+    struct dirent *dp;
+    dirp = opendir(DEFAULT_DIR.c_str());
+    std::string maxValue = "";
+    std::string targetTimeDir;
+    if (dirp != nullptr)
+    {
+        while ((dp = readdir(dirp)) != NULL) { 
+            std::string currentStringName(dp->d_name);
+            if(currentStringName != startRunTime_){
+                if(currentStringName>maxValue){
+                    maxValue = currentStringName;
+                    targetTimeDir = currentStringName;
+                }
+            }
+        }
+    }
+    (void)closedir(dirp);
+
+    //Delete the screenshot under the timestamp
+    std::string targetDir_ = DEFAULT_DIR + targetTimeDir +"/screenshot/";
+    WuKongUtil::GetInstance()->DeleteFile(targetDir_);
+
+
     // setting filename
     currentTestDir_ = WuKongUtil::GetInstance()->GetCurrentTestDir();
     INFO_LOG_STR("Report currentTestDir: (%s)", currentTestDir_.c_str());
@@ -484,5 +511,6 @@ std::string Report::GetReportExceptionDir()
 {
     return reportExceptionDir_;
 }
+
 }  // namespace WuKong
 }  // namespace OHOS

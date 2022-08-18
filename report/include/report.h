@@ -111,6 +111,7 @@ private:
     std::string reportJsonFileName_ = "";
     std::string reportExceptionDir_ = "";
     std::string currentTestDir_ = "";
+    std::string startRunTime_ = "";
     std::string crashDir_ = "/data/log/faultlog/faultlogger/";
     std::vector<std::string> hilogFiles_;
     std::string seed_ = "";

@@ -34,17 +34,36 @@ bool AppManager::BlockAbilityController::AllowAbilityStart(const AAFwk::Want &wa
 {
     TRACK_LOG_STD();
     std::vector<std::string> blocklist;
-    WuKongUtil::GetInstance()->GetBlockList(blocklist);
+    std::vector<std::string> tempAllowList;
+    bool orderFlag;
+    auto util = WuKongUtil::GetInstance();
+    
+    tempAllowList = util->GetTempAllowList();
+    // if bundleName in the tempAllow list to allow ability start.
+    auto it = find(tempAllowList.begin(), tempAllowList.end(), bundleName);
+    orderFlag = util->GetOrderFlag();
+    
+    if(orderFlag&&tempAllowList.size()!=0){
+        if (it != tempAllowList.end()) {
+            DEBUG_LOG("bundle start allow");
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    util->GetBlockList(blocklist);
     DEBUG_LOG_STR("BundleName: %s", bundleName.c_str());
 
     // if bundleName in the block list to unallow ability start.
-    auto it = find(blocklist.begin(), blocklist.end(), bundleName);
-    if (it != blocklist.end()) {
+    it = find(blocklist.begin(), blocklist.end(), bundleName);
+    if (it == blocklist.end()) {
         DEBUG_LOG("bundle start prohibition");
-        return false;
+        return true;
     }
+
     TRACK_LOG_END();
-    return true;
+    return false;
 }
 
 // turn to background

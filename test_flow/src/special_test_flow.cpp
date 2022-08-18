@@ -167,18 +167,18 @@ ErrCode SpecialTestFlow::RunStep()
     }
     // order test
     ErrCode result = OHOS::ERR_OK;
-    InputType inputTypeId = DistrbuteInputType();
-    std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(inputTypeId);
-    result = inputaction->OrderInput(specialTestObject_);
-    if (result != OHOS::ERR_OK) {
-        WARN_LOG("This test failed");
-    }
     if (g_commandSCREENSHOTENABLE) {
         std::string screenStorePath;
         result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath);
         if (result == OHOS::ERR_OK) {
             Report::GetInstance()->RecordScreenPath(screenStorePath);
         }
+    }
+    InputType inputTypeId = DistrbuteInputType();
+    std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(inputTypeId);
+    result = inputaction->OrderInput(specialTestObject_);
+    if (result != OHOS::ERR_OK) {
+        WARN_LOG("This test failed");
     }
     if (g_commandCOMPONENTENABLE) {
         if (specialTestObject_->isAllFinished_) {
@@ -323,6 +323,7 @@ ErrCode SpecialTestFlow::HandleNormalOption(const int option)
             break;
         }
     }
+    WuKongUtil::GetInstance()->SetOrderFlag(true);
     return result;
 }
 
@@ -407,6 +408,7 @@ ErrCode SpecialTestFlow::LauncherApp()
 {
     ErrCode result = OHOS::ERR_OK;
     std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
+
     result = inputaction->OrderInput(specialTestObject_);
     if (result != OHOS::ERR_OK) {
         ERROR_LOG("launcher app failed");

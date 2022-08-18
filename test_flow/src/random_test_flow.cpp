@@ -318,6 +318,7 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
             break;
         }
     }
+    WuKongUtil::GetInstance()->SetOrderFlag(false);
     return result;
 }
 

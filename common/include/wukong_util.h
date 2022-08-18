@@ -148,6 +148,37 @@ public:
      */
     bool CopyFile(std::string &targetFile, std::string &sourceDir, std::string &destDir);
 
+    /*
+     * @brief deleted screenshots 
+     * @param targetDir
+     * @return bool
+     */
+    bool DeleteFile(std::string targetDir);
+
+    /*
+     * @brief set the whitelist list 
+     * @param tempAllowList
+     */
+    void SetTempAllowList(std::vector<std::string> tempAllowList);
+
+    /*
+     * @brief get the whitelist list 
+     * @return tmpAllowList
+     */
+    std::vector<std::string> GetTempAllowList();
+
+    /*
+     * @brief set orderFlag 
+     * @param orderFlag
+     */
+    void SetOrderFlag(bool orderFlag);
+
+    /*
+     * @brief get orderFlag
+     * @return bool
+     */
+    bool GetOrderFlag();
+
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 
 private:
@@ -182,6 +213,9 @@ private:
 
     std::string startRunTime_;
     std::string curDir_;
+
+    bool orderFlag_ = false;
+    std::vector<std::string> tempAllowList_;
 };
 
 class WukongSemaphore {
