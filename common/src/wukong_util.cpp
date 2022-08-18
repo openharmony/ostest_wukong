@@ -442,7 +442,8 @@ bool WuKongUtil::CopyFile(std::string &targetFile, std::string &sourceDir, std::
     return true;
 }
 
-bool WuKongUtil::DeleteFile(std::string targetDir){
+bool WuKongUtil::DeleteFile(std::string targetDir)
+{
     DIR *dirdp = nullptr;
     struct dirent *dp;
     char filepathSource[PATH_MAX] = {'\0'};
@@ -453,17 +454,15 @@ bool WuKongUtil::DeleteFile(std::string targetDir){
             std::string currentFileName(dp->d_name);
             std::string sourceFile = targetDir + currentFileName;
             char *realFileSource = realpath(sourceFile.c_str(), filepathSource);
-            if (realFileSource != nullptr)
-            {   
+            if (realFileSource != nullptr) {   
                 remove(sourceFile.c_str());
             }
         }
-    }else{
+    } else {
         return false;
     }
     (void)closedir(dirdp);
     return true;
 }
-
 }  // namespace WuKong
 }  // namespace OHOS
