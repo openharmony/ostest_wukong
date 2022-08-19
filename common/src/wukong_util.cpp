@@ -454,7 +454,7 @@ bool WuKongUtil::DeleteFile(std::string targetDir)
             std::string currentFileName(dp->d_name);
             std::string sourceFile = targetDir + currentFileName;
             char *realFileSource = realpath(sourceFile.c_str(), filepathSource);
-            if (realFileSource != nullptr) {   
+            if (realFileSource != nullptr) {
                 remove(sourceFile.c_str());
             }
         }

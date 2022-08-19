@@ -41,7 +41,7 @@ bool AppManager::BlockAbilityController::AllowAbilityStart(const AAFwk::Want &wa
     tempAllowList = util->GetTempAllowList();
     // if bundleName in the tempAllow list to allow ability start.
     auto it = find(tempAllowList.begin(), tempAllowList.end(), bundleName);
-    orderFlag = util->GetOrderFlag();  
+    orderFlag = util->GetOrderFlag();
     if (orderFlag && tempAllowList.size() != 0) {
         if (it != tempAllowList.end()) {
             DEBUG_LOG("bundle start allow");

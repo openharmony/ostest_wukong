@@ -113,7 +113,7 @@ void Report::EnvInit()
     dirp = opendir(DEFAULT_DIR.c_str());
     std::string maxValue = "";
     std::string targetTimeDir;
-    while (dirp != nullptr && (dp = readdir(dirp)) != NULL) { 
+    while (dirp != nullptr && (dp = readdir(dirp)) != NULL) {
         std::string currentStringName(dp->d_name);
         if (currentStringName != startRunTime_) {
             if (currentStringName > maxValue) {
@@ -506,6 +506,5 @@ std::string Report::GetReportExceptionDir()
 {
     return reportExceptionDir_;
 }
-
 }  // namespace WuKong
 }  // namespace OHOS

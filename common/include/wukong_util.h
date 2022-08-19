@@ -149,26 +149,26 @@ public:
     bool CopyFile(std::string &targetFile, std::string &sourceDir, std::string &destDir);
 
     /*
-     * @brief deleted screenshots 
+     * @brief deleted screenshots
      * @param targetDir
      * @return bool
      */
     bool DeleteFile(std::string targetDir);
 
     /*
-     * @brief set the whitelist list 
+     * @brief set the whitelist list
      * @param tempAllowList
      */
     void SetTempAllowList(std::vector<std::string> tempAllowList);
 
     /*
-     * @brief get the whitelist list 
+     * @brief get the whitelist list
      * @return tmpAllowList
      */
     std::vector<std::string> GetTempAllowList();
 
     /*
-     * @brief set orderFlag 
+     * @brief set orderFlag
      * @param orderFlag
      */
     void SetOrderFlag(bool orderFlag);
