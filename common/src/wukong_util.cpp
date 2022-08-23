@@ -275,6 +275,26 @@ void WuKongUtil::SetAllAppInfo(std::vector<std::string> &bundleList, std::vector
     abilityList_ = abilityList;
 }
 
+void WuKongUtil::SetTempAllowList(std::vector<std::string> tempAllowList)
+{
+    tempAllowList_ = tempAllowList;
+}
+
+std::vector<std::string> WuKongUtil::GetTempAllowList()
+{
+    return tempAllowList_;
+}
+
+void WuKongUtil::SetOrderFlag(bool orderFlag)
+{
+    orderFlag_ = orderFlag;
+}
+
+bool WuKongUtil::GetOrderFlag()
+{
+    return orderFlag_;
+}
+
 ErrCode WuKongUtil::GetScreenSize(int32_t &width, int32_t &height)
 {
     ErrCode result = OHOS::ERR_OK;
@@ -419,6 +439,29 @@ bool WuKongUtil::CopyFile(std::string &targetFile, std::string &sourceDir, std::
     out << in.rdbuf();
     out.close();
     in.close();
+    return true;
+}
+
+bool WuKongUtil::DeleteFile(std::string targetDir)
+{
+    DIR *dirdp = nullptr;
+    struct dirent *dp;
+    char filepathSource[PATH_MAX] = {'\0'};
+    char *realPathSource = realpath(targetDir.c_str(), filepathSource);
+    if (realPathSource != nullptr) {
+        dirdp = opendir(targetDir.c_str());
+        while ((dp = readdir(dirdp)) != NULL) {
+            std::string currentFileName(dp->d_name);
+            std::string sourceFile = targetDir + currentFileName;
+            char *realFileSource = realpath(sourceFile.c_str(), filepathSource);
+            if (realFileSource != nullptr) {
+                remove(sourceFile.c_str());
+            }
+        }
+    } else {
+        return false;
+    }
+    (void)closedir(dirdp);
     return true;
 }
 }  // namespace WuKong
