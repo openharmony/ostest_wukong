@@ -26,15 +26,16 @@ OpenHarmony stability testing automation tool simulates disorderly user behavior
 
 1. WuKong began presetting after system version 3.2<br>
 2. Versions of WuKong prior to version 3.2 do not compile with the version. When using WuKong, you need to compile and push it to the OpenHarmony device under test. The procedure is as follows：
-```
-2.1. Build a way
+    2.1. Build a way
+    ```
     ./build.sh --product-name rk3568 --build-target wukong
-2.2. push
+    2.2. push
+    ```
     hdc_std shell mount -o rw,remount /
     hdc_std file send wukong /
     hdc_std shell chmod a+x /wukong
     hdc_std shell mv /wukong /bin/
-```
+    ```
 
 ## functional characteristics
 
@@ -49,7 +50,6 @@ OpenHarmony stability testing automation tool simulates disorderly user behavior
 | wukong special | wukong special test |               |
 | wukong exec    | wukong randomly tests |               |
 
-----
 
 ### wukong special description
 
@@ -73,11 +73,11 @@ OpenHarmony stability testing automation tool simulates disorderly user behavior
 # wukong special -C [bundlename] -p
 ```
 Specific test example parsing：
-| Command           | Description                                           |
-| -------------- | ---------------------------------------------- |
-| wukong special | The main commands.                             |
-| -C [bundlename]    | Control to sequentially traverse the test parameter Settings, bundlename is the name of the test application.            |
-| -p | Represents a screenshot.                             |
+| Command           | Parameter Value     | Description                                           |
+| -------------- | -------------- | ---------------------------------------------- |
+| wukong special |  | The main commands.                             |
+| -C [bundlename] |[bundlename]| Control to sequentially traverse the test parameter Settings, bundlename is the name of the test application.    |
+| -p | | Represents a screenshot.                             |
 
 ### wukong random description
 
@@ -106,19 +106,19 @@ Specific test example parsing：
 # wukong exec -s 10 -i 1000 -a 0.28 -t 0.72 -c 100
 ```
 Random test example parsing：
-| Command           | Description                                           |
-| -------------- | ---------------------------------------------- |
-| wukong exec | The main command.                             |
-| -s 10    | Parameter set random seed, 10 is the seed value.           |
-| -i 1000 | Parameter Settings apply pull up interval, 1000 unit ms. |
-| -a 0.28 | Parameter Settings Apply random pull up test ratio 28%.         |
-| -t 0.72    | Parameter Settings Screen random touch test proportion is 72%.    |
-| -c 100    | Parameter Setting The number of execution times is 100.                |
+| Command           | Parameter Value     | Description                                           |
+| -------------- | --------------     | ---------------------------------------------- |
+| wukong exec |       | The main command.                             |
+| -s  | 10    | Parameter set random seed, 10 is the seed value.           |
+| -i  | 1000   | Parameter Settings apply pull up interval, 1000 unit ms. |
+| -a  | 0.28   | Parameter Settings Apply random pull up test ratio 28%.         |
+| -t  | 0.72   | Parameter Settings Screen random touch test proportion is 72%.    |
+| -c  | 100  | Parameter Setting The number of execution times is 100.                |
 
 ## Release notes
 
 3.2.0.0 Release content: Preset WUkong supports the following functions:<br>
-1. Support the whole machine application pull up, set the random seed, set the application pull up interval, set the application pull up times, support the query application pull up bundle name and ability name;<br>
-2. Support random injection of events, support random injection of controls, support sleep and wake up special tests, support control sequence traversal screenshots special tests;<br>
-3. Supports WUkong run log printing;<br>
-4. White and blacklist applications are supported;
+1. Support the whole machine application pull up, set the random seed, set the application pull up interval, set the application pull up times, support the query application pull up bundle name and ability name.<br>
+2. Support random injection of events, support random injection of controls, support sleep and wake up special tests, support control sequence traversal screenshots special tests.<br>
+3. Supports WUkong run log printing.<br>
+4. White and blacklist applications are supported.
