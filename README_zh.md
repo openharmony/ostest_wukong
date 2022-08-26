@@ -25,19 +25,18 @@ OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHa
 ## 约束条件
 
 1. WuKong在3.2系统版本后开始预置使用。<br>
-2. WuKong在3.2系统版本之前的版本不随版本编译，使用时需自行编译后推送至被测OpenHarmony设备，步骤如下：
-
-2.1. 构建方式
-```
-./build.sh --product-name rk3568 --build-target wukong
-```
-2.2. 推送方式
-```
-hdc_std shell mount -o rw,remount /
-hdc_std file send wukong /
-hdc_std shell chmod a+x /wukong
-hdc_std shell mv /wukong /bin/
-```
+2. WuKong在3.2系统版本之前的版本不随版本编译，使用时需自行编译后推送至被测OpenHarmony设备，步骤如下：        
+    2.1. 构建方式
+    ```
+    ./build.sh --product-name rk3568 --build-target wukong
+    ```
+    2.2. 推送方式
+    ```
+    hdc_std shell mount -o rw,remount /
+    hdc_std file send wukong /
+    hdc_std shell chmod a+x /wukong
+    hdc_std shell mv /wukong /bin/
+    ```
 
 ## 功能特性
 
