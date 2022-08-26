@@ -25,10 +25,11 @@ OpenHarmony stability testing automation tool simulates disorderly user behavior
 ## constraints
 
 1. WuKong began presetting after system version 3.2<br>
-2. Versions of WuKong prior to version 3.2 do not compile with the version. When using WuKong, you need to compile and push it to the OpenHarmony device under test. The procedure is as follows：
+2. Versions of WuKong prior to version 3.2 do not compile with the version. When using WuKong, you need to compile and push it to the OpenHarmony device under test. The procedure is as follows：<br>
     2.1. Build a way
     ```
     ./build.sh --product-name rk3568 --build-target wukong
+    ```
     2.2. push
     ```
     hdc_std shell mount -o rw,remount /
