@@ -80,7 +80,7 @@ bool ExceptionManager::StartCatching()
     std::string eventName = "";
     sysRules.emplace_back(domain, eventName);
     toolListener = std::make_shared<SysEventListener>(csvFile);
-    return HiSysEventManager::AddEventListener(toolListener, sysRules) == 0;
+    return HiSysEventManager::AddListener(toolListener, sysRules) == 0;
 }
 
 void ExceptionManager::StopCatching()
