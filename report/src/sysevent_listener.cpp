@@ -37,9 +37,16 @@ void ValueGet(const json& jsonData, const std::string& key, const json::value_t 
 }
 }  // namespace
 
-void SysEventListener::OnHandle(const std::string& domain, const std::string& eventName, const int eventType,
-                                const std::string& eventDetail)
+void SysEventListener::OnEvent(std::shared_ptr<HiviewDFX::HiSysEventRecord> sysEvent)
 {
+    if (sysEvent == nullptr) {
+        return;
+    }
+    std::string domain = sysEvent->GetDomain();
+    std::string eventName = sysEvent->GetEventName();
+    OHOS::HiviewDFX::HiSysEvent::EventType eventType = sysEvent->GetEventType();
+    std::string eventDetail = sysEvent->AsJson();
+
     TRACK_LOG("----------Exception caught----------");
     TRACK_LOG_STR("domain: %s", domain.c_str());
     TRACK_LOG_STR("eventName: %s", eventName.c_str());
