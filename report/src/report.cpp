@@ -113,7 +113,10 @@ void Report::EnvInit()
     dirp = opendir(DEFAULT_DIR.c_str());
     std::string maxValue = "";
     std::string targetTimeDir;
-    while (dirp != nullptr && (dp = readdir(dirp)) != NULL) {
+    while (dirp != nullptr) {
+        if ((dp = readdir(dirp)) == NULL) {
+            break;
+        }       
         std::string currentStringName(dp->d_name);
         if (currentStringName != startRunTime_) {
             if (currentStringName > maxValue) {
