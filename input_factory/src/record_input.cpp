@@ -31,10 +31,10 @@ namespace WuKong {
 namespace {
 const int INTERVALTIME = 1000;
 const int NUMTWO = 2;
-std::string DEFAULT_DIR = "/data/local/wukong/record";
-std::ofstream outFile;
-int64_t timeTemp = -1;
-struct eventData {
+std::string g_defaultDir = "/data/local/wukong/record";
+std::ofstream g_outFile;
+int64_t g_timeTemp = -1;
+struct EventData {
     int xPosi;
     int yPosi;
     int interval = 1;
@@ -62,7 +62,7 @@ static void WriteEventHead(std::ofstream &outFile)
     outFile << "interval" << std::endl;
 }
 
-static void WriteEventData(std::ofstream &outFile, const eventData &data)
+static void WriteEventData(std::ofstream &outFile, const EventData &data)
 {
     outFile << data.xPosi << ',';
     outFile << data.yPosi << ',';
@@ -72,10 +72,10 @@ static void WriteEventData(std::ofstream &outFile, const eventData &data)
 bool InitReportFolder()
 {
     DIR *rootDir = nullptr;
-    if ((rootDir = opendir(DEFAULT_DIR.c_str())) == nullptr) {
-        int ret = mkdir(DEFAULT_DIR.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
+    if ((rootDir = opendir(g_defaultDir.c_str())) == nullptr) {
+        int ret = mkdir(g_defaultDir.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
         if (ret != 0) {
-            std::cerr << "failed to create dir: " << DEFAULT_DIR << std::endl;
+            std::cerr << "failed to create dir: " << g_defaultDir << std::endl;
             return false;
         }
     } else {
@@ -84,13 +84,13 @@ bool InitReportFolder()
     return true;
 }
 
-bool InitEventRecordFile(std::ofstream &outFile, std::string recordName_)
+bool InitEventRecordFile(std::ofstream &outFile, std::string recordName)
 {
     if (!InitReportFolder()) {
         ERROR_LOG("init folder failed");
         return false;
     }
-    std::string filePath = DEFAULT_DIR + "/" + recordName_ + ".csv";
+    std::string filePath = g_defaultDir + "/" + recordName + ".csv";
     outFile.open(filePath, std::ios_base::out | std::ios_base::trunc);
     if (!outFile) {
         ERROR_LOG_STR("Failed to create csv file at: %s", filePath.c_str());
@@ -138,32 +138,32 @@ ErrCode ReadEventLine(std::ifstream &inFile)
 
 class InputEventCallback : public MMI::IInputEventConsumer {
 public:
-    virtual void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override
+    void OnInputEvent(std::shared_ptr<MMI::KeyEvent> keyEvent) const override
     {
         INFO_LOG_STR("keyCode: %d", keyEvent->GetKeyCode());
     }
-    virtual void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override
+    void OnInputEvent(std::shared_ptr<MMI::PointerEvent> pointerEvent) const override
     {
         MMI::PointerEvent::PointerItem item;
         bool result = pointerEvent->GetPointerItem(pointerEvent->GetPointerId(), item);
         if (!result) {
             ERROR_LOG("GetPointerItem Fail");
         }
-        eventData data {};
+        EventData data {};
         int64_t currentTime = GetMillisTime();
-        if (timeTemp == -1) {
-            timeTemp = currentTime;
+        if (g_timeTemp == -1) {
+            g_timeTemp = currentTime;
             data.interval = INTERVALTIME;
         } else {
-            data.interval = currentTime - timeTemp;
-            timeTemp = currentTime;
+            data.interval = currentTime - g_timeTemp;
+            g_timeTemp = currentTime;
         }
         data.xPosi = item.GetDisplayX();
         data.yPosi = item.GetDisplayY();
-        WriteEventData(outFile, data);
+        WriteEventData(g_outFile, data);
         INFO_LOG_STR("PointerEvent received. interval: %d xPosi: %d yPosi: %d", data.interval, data.xPosi, data.yPosi);
     }
-    virtual void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override
+    void OnInputEvent(std::shared_ptr<MMI::AxisEvent> axisEvent) const override
     {
     }
     static std::shared_ptr<InputEventCallback> GetPtr();
@@ -187,7 +187,7 @@ ErrCode RecordInput::OrderInput(const std::shared_ptr<SpcialTestObject> &special
     int result = ERR_OK;
     auto recordPtr = std::static_pointer_cast<RecordParam>(specialTestObject);
     if (recordPtr->recordStatus_) {
-        if (!InitEventRecordFile(outFile, recordPtr->recordName_)) {
+        if (!InitEventRecordFile(g_outFile, recordPtr->recordName_)) {
             ERROR_LOG("init file failed");
             specialTestObject->isAllFinished_ = true;
             return OHOS::ERR_INVALID_VALUE;
@@ -209,7 +209,7 @@ ErrCode RecordInput::OrderInput(const std::shared_ptr<SpcialTestObject> &special
         specialTestObject->isAllFinished_ = true;
         TRACK_LOG_STR("flag: %d", flag);
     } else {
-        std::ifstream inFile(DEFAULT_DIR + "/" + recordPtr->recordName_ + ".csv");
+        std::ifstream inFile(g_defaultDir + "/" + recordPtr->recordName_ + ".csv");
         result = ReadEventLine(inFile);
         if (result != ERR_OK) {
             WARN_LOG("this input failed");
