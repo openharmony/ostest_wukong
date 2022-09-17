@@ -112,14 +112,12 @@ WuKongUtil::WuKongUtil()
     std::string dirStr = "/";
     std::vector<std::string> strs;
     OHOS::SplitStr(curDir_, "/", strs);
-    bool dirStatus = true;
     for (auto str : strs) {
         dirStr.append(str);
         dirStr.append("/");
         if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
             int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
             if (ret != 0) {
-                dirStatus = false;
                 std::cerr << "failed to create dir: " << curDir_ << std::endl;
                 break;
             }
