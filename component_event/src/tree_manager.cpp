@@ -22,13 +22,13 @@ namespace OHOS {
 namespace WuKong {
 namespace {
 class ComponentManagerMonitor : public ComponentManagerListener {
-    virtual void OnStatusUpdated(ComponentStatus status) override
+    void OnStatusUpdated(ComponentStatus status) override
     {
     }
-    virtual void OnScreenUpdated() override
+    void OnScreenUpdated() override
     {
     }
-    virtual void OnPermissionScreenShown() override
+    void OnPermissionScreenShown() override
     {
     }
 };
