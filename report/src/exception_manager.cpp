@@ -34,7 +34,7 @@ namespace WuKong {
 using HiviewDFX::HiSysEventManager;
 using HiviewDFX::ListenerRule;
 namespace {
-std::string DEFAULT_DIR = "/data/local/wukong";
+std::string DEFAULT_DIR = "/data/local/tmp/wukong";
 
 bool InitReportFolder()
 {
