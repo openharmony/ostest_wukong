@@ -31,7 +31,7 @@ namespace WuKong {
 namespace {
 const int INTERVALTIME = 1000;
 const int NUMTWO = 2;
-std::string g_defaultDir = "/data/local/wukong/record";
+std::string g_defaultDir = "/data/local/tmp/wukong/record";
 std::ofstream g_outFile;
 int64_t g_timeTemp = -1;
 struct EventData {
