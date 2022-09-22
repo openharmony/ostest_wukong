@@ -105,7 +105,7 @@ Report::Report()
 
 void Report::EnvInit()
 {
-    const std::string DEFAULT_DIR = "/data/local/wukong/report/";
+    const std::string DEFAULT_DIR = "/data/local/tmp/wukong/report/";
     startRunTime_ = WuKongUtil::GetInstance()->GetStartRunTime();
     // Get a screenshot within the previous timestamp of the current timestamp
     DIR *dirp = nullptr;

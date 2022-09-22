@@ -227,7 +227,8 @@ ErrCode ComponentManager::ComponentTouchInput(Accessibility::AccessibilityElemen
     int32_t elementTouchX = startX_ + (endX_ - startX_) / DIV;
     int32_t elementTouchY = startY_ + (endY_ - startY_) / DIV;
     std::string type = elementInfo.GetContent();
-    INFO_LOG_STR("component Content: (%s), Touch Position: (%d, %d)", type.c_str(), elementTouchX, elementTouchY);
+    INFO_LOG_STR("component Content: Touch Position: (%d, %d)", elementTouchX, elementTouchY);
+    DEBUG_LOG_STR("component Content: (%s), Touch Position: (%d, %d)", type.c_str(), elementTouchX, elementTouchY);
     result = touchInput->PointerInput(elementTouchX, elementTouchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_DOWN);
     result = touchInput->PointerInput(elementTouchX, elementTouchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,

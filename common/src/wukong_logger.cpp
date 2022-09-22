@@ -38,7 +38,7 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-const std::string DEFAULT_DIR = "/data/local/wukong/report/";
+const std::string DEFAULT_DIR = "/data/local/tmp/wukong/report/";
 const std::string LOGGER_THREAD_NAME = "wukong_logger";
 const int LOG_CONTENT_LENGTH = 256;
 const int LOG_PRINTER_TIMEOUT = 500;
