@@ -35,7 +35,7 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-const std::string DEFAULT_DIR = "/data/local/wukong/report/";
+const std::string DEFAULT_DIR = "/data/local/tmp/wukong/report/";
 bool TakeWuKongScreenCap(std::string wkScreenPath)
 {
     // get PixelMap from DisplayManager API
@@ -112,13 +112,15 @@ WuKongUtil::WuKongUtil()
     std::string dirStr = "/";
     std::vector<std::string> strs;
     OHOS::SplitStr(curDir_, "/", strs);
+    bool dirStatus = true;
     for (auto str : strs) {
         dirStr.append(str);
         dirStr.append("/");
         if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
             int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
-            if (ret != 0) {
-                std::cerr << "failed to create dir: " << curDir_ << std::endl;
+            if (ret != 0 && dirStr != "/data/" && dirStr != "/data/local/") {
+                dirStatus = false;
+                std::cerr << "failed to create dir: " << dirStr << std::endl;
                 break;
             }
         } else {
