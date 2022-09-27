@@ -30,6 +30,9 @@ accessibility_include_dirs = [
   "//commonlibrary/c_utils/base/include",
   "//utils/system/safwk/native/include",
   "//third_party/json/include",
+  "//base/security/access_token/interfaces/innerkits/nativetoken/include",
+  "//base/security/access_token/interfaces/innerkits/token_setproc/include",
+  "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   "include",
 ]
 
@@ -95,6 +98,9 @@ ohos_executable("wukong") {
 
   deps = [
     "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
+    "//base/security/access_token/interfaces/innerkits/accesstoken:libaccesstoken_sdk",
+    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
     "//third_party/libpng:libpng",
   ]
 
