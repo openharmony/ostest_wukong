@@ -67,19 +67,19 @@ static void SetNativeTokenInfo()
 {
     uint64_t tokenId;
     const char **perms = new const char *[3];
-	perms[0] = "ohos.permission.SET_ABILITY_CONTROLLER";
+    perms[0] = "ohos.permission.SET_ABILITY_CONTROLLER";
     perms[1] = "ohos.permission.CAPTURE_SCREEN";
     perms[2] = "ohos.permission.INPUT_MONITORING";
-	NativeTokenInfoParams infoInstance = {
-		.dcapsNum = 0,
-		.permsNum = 3,
-		.aclsNum = 0,
-		.dcaps = nullptr,
-		.perms = perms,
-		.acls = nullptr,
-		.processName = "wukong",
-		.aplStr = "system_basic",
-	};
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 3,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "wukong",
+        .aplStr = "system_basic",
+    };
     tokenId = GetAccessTokenId(&infoInstance);
     SetSelfTokenID(tokenId);
     OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
