@@ -34,7 +34,10 @@
 
 using namespace OHOS::WuKong;
 
+static const int NUMBER_ZERO = 0;
+static const int NUMBER_ONE = 1;
 static const int NUMBER_TWO = 2;
+static const int NUMBER_THREE = 3;
 
 static bool FreeSingtion()
 {
@@ -66,10 +69,10 @@ static void WuKongMutexFile()
 static void SetNativeTokenInfo()
 {
     uint64_t tokenId;
-    const char **perms = new const char *[3];
-    perms[0] = "ohos.permission.SET_ABILITY_CONTROLLER";
-    perms[1] = "ohos.permission.CAPTURE_SCREEN";
-    perms[2] = "ohos.permission.INPUT_MONITORING";
+    const char **perms = new const char *[NUMBER_THREE];
+    perms[NUMBER_ZERO] = "ohos.permission.SET_ABILITY_CONTROLLER";
+    perms[NUMBER_ONE] = "ohos.permission.CAPTURE_SCREEN";
+    perms[NUMBER_TWO] = "ohos.permission.INPUT_MONITORING";
     NativeTokenInfoParams infoInstance = {
         .dcapsNum = 0,
         .permsNum = 3,
