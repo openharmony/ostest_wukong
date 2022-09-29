@@ -28,10 +28,16 @@
 #include "wukong_logger.h"
 #include "wukong_shell_command.h"
 #include "wukong_util.h"
+#include "nativetoken_kit.h"
+#include "token_setproc.h"
+#include "accesstoken_kit.h"
 
 using namespace OHOS::WuKong;
 
+static const int NUMBER_ZERO = 0;
+static const int NUMBER_ONE = 1;
 static const int NUMBER_TWO = 2;
+static const int NUMBER_THREE = 3;
 
 static bool FreeSingtion()
 {
@@ -58,6 +64,28 @@ static void WuKongMutexFile()
             DEBUG_LOG("Error creating directory!");
         }
     }
+}
+
+static void SetNativeTokenInfo()
+{
+    uint64_t tokenId;
+    const char **perms = new const char *[NUMBER_THREE];
+    perms[NUMBER_ZERO] = "ohos.permission.SET_ABILITY_CONTROLLER";
+    perms[NUMBER_ONE] = "ohos.permission.CAPTURE_SCREEN";
+    perms[NUMBER_TWO] = "ohos.permission.INPUT_MONITORING";
+    NativeTokenInfoParams infoInstance = {
+        .dcapsNum = 0,
+        .permsNum = 3,
+        .aclsNum = 0,
+        .dcaps = nullptr,
+        .perms = perms,
+        .acls = nullptr,
+        .processName = "wukong",
+        .aplStr = "system_basic",
+    };
+    tokenId = GetAccessTokenId(&infoInstance);
+    SetSelfTokenID(tokenId);
+    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
 static void InitSemaphore(NamedSemaphore& sem, const int count)
@@ -152,6 +180,7 @@ int main(int argc, char* argv[])
     InitSemaphore(semRun, 1);
     NamedSemaphore semStop(SEMPHORE_STOP_NAME, 1);
     InitSemaphore(semStop, 1);
+    SetNativeTokenInfo();
     WuKongShellCommand cmd(argc, argv);
     if (isStop) {
         std::cout << cmd.ExecCommand();
