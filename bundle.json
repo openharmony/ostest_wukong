@@ -30,7 +30,7 @@
         "hiviewdfx_hilog_native",
         "input",
         "ipc",
-        "multimedia_image_standard",
+        "multimedia_image_framework",
         "resource_management",
         "samgr",
         "c_utils",
