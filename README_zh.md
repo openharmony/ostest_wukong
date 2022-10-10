@@ -1,9 +1,20 @@
-# WuKong部件
+# wukong部件
 ## 简介
 
-OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHarmony系统及应用进行稳定性压力测试。
+OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHarmony系统及应用进行稳定性压力测试。<br>
 
-## 代码目录
+wukong部件架构图<br>
+![架构图](figures/wukong部件架构图.png)<br>
+
+部件内子模块职责：<br>
+1. 命令行解析：支持命令行获取参数并解析命令行参数。<br>
+2. 运行环境管理：根据命令行初始化wukong整体运行环境。<br>
+3. 系统接口管理：检查并获取指定的mgr，注册controller和dfx的faultlog的回调函数。<br>
+4. 随机事件生成：通过random函数生成指定种子数的随机序列，生成事件。<br>
+5. 事件注入：根据支持的事件类型向系统注入事件，依赖窗口、多模、安全等子系统。<br>
+6. 异常捕获处理/报告生成：通过DFX子系统获取运行中的异常信息并记录log，生成报告。<br>
+
+## 目录
 
 ```
 ├── wukong                              # wukong主要代码文件
@@ -22,10 +33,10 @@ OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHa
 │   ── README_zh.md                     # readme文件
 ```
 
-## 约束条件
+## 约束
 
-1. WuKong在3.2系统版本后开始预置使用。<br>
-2. WuKong在3.2系统版本之前的版本不随版本编译，使用时需自行编译后推送至被测OpenHarmony设备，步骤如下：        
+1. wukong在3.2系统版本后开始预置使用。<br>
+2. wukong在3.2系统版本之前的版本不随版本编译，使用时需自行编译后推送至被测OpenHarmony设备，步骤如下：        
     2.1. 构建方式
     ```
     ./build.sh --product-name rk3568 --build-target wukong
@@ -38,7 +49,7 @@ OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHa
     hdc_std shell mv /wukong /bin/
     ```
 
-## 功能特性
+## 使用说明
 
 ### 功能特性及命令说明
 
@@ -47,7 +58,7 @@ OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHa
 | -------------- | ---------------------------------------------- | ------------- |
 | version | 获取wukong版本信息。                             | -v, --version。 |
 | help    | 获取wukong帮助信息。                             |              |
-| appinfo | 查询支持拉起应用entryName和对应的mainAbility名。 |               |
+| appinfo | 查询支持拉起应用bundleName和对应的mainAbility名。 |               |
 | special | wukong专项测试。                                   |               |
 | exec    | wukong随机测试。                                   |               |
 
@@ -71,7 +82,7 @@ OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHa
 | -R, --replay    |  回放。      | 否   | 需要指定回放文件。 |
 | -p, --screenshot    |  控件测试截图。      | 否   | - |
 
-#### wukong special专项测试使用示例
+#### wukong special 专项测试使用示例
 ```bash
 > hdc_std shell
 # wukong special -C [bundlename] -p
@@ -88,7 +99,7 @@ OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHa
 | 命令            | 功能                                 | 必选 | 备注                                     |
 | --------------- | ------------------------------------ | ---- | ---------------------------------------- |
 | -h,--help       | 获取当前测试的帮助信息。               | 否   | 随机测试帮助信息。                         |
-| -c,--count      | 设置执行次数。                         | 否   | 单位次数，默认10次。                       |
+| -c,--count      | 设置执行次数，与-T冲突。                         | 否   | 单位次数，默认10次。                       |
 | -i,--interval   | 设置执行间隔。                         | 否   | 单位ms，默认1500ms。                       |
 | -s,--seed       | 设置随机种子。                         | 否   | 配置相同随机种子，会生成相同随机事件序列。 |
 | -b,--bundle[bundlename,……,bundlename]     | 设置本次测试的允许应用名单，与-p冲突。 | 否   | 默认测试当前设备所有应用(应用名称用逗号隔开)。                 |
@@ -100,11 +111,11 @@ OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHa
 | -k,--keyboard   | 设置屏幕随机keyboard测试比例。         | 否   | 默认2%。                                   |
 | -H,--hardkey    | 设置随机hardkey测试比例。              | 否   | 默认4%。                                   |
 | -C, --component | 设置随机控件测试比例。                 | 否   | 默认70%。                                  |
-| -T,--time       | 设置测试总时间。                       | 否   | 单位分钟，默认10分钟。                      |
+| -T,--time       | 设置测试总时间，与-c冲突。                       | 否   | 单位分钟，默认10分钟。                      |
 
 > 说明：配置相同随机种子，会生成相同随机事件序列
 
-#### wukong special随机测试使用示例
+#### wukong exec 随机测试使用示例
 ```bash
 > hdc_std shell
 # wukong exec -s 10 -i 1000 -a 0.28 -t 0.72 -c 100
