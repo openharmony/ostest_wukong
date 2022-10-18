@@ -139,7 +139,7 @@ ErrCode WuKongShellCommand::RunTestCommand()
 
     auto aacPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
     OHOS::Accessibility::AccessibilityElementInfo root;
-    if (!aacPtr->GetRoot(root)) {
+    if (aacPtr->GetRoot(root) != Accessibility::RET_OK) {
         system(ACE_ENABLE.c_str());
     }
     // run test flow.
