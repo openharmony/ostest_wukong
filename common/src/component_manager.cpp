@@ -142,7 +142,7 @@ bool ComponentManager::Connect()
     }
     g_monitorInstance_->SetOnAbilityConnectCallback(onConnectCallback);
     auto ability = Accessibility::AccessibilityUITestAbility::GetInstance();
-    if (!ability->RegisterAbilityListener(g_monitorInstance_)) {
+    if (ability->RegisterAbilityListener(g_monitorInstance_) != Accessibility::RET_OK) {
         std::cout << "Failed to register ComponentEventMonitor" << std::endl;
         return false;
     }
