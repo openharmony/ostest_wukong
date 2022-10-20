@@ -69,7 +69,7 @@ uint32_t CheckLauncherApp(const std::shared_ptr<ComponentParam>& param)
             }
             // init bundleRunning status to stop.
             std::vector<bool> bundleRunning = param->bundleRunning_;
-            std::fill(bundleRunning.begin(),bundleRunning.end(),false);
+            std::fill(bundleRunning.begin(), bundleRunning.end(), false);
 
             // set current launched bundle is running.
             param->bundleRunning_[i] = true;
@@ -240,7 +240,7 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
         // confirm all bundle status.
         std::vector<bool> bundleFinishList = componentPtr->bundleFinish_;
         bool x = false;
-        if (std::any_of(bundleFinishList.begin(),bundleFinishList.end(),[x](int y) { return x == y; })) {
+        if (std::any_of(bundleFinishList.begin(), bundleFinishList.end(), [x](int y) { return x == y; })) {
             componentPtr->isAllFinished_ = false;
         }
     }

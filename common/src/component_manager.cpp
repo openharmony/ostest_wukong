@@ -293,7 +293,8 @@ ErrCode ComponentManager::ComponentLeftSwapInput(Accessibility::AccessibilityEle
     int32_t leftSwapEndY = leftSwapStartY;
     INFO_LOG_STR("Component Left Swap: (%d, %d) -> (%d, %d)", leftSwapStartX, leftSwapStartY, leftSwapEndX,
                  leftSwapEndY);
-    ErrCode result = MultimodeManager::GetInstance()->IntervalSwap(leftSwapStartX, leftSwapStartY, leftSwapEndX, leftSwapEndY);
+    ErrCode result;
+    result = MultimodeManager::GetInstance()->IntervalSwap(leftSwapStartX, leftSwapStartY, leftSwapEndX, leftSwapEndY);
     return result;
 }
 

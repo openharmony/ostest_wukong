@@ -70,7 +70,7 @@ static void SetNativeTokenInfo()
 {
     uint64_t tokenId;
     const char **perms = new const char *[NUMBER_THREE];
-    if (NUMBER_ZERO < 3 && NUMBER_ONE < 3 && NUMBER_TWO < 3) {
+    if (NUMBER_ZERO < NUMBER_THREE && NUMBER_ONE < NUMBER_THREE && NUMBER_TWO < NUMBER_THREE) {
         perms[NUMBER_ZERO] = "ohos.permission.SET_ABILITY_CONTROLLER";
         perms[NUMBER_ONE] = "ohos.permission.CAPTURE_SCREEN";
         perms[NUMBER_TWO] = "ohos.permission.INPUT_MONITORING";

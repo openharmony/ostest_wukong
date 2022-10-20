@@ -122,7 +122,7 @@ ErrCode MultimodeManager::IntervalSwap(int xSrcPosition, int ySrcPosition, int x
 {
     auto multiinput = MultimodeManager::GetInstance();
     ErrCode result = multiinput->PointerInput(xSrcPosition, ySrcPosition, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
-                                      		  MMI::PointerEvent::POINTER_ACTION_DOWN);
+                                              MMI::PointerEvent::POINTER_ACTION_DOWN);
     if (result != OHOS::ERR_OK) {
         return result;
     }

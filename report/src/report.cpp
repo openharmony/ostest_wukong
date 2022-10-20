@@ -110,28 +110,6 @@ void Report::EnvInit()
     dirp = opendir(DEFAULT_DIR.c_str());
     std::string maxValue = "";
     std::string targetTimeDir;
-    if (dirp == nullptr) {
-        ERROR_LOG_STR("dir{%s} opendir error", DEFAULT_DIR.c_str());
-        return;
-    } else {
-        while (dirp != nullptr) {
-            struct dirent *dp;
-            if ((dp = readdir(dirp)) == NULL) {
-                break;
-            }       
-            std::string currentStringName(dp->d_name);
-            if (currentStringName != startRunTime_) {
-                if (currentStringName > maxValue) {
-                    maxValue = currentStringName;
-                    targetTimeDir = currentStringName;
-                }
-            }
-        }
-        (void)closedir(dirp);
-        // Delete the screenshot under the timestamp
-        std::string targetDir_ = DEFAULT_DIR + targetTimeDir +"/screenshot/";
-        WuKongUtil::GetInstance()->DeleteFile(targetDir_);
-    }
     // setting filename
     currentTestDir_ = WuKongUtil::GetInstance()->GetCurrentTestDir();
     INFO_LOG_STR("Report currentTestDir: (%s)", currentTestDir_.c_str());
@@ -154,6 +132,27 @@ void Report::EnvInit()
     StartCrashDirListen();
     // register crash catcher
     ExceptionManager::GetInstance()->StartCatching();
+    if (dirp == nullptr) {
+        ERROR_LOG_STR("dir{%s} opendir error", DEFAULT_DIR.c_str());
+        return;
+    }
+    while (dirp != nullptr) {
+        struct dirent *dp;
+        if ((dp = readdir(dirp)) == NULL) {
+            break;
+        }       
+        std::string currentStringName(dp->d_name);
+        if (currentStringName != startRunTime_) {
+            if (currentStringName > maxValue) {
+                maxValue = currentStringName;
+                targetTimeDir = currentStringName;
+            }
+        }
+    }
+    (void)closedir(dirp);
+    // Delete the screenshot under the timestamp
+    std::string targetDir_ = DEFAULT_DIR + targetTimeDir +"/screenshot/";
+    WuKongUtil::GetInstance()->DeleteFile(targetDir_);
 }
 
 void Report::DataSetInit()
