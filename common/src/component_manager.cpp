@@ -286,6 +286,7 @@ ErrCode ComponentManager::ComponentMultikeyInput(Accessibility::AccessibilityEle
 
 ErrCode ComponentManager::ComponentLeftSwapInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
+    ErrCode result;
     // Calculate swap position
     int32_t leftSwapStartX = startX_ + OFFSET;
     int32_t leftSwapEndX = endX_ + OFFSET;
@@ -293,7 +294,6 @@ ErrCode ComponentManager::ComponentLeftSwapInput(Accessibility::AccessibilityEle
     int32_t leftSwapEndY = leftSwapStartY;
     INFO_LOG_STR("Component Left Swap: (%d, %d) -> (%d, %d)", leftSwapStartX, leftSwapStartY, leftSwapEndX,
                  leftSwapEndY);
-    ErrCode result;
     result = MultimodeManager::GetInstance()->IntervalSwap(leftSwapStartX, leftSwapStartY, leftSwapEndX, leftSwapEndY);
     return result;
 }
