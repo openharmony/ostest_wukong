@@ -35,7 +35,6 @@ SwapInput::~SwapInput()
 ErrCode SwapInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
     static bool isBack = true;
-    ErrCode result = OHOS::ERR_OK;
     SwapParam* swapPtr = (SwapParam*)specialTestObject.get();
     if (swapPtr == nullptr) {
         return OHOS::ERR_INVALID_VALUE;
@@ -55,16 +54,15 @@ ErrCode SwapInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTe
         yDstPosition = swapPtr->startY_;
     }
 
-    result = MultimodeManager::GetInstance()->IntervalSwap(xSrcPosition, ySrcPosition, xDstPosition, yDstPosition);
+    ErrCode result = MultimodeManager::GetInstance()->IntervalSwap(xSrcPosition, ySrcPosition, xDstPosition, yDstPosition);
     return result;
 }
 
 ErrCode SwapInput::RandomInput()
 {
-    ErrCode result = OHOS::ERR_OK;
     int32_t screenWidth = -1;
     int32_t screenHeight = -1;
-    result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
+    ErrCode result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
     if (result != OHOS::ERR_OK) {
         return result;
     }

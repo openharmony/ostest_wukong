@@ -136,7 +136,10 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
             DEBUG_LOG("Ability not change");
             return OHOS::ERR_OK;
         }
+    } else if (currentAbilityNode_ == nullptr) {
+        return OHOS::ERR_INVALID_OPERATION;
     }
+    
     DEBUG_LOG("Ability changed");
     bool isNewBundle = true;
     bool isNewAbility = false;

@@ -51,20 +51,18 @@ void StatisticsException::StatisticsDetail(std::vector<std::map<std::string, std
         exceptionTotal_++;
     }
 
-    int curExceptionTypeCount;
-    float proportion;
     std::string proportionStr;
     std::vector<std::string> line;
     for (auto crashTypesIter : crashTypes_) {
         line.push_back(crashTypesIter);
-        curExceptionTypeCount = exceptionTypeCount_[crashTypesIter];
+        int curExceptionTypeCount = exceptionTypeCount_[crashTypesIter];
         DEBUG_LOG_STR("curExceptionTypeCount{%d}", curExceptionTypeCount);
         line.push_back(std::to_string(curExceptionTypeCount));
         if (exceptionTotal_ <= 0) {
             ERROR_LOG("statistics error");
             return;
         }
-        proportion = (curExceptionTypeCount * PERCENTAGE) / exceptionTotal_;
+        float proportion = (curExceptionTypeCount * PERCENTAGE) / exceptionTotal_;
         bufferStream.str("");
         bufferStream << std::setiosflags(std::ios::fixed) << std::setprecision(DECIMAL_LENGTH) << proportion;
         proportionStr = bufferStream.str() + "%";

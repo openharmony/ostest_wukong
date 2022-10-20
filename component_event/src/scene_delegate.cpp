@@ -82,7 +82,7 @@ ErrCode SceneDelegate::GetCurrentComponentInfo(std::shared_ptr<ComponentTree> co
 
 ErrCode SceneDelegate::ChooseScene(bool isRandom)
 {
-    ErrCode result = OHOS::ERR_OK;
+    ErrCode result;
     GRID_COUNT = 0;
     componentType_.clear();
     auto treemanager = TreeManager::GetInstance();
@@ -153,7 +153,7 @@ ErrCode SceneDelegate::ChooseScene(bool isRandom)
 ErrCode SceneDelegate::CompareComponentInfos(std::shared_ptr<ComponentTree> &newcomponentinfo,
                                              std::shared_ptr<ComponentTree> &oldcomponentinfo, bool isRandom)
 {
-    ErrCode result = OHOS::ERR_OK;
+    ErrCode result;
     DEBUG_LOG("compare page");
     GRID_COUNT = 0;
     componentType_.clear();
@@ -164,9 +164,6 @@ ErrCode SceneDelegate::CompareComponentInfos(std::shared_ptr<ComponentTree> &new
     std::vector<std::shared_ptr<ComponentTree>> currentChildList;
     GetCurrentComponentInfo(oldcomponentinfo, currentChildList);
     auto treemanager = TreeManager::GetInstance();
-    if (newChildList.size() < 0 || currentChildList.size() < 0) {
-        return OHOS::ERR_INVALID_VALUE;
-    }
     DEBUG_LOG_STR("childlist size %d", currentChildList.size());
     float samePercent = 0.0;
     // get the same count in new component list and current component list
@@ -317,10 +314,9 @@ ErrCode SceneDelegate::FindSamePageInParent(bool &isFound, bool isRandom)
 
 bool SceneDelegate::IsComponentInScreen(const std::shared_ptr<ComponentTree> componentinfo)
 {
-    ErrCode result = OHOS::ERR_OK;
     int32_t width = -1;
     int32_t height = -1;
-    result = WuKongUtil::GetInstance()->GetScreenSize(width, height);
+    ErrCode result = WuKongUtil::GetInstance()->GetScreenSize(width, height);
     if (result != OHOS::ERR_OK) {
         ERROR_LOG("failed to determine component position");
         return false;

@@ -207,7 +207,6 @@ ErrCode ComponentManager::CreateEventInputMap()
 ErrCode ComponentManager::ComponentEventInput(OHOS::Accessibility::AccessibilityElementInfo& elementInfo,
                                               const int actionType)
 {
-    ErrCode result = OHOS::ERR_OK;
     CreateEventInputMap();
     // get position of current component
     GetComponentPosition(elementInfo);
@@ -215,13 +214,13 @@ ErrCode ComponentManager::ComponentEventInput(OHOS::Accessibility::Accessibility
     if (componentRespond == nullptr) {
         componentRespond = componentMap_[Accessibility::ACCESSIBILITY_ACTION_CLICK];
     }
-    result = componentRespond(elementInfo);
+    ErrCode result = componentRespond(elementInfo);
     return result;
 }
 
 ErrCode ComponentManager::ComponentTouchInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
-    ErrCode result = OHOS::ERR_OK;
+    ErrCode result;
     auto touchInput = MultimodeManager::GetInstance();
     // Calculate touch position
     int32_t elementTouchX = startX_ + (endX_ - startX_) / DIV;
@@ -246,7 +245,6 @@ ErrCode ComponentManager::BackToPrePage()
 
 ErrCode ComponentManager::ComponentUpSwapInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
-    ErrCode result = OHOS::ERR_OK;
     // Calculate swap position
     int32_t componentUpSwapStartX = startX_ + (endX_ - startX_) / DIV;
     int32_t componentUpSwapStartY = endY_ - OFFSET;
@@ -254,15 +252,14 @@ ErrCode ComponentManager::ComponentUpSwapInput(Accessibility::AccessibilityEleme
     int32_t componentUpSwapEndY = startY_ + OFFSET;
     INFO_LOG_STR("Component Up Swap: (%d, %d) -> (%d, %d)", componentUpSwapStartX, componentUpSwapStartY,
                  componentUpSwapEndX, componentUpSwapEndY);
-    result = MultimodeManager::GetInstance()->IntervalSwap(componentUpSwapStartX, componentUpSwapStartY,
-                                                           componentUpSwapEndX, componentUpSwapEndY);
+    ErrCode result = MultimodeManager::GetInstance()->IntervalSwap(componentUpSwapStartX, componentUpSwapStartY,
+                                                                   componentUpSwapEndX, componentUpSwapEndY);
     usleep(TWOSECONDS);
     return result;
 }
 
 ErrCode ComponentManager::ComponentDownSwapInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
-    ErrCode result = OHOS::ERR_OK;
     // Calculate swap position
     int32_t componentDownSwapStartX = startX_ + (endX_ - startX_) / DIV;
     int32_t componentDownSwapStartY = startY_ + OFFSET;
@@ -270,16 +267,15 @@ ErrCode ComponentManager::ComponentDownSwapInput(Accessibility::AccessibilityEle
     int32_t componentDownSwapEndY = endY_ - OFFSET;
     INFO_LOG_STR("Component Down Swap: (%d, %d) -> (%d, %d)", componentDownSwapStartX, componentDownSwapStartY,
                  componentDownSwapEndX, componentDownSwapEndY);
-    result = MultimodeManager::GetInstance()->IntervalSwap(componentDownSwapStartX, componentDownSwapStartY,
-                                                           componentDownSwapEndX, componentDownSwapEndY);
+    ErrCode result = MultimodeManager::GetInstance()->IntervalSwap(componentDownSwapStartX, componentDownSwapStartY,
+                                                                   componentDownSwapEndX, componentDownSwapEndY);
     usleep(TWOSECONDS);
     return result;
 }
 
 ErrCode ComponentManager::ComponentMultikeyInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
-    ErrCode result = OHOS::ERR_OK;
-    result = ComponentTouchInput(elementInfo);
+    ErrCode result = ComponentTouchInput(elementInfo);
     if (result != OHOS::ERR_OK) {
         return result;
     }
@@ -290,7 +286,6 @@ ErrCode ComponentManager::ComponentMultikeyInput(Accessibility::AccessibilityEle
 
 ErrCode ComponentManager::ComponentLeftSwapInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
-    ErrCode result = OHOS::ERR_OK;
     // Calculate swap position
     int32_t leftSwapStartX = startX_ + OFFSET;
     int32_t leftSwapEndX = endX_ + OFFSET;
@@ -298,7 +293,7 @@ ErrCode ComponentManager::ComponentLeftSwapInput(Accessibility::AccessibilityEle
     int32_t leftSwapEndY = leftSwapStartY;
     INFO_LOG_STR("Component Left Swap: (%d, %d) -> (%d, %d)", leftSwapStartX, leftSwapStartY, leftSwapEndX,
                  leftSwapEndY);
-    result = MultimodeManager::GetInstance()->IntervalSwap(leftSwapStartX, leftSwapStartY, leftSwapEndX, leftSwapEndY);
+    ErrCode result = MultimodeManager::GetInstance()->IntervalSwap(leftSwapStartX, leftSwapStartY, leftSwapEndX, leftSwapEndY);
     return result;
 }
 

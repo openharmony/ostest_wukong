@@ -34,7 +34,6 @@ TouchInput::~TouchInput()
 
 ErrCode TouchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
-    ErrCode result = OHOS::ERR_OK;
 
     TouchParam* touchPtr = (TouchParam*)specialTestObject.get();
     if (touchPtr == nullptr) {
@@ -43,8 +42,8 @@ ErrCode TouchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialT
     int touchX = touchPtr->x_;
     int touchY = touchPtr->y_;
     auto multiinput = MultimodeManager::GetInstance();
-    result = multiinput->PointerInput(touchX, touchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
-                                      MMI::PointerEvent::POINTER_ACTION_DOWN);
+    ErrCode result = multiinput->PointerInput(touchX, touchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
+                                              MMI::PointerEvent::POINTER_ACTION_DOWN);
     if (result != OHOS::ERR_OK) {
         return result;
     }
@@ -56,10 +55,9 @@ ErrCode TouchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialT
 
 ErrCode TouchInput::RandomInput()
 {
-    ErrCode result = OHOS::ERR_OK;
     int32_t screenWidth = -1;
     int32_t screenHeight = -1;
-    result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
+    ErrCode result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
     if (result != OHOS::ERR_OK) {
         return result;
     }

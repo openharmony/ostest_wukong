@@ -68,9 +68,8 @@ uint32_t CheckLauncherApp(const std::shared_ptr<ComponentParam>& param)
                 return param->bundleName_.size();
             }
             // init bundleRunning status to stop.
-            for (auto running : param->bundleRunning_) {
-                running = false;
-            }
+            std::vector<bool> bundleRunning = param->bundleRunning_;
+            std::fill(bundleRunning.begin(),bundleRunning.end(),false);
 
             // set current launched bundle is running.
             param->bundleRunning_[i] = true;
@@ -143,7 +142,7 @@ bool CheckInputFinished(const std::shared_ptr<ComponentParam>& param)
 ErrCode JudgeBackResult(const std::shared_ptr<ComponentParam>& param, uint32_t launchIndex)
 {
     TRACK_LOG_STD();
-    ErrCode result = OHOS::ERR_OK;
+    ErrCode result;
     param->pageBack_[launchIndex]++;
     TRACK_LOG_STR("back count: %d", param->pageBack_[launchIndex]);
     if (param->pageBack_[launchIndex] > PAGE_BACK_COUNT_MAX) {
@@ -163,8 +162,8 @@ ErrCode JudgeBackResult(const std::shared_ptr<ComponentParam>& param, uint32_t l
     } else {
         result = ComponentManager::GetInstance()->BackToPrePage();
     }
-    return result;
     TRACK_LOG_END();
+    return result;
 }
 }  // namespace
 ComponentInput::ComponentInput() : InputAction()
@@ -177,7 +176,6 @@ ComponentInput::~ComponentInput()
 
 ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
-    ErrCode result = OHOS::ERR_OK;
     auto componentPtr = std::static_pointer_cast<ComponentParam>(specialTestObject);
     if (componentPtr == nullptr) {
         ERROR_LOG("specialTestObject param is null");
@@ -194,7 +192,7 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
     auto treemanager = TreeManager::GetInstance();
     auto delegate = SceneDelegate::GetInstance();
     // update component information
-    result = treemanager->UpdateComponentInfo();
+    ErrCode result = treemanager->UpdateComponentInfo();
     DEBUG_LOG_STR("update componentinfo result (%d)", result);
     if (result == OHOS::ERR_OK) {
         // choose scene and set valid components
@@ -240,11 +238,10 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
     if (CheckInputFinished(componentPtr)) {
         componentPtr->isAllFinished_ = true;
         // confirm all bundle status.
-        for (auto isFinished : componentPtr->bundleFinish_) {
-            if (!isFinished) {
-                componentPtr->isAllFinished_ = false;
-                break;
-            }
+        std::vector<bool> bundleFinishList = componentPtr->bundleFinish_;
+        bool x = false;
+        if (std::any_of(bundleFinishList.begin(),bundleFinishList.end(),[x](int y) { return x == y; })) {
+            componentPtr->isAllFinished_ = false;
         }
     }
     DEBUG_LOG_STR("component order input result (%d)", result);
@@ -253,9 +250,8 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
 
 ErrCode ComponentInput::RandomInput()
 {
-    ErrCode result = OHOS::ERR_OK;
     auto treemanager = TreeManager::GetInstance();
-    result = treemanager->UpdateComponentInfo();
+    ErrCode result = treemanager->UpdateComponentInfo();
     DEBUG_LOG_STR("update componentinfo result (%d)", result);
     if (result == OHOS::ERR_OK) {
         auto delegate = SceneDelegate::GetInstance();
@@ -297,7 +293,7 @@ ErrCode ComponentInput::GetInputInfo()
 
 int ComponentInput::JudgeComponentType(OHOS::Accessibility::AccessibilityElementInfo& elementInfo)
 {
-    int actionType = Accessibility::ACCESSIBILITY_ACTION_INVALID;
+    int actionType;
     TRACK_LOG_STD();
     // get action list of component
     std::vector<OHOS::Accessibility::AccessibleAction> actionlist = elementInfo.GetActionList();
