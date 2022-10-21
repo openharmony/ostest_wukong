@@ -38,12 +38,11 @@ MouseInput::~MouseInput()
 
 ErrCode MouseInput::RandomInput()
 {
-    ErrCode result = OHOS::ERR_OK;
     int32_t screenWidth = -1;
     int32_t screenHeight = -1;
-    int mouseType = MMI::PointerEvent::BUTTON_NONE;
+    int mouseType;
     // get the size of screen
-    result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
+    ErrCode result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
     if (result != OHOS::ERR_OK) {
         return result;
     }

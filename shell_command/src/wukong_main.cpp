@@ -70,35 +70,36 @@ static void SetNativeTokenInfo()
 {
     uint64_t tokenId;
     const char **perms = new const char *[NUMBER_THREE];
-    perms[NUMBER_ZERO] = "ohos.permission.SET_ABILITY_CONTROLLER";
-    perms[NUMBER_ONE] = "ohos.permission.CAPTURE_SCREEN";
-    perms[NUMBER_TWO] = "ohos.permission.INPUT_MONITORING";
-    NativeTokenInfoParams infoInstance = {
-        .dcapsNum = 0,
-        .permsNum = 3,
-        .aclsNum = 0,
-        .dcaps = nullptr,
-        .perms = perms,
-        .acls = nullptr,
-        .processName = "wukong",
-        .aplStr = "system_basic",
-    };
-    tokenId = GetAccessTokenId(&infoInstance);
-    SetSelfTokenID(tokenId);
-    OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    if (NUMBER_ZERO < NUMBER_THREE && NUMBER_ONE < NUMBER_THREE && NUMBER_TWO < NUMBER_THREE) {
+        perms[NUMBER_ZERO] = "ohos.permission.SET_ABILITY_CONTROLLER";
+        perms[NUMBER_ONE] = "ohos.permission.CAPTURE_SCREEN";
+        perms[NUMBER_TWO] = "ohos.permission.INPUT_MONITORING";
+        NativeTokenInfoParams infoInstance = {
+            .dcapsNum = 0,
+            .permsNum = 3,
+            .aclsNum = 0,
+            .dcaps = nullptr,
+            .perms = perms,
+            .acls = nullptr,
+            .processName = "wukong",
+            .aplStr = "system_basic",
+        };
+        tokenId = GetAccessTokenId(&infoInstance);
+        SetSelfTokenID(tokenId);
+        OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
+    }
 }
 
 static void InitSemaphore(NamedSemaphore& sem, const int count)
 {
     bool res = sem.Open();
-    int value = 0;
     if (!res) {
         WuKongMutexFile();
         res = sem.Create();
     }
     if (res) {
         DEBUG_LOG("Open Semaphore success");
-        value = sem.GetValue();
+        int value = sem.GetValue();
         if (value > count) {
             DEBUG_LOG_STR("the semaphore value is invalid (%d), and reopen Semaphore", value);
             res = sem.Create();

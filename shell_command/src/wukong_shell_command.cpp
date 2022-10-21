@@ -107,7 +107,6 @@ ErrCode WuKongShellCommand::RunStopCommand()
 ErrCode WuKongShellCommand::RunTestCommand()
 {
     TRACK_LOG_STD();
-    ErrCode res = OHOS::ERR_OK;
     // get testFlow by cmd_ of ShellCommand
     std::shared_ptr<TestFlow> testFlow = TestFlowFactory::GetTestFlow(*this, cmd_);
     if (testFlow == nullptr) {
@@ -124,7 +123,7 @@ ErrCode WuKongShellCommand::RunTestCommand()
 
     // check the command arguments
     // if argument is not ok, exit wukong command.
-    res = testFlow->CheckVaildityCmd();
+    ErrCode res = testFlow->CheckVaildityCmd();
     if (res != OHOS::ERR_OK) {
         DEBUG_LOG("Command arguments is invalid and exit");
         return res;
