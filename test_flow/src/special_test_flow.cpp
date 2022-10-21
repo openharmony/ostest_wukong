@@ -166,7 +166,7 @@ ErrCode SpecialTestFlow::RunStep()
         }
     }
     // order test
-    ErrCode result = OHOS::ERR_OK;
+    ErrCode result;
     if (g_commandSCREENSHOTENABLE) {
         std::string screenStorePath;
         result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath);
@@ -383,13 +383,12 @@ void SpecialTestFlow::TestTimeout()
 
 ErrCode SpecialTestFlow::CheckPosition(std::vector<std::string> argumentlist)
 {
-    ErrCode result = OHOS::ERR_OK;
     int32_t screenWidth = -1;
     int32_t screenHeight = -1;
     std::string paramError = "the param of position is incorrect";
 
     // get the size of screen
-    result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
+    ErrCode result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
     if (result != OHOS::ERR_OK) {
         return result;
     }
@@ -406,10 +405,8 @@ ErrCode SpecialTestFlow::CheckPosition(std::vector<std::string> argumentlist)
 
 ErrCode SpecialTestFlow::LauncherApp()
 {
-    ErrCode result = OHOS::ERR_OK;
     std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
-
-    result = inputaction->OrderInput(specialTestObject_);
+    ErrCode result = inputaction->OrderInput(specialTestObject_);
     if (result != OHOS::ERR_OK) {
         ERROR_LOG("launcher app failed");
     }

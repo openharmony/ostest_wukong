@@ -34,7 +34,6 @@ AppswitchInput::~AppswitchInput()
 
 ErrCode AppswitchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
-    ErrCode result = OHOS::ERR_OK;
     AppSwitchParam* appSwitchPtr = (AppSwitchParam*)specialTestObject.get();
     if (appSwitchPtr == nullptr) {
         return OHOS::ERR_INVALID_VALUE;
@@ -44,7 +43,7 @@ ErrCode AppswitchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
     std::vector<std::string> abilityList(0);
     auto util = WuKongUtil::GetInstance();
     util->GetBundleList(bundleList, abilityList);
-    if (bundleList.size() <= 0 || abilityList.size() <= 0) {
+    if (bundleList.size() == 0 || abilityList.size() == 0) {
         ERROR_LOG_STR("bundleList (%u) or abilityList (%u) is 0", bundleList.size(), abilityList.size());
         return OHOS::ERR_INVALID_VALUE;
     }
@@ -55,7 +54,7 @@ ErrCode AppswitchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
     }
 
     // start ability through bundle information
-    result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
+    ErrCode result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
     // print the result of start event
     PrintResultOfStartAbility(result, index);
     usleep(WAIT_TIME);
@@ -64,11 +63,10 @@ ErrCode AppswitchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
 
 ErrCode AppswitchInput::RandomInput()
 {
-    ErrCode result = OHOS::ERR_OK;
     std::vector<std::string> bundleList(0);
     std::vector<std::string> abilityList(0);
     WuKongUtil::GetInstance()->GetBundleList(bundleList, abilityList);
-    if (bundleList.size() <= 0 || abilityList.size() <= 0) {
+    if (bundleList.size() == 0 || abilityList.size() == 0) {
         ERROR_LOG_STR("bundleList (%u) or abilityList (%u) is 0", bundleList.size(), abilityList.size());
         return OHOS::ERR_INVALID_VALUE;
     }
@@ -78,7 +76,7 @@ ErrCode AppswitchInput::RandomInput()
         return OHOS::ERR_INVALID_VALUE;
     }
     // start ability through bundle information
-    result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
+    ErrCode result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
     // print the result of start event
     PrintResultOfStartAbility(result, index);
     TRACK_LOG_STR("bundle index: %d", index);

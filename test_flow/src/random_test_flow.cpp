@@ -163,9 +163,8 @@ ErrCode RandomTestFlow::InitEventPercent()
 
 ErrCode RandomTestFlow::EnvInit()
 {
-    ErrCode result = OHOS::ERR_OK;
     // init event list percent.
-    result = InitEventPercent();
+    ErrCode result = InitEventPercent();
     if (result != OHOS::ERR_OK) {
         return result;
     }
@@ -226,7 +225,7 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
 
 ErrCode RandomTestFlow::RunStep()
 {
-    ErrCode result = OHOS::ERR_OK;
+    ErrCode result;
     // control the count test flow
     if (g_commandCOUNTENABLE == true) {
         totalCount_--;

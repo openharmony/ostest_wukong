@@ -29,7 +29,6 @@ void FormatJSON::FormatDetail(std::shared_ptr<Table> tablePtr, std::string &targ
 {
     std::vector<std::string> header = tablePtr->GetHeader();
     std::vector<std::vector<std::string>> record = tablePtr->GetRecord();
-    std::vector<int> column_size_ = tablePtr->GetColumnSize();
     std::stringstream ss;
     ss << "[" << std::endl;
     for (uint32_t row = 0; row < record.size(); row++) {

@@ -42,14 +42,14 @@ bool TakeWuKongScreenCap(std::string wkScreenPath)
     Rosen::DisplayManager &displayMgr = Rosen::DisplayManager::GetInstance();
     std::shared_ptr<Media::PixelMap> pixelMap = displayMgr.GetScreenshot(displayMgr.GetDefaultDisplayId());
     static constexpr int bitmapDepth = 8;
-    auto width = static_cast<uint32_t>(pixelMap->GetWidth());
-    auto height = static_cast<uint32_t>(pixelMap->GetHeight());
-    auto data = pixelMap->GetPixels();
-    auto stride = static_cast<uint32_t>(pixelMap->GetRowBytes());
     if (pixelMap == nullptr) {
         DEBUG_LOG("Failed to get display pixelMap");
         return false;
     }
+    auto width = static_cast<uint32_t>(pixelMap->GetWidth());
+    auto height = static_cast<uint32_t>(pixelMap->GetHeight());
+    auto data = pixelMap->GetPixels();
+    auto stride = static_cast<uint32_t>(pixelMap->GetRowBytes());
     png_structp pngStruct = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (pngStruct == nullptr) {
         DEBUG_LOG("error: png_create_write_struct nullptr!");
@@ -112,14 +112,12 @@ WuKongUtil::WuKongUtil()
     std::string dirStr = "/";
     std::vector<std::string> strs;
     OHOS::SplitStr(curDir_, "/", strs);
-    bool dirStatus = true;
     for (auto str : strs) {
         dirStr.append(str);
         dirStr.append("/");
         if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
             int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
             if (ret != 0 && dirStr != "/data/" && dirStr != "/data/local/") {
-                dirStatus = false;
                 std::cerr << "failed to create dir: " << dirStr << std::endl;
                 break;
             }
@@ -146,7 +144,7 @@ ErrCode WuKongUtil::GetAllAppInfo()
 
     bool result = launcherservice.GetAllLauncherAbilityInfos(USE_ID, launcherAbilityInfos);
     DEBUG_LOG_STR("GetAllLauncherAbilityInfos: size (%u), result (%d)", launcherAbilityInfos.size(), result);
-    if (launcherAbilityInfos.size() <= 0) {
+    if (launcherAbilityInfos.size() == 0) {
         ERROR_LOG("GetAllLauncherAbilityInfos size is 0");
         return OHOS::ERR_INVALID_VALUE;
     }
@@ -220,9 +218,8 @@ ErrCode WuKongUtil::CheckArgumentList(std::vector<std::string> &arguments)
 
 ErrCode WuKongUtil::SetAllowList(const std::string &optarg)
 {
-    ErrCode result = OHOS::ERR_OK;
     SplitStr(optarg, ",", allowList_);
-    result = CheckArgumentList(allowList_);
+    ErrCode result = CheckArgumentList(allowList_);
     if (result == OHOS::ERR_OK) {
         // delete repeat argument
         DelRepeatArguments(allowList_);
@@ -235,9 +232,8 @@ ErrCode WuKongUtil::SetAllowList(const std::string &optarg)
 
 ErrCode WuKongUtil::SetBlockList(const std::string &optarg)
 {
-    ErrCode result = OHOS::ERR_OK;
     SplitStr(optarg, ",", blockList_);
-    result = CheckArgumentList(blockList_);
+    ErrCode result = CheckArgumentList(blockList_);
     if (result == OHOS::ERR_OK) {
         // delete repeat argument
         DelRepeatArguments(blockList_);
@@ -445,10 +441,10 @@ bool WuKongUtil::CopyFile(std::string &targetFile, std::string &sourceDir, std::
 bool WuKongUtil::DeleteFile(std::string targetDir)
 {
     DIR *dirdp = nullptr;
-    struct dirent *dp;
     char filepathSource[PATH_MAX] = {'\0'};
     char *realPathSource = realpath(targetDir.c_str(), filepathSource);
     if (realPathSource != nullptr) {
+        struct dirent *dp;
         dirdp = opendir(targetDir.c_str());
         while ((dp = readdir(dirdp)) != NULL) {
             std::string currentFileName(dp->d_name);
