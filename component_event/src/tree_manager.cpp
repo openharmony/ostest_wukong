@@ -46,7 +46,7 @@ bool TreeManager::RecursGetChildElementInfo(
     const std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>& parent,
     const std::shared_ptr<ComponentTree>& componentParent)
 {
-    bool res = true;
+    auto res = Accessibility::RET_OK;
     if (componentParent == nullptr) {
         ERROR_LOG("tree parent is null!");
         return false;
@@ -56,9 +56,9 @@ bool TreeManager::RecursGetChildElementInfo(
         // Get child AccessibilityElementInfo from Accessibility.
         res = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance()->GetChildElementInfo(
             i, *(parent.get()), *(elementChild.get()));
-        if (!res) {
+        if (res != Accessibility::RET_OK) {
             ERROR_LOG("GetChildElementInfo failed!");
-            return res;
+            return false;
         }
         TRACK_LOG_STR("GetChildElementInfo child ID (%d), child count (%d), Type (%s)",
                       elementChild->GetAccessibilityId(), elementChild->GetChildCount(),
@@ -74,14 +74,14 @@ bool TreeManager::RecursGetChildElementInfo(
         componentChild->SetParent(componentParent);
         componentParent->AddChild(componentChild);
         // Recurs get child AccessibilityElementInfo.
-        res = RecursGetChildElementInfo(elementChild, componentChild);
-        if (!res) {
-            return res;
+        auto result = RecursGetChildElementInfo(elementChild, componentChild);
+        if (!result) {
+            return false;
         }
     }
 
     componentParent->SetNodeId();
-    return res;
+    return res == Accessibility::RET_OK ? true : false;
 }
 bool TreeManager::RecursComponent(const std::shared_ptr<ComponentTree>& componentTree)
 {
@@ -204,8 +204,8 @@ ErrCode TreeManager::UpdateComponentInfo()
     auto aacPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
 
     // Get root AccessibilityElementInfo from Accessibility,
-    bool bResult = aacPtr->GetRoot(*(root.get()));
-    if (!bResult) {
+    auto bResult = aacPtr->GetRoot(*(root.get()));
+    if (bResult != Accessibility::RET_OK) {
         ERROR_LOG("Accessibility Ability get root element info failed!");
         return OHOS::ERR_INVALID_OPERATION;
     } else {
@@ -220,8 +220,8 @@ ErrCode TreeManager::UpdateComponentInfo()
         newComponentNode_->SetIndex(count - 1);
 
         // Recurs get all children AccessibilityElementInfo.
-        bResult = RecursGetChildElementInfo(root, newComponentNode_);
-        if (!bResult) {
+        auto result = RecursGetChildElementInfo(root, newComponentNode_);
+        if (!result) {
             return OHOS::ERR_INVALID_OPERATION;
         }
         RecursComponent(newComponentNode_);
