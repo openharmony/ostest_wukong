@@ -369,7 +369,7 @@ void WuKongUtil::GetAllAbilitiesByBundleName(std::string bundleName, std::vector
     if (!bundleMgrProxy) {
         ERROR_LOG("bundleMgrProxy is nullptr");
         return;
-    }    
+    }
     bool getInfoResult = bundleMgrProxy->GetBundleInfos(BundleFlag::GET_BUNDLE_DEFAULT, bundleInfos, USE_ID);
     if (!getInfoResult) {
         ERROR_LOG("GetBundleInfos ERR");
