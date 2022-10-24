@@ -31,6 +31,7 @@
 #include "string_ex.h"
 #include "system_ability_definition.h"
 #include "wukong_define.h"
+#include "bundle_mgr_proxy.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -365,6 +366,10 @@ void WuKongUtil::GetAllAbilitiesByBundleName(std::string bundleName, std::vector
     TRACK_LOG_STD();
     sptr<IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
     std::vector<BundleInfo> bundleInfos;
+    if (!bundleMgrProxy) {
+        ERROR_LOG("bundleMgrProxy is nullptr");
+        return;
+    }    
     bool getInfoResult = bundleMgrProxy->GetBundleInfos(BundleFlag::GET_BUNDLE_DEFAULT, bundleInfos, USE_ID);
     if (!getInfoResult) {
         ERROR_LOG("GetBundleInfos ERR");
