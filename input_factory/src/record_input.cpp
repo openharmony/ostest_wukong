@@ -84,7 +84,7 @@ bool InitReportFolder()
     return true;
 }
 
-bool InitEventRecordFile(std::ofstream &outFile, std::string recordName)
+bool InitEventRecordFile(std::ofstream &outFile, const std::string recordName)
 {
     if (!InitReportFolder()) {
         ERROR_LOG("init folder failed");

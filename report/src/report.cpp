@@ -47,8 +47,6 @@ void ListenCrashDir()
 {
     int fd;
     int wd;
-    uint32_t nread;
-    uint32_t len;
     ssize_t readLenght;
     char buf[BUFSIZ];
     char* bufPtr = nullptr;
@@ -67,8 +65,8 @@ void ListenCrashDir()
     buf[sizeof(buf) - 1] = 0;
     std::string destDir = Report::GetInstance()->GetReportExceptionDir();
     while ((readLenght = read(fd, buf, sizeof(buf) - 1)) > 0) {
-        len = static_cast<uint32_t>(readLenght);
-        nread = 0;
+        uint32_t len = static_cast<uint32_t>(readLenght);
+        uint32_t nread = 0;
         while (len > 0) {
             bufPtr = &buf[nread];
             void* middleType =  static_cast<void *>(bufPtr);
@@ -109,27 +107,9 @@ void Report::EnvInit()
     startRunTime_ = WuKongUtil::GetInstance()->GetStartRunTime();
     // Get a screenshot within the previous timestamp of the current timestamp
     DIR *dirp = nullptr;
-    struct dirent *dp;
     dirp = opendir(DEFAULT_DIR.c_str());
     std::string maxValue = "";
     std::string targetTimeDir;
-    while (dirp != nullptr) {
-        if ((dp = readdir(dirp)) == NULL) {
-            break;
-        }       
-        std::string currentStringName(dp->d_name);
-        if (currentStringName != startRunTime_) {
-            if (currentStringName > maxValue) {
-                maxValue = currentStringName;
-                targetTimeDir = currentStringName;
-            }
-        }
-    }
-    (void)closedir(dirp);
-
-    // Delete the screenshot under the timestamp
-    std::string targetDir_ = DEFAULT_DIR + targetTimeDir +"/screenshot/";
-    WuKongUtil::GetInstance()->DeleteFile(targetDir_);
     // setting filename
     currentTestDir_ = WuKongUtil::GetInstance()->GetCurrentTestDir();
     INFO_LOG_STR("Report currentTestDir: (%s)", currentTestDir_.c_str());
@@ -152,6 +132,27 @@ void Report::EnvInit()
     StartCrashDirListen();
     // register crash catcher
     ExceptionManager::GetInstance()->StartCatching();
+    if (dirp == nullptr) {
+        ERROR_LOG_STR("dir{%s} opendir error", DEFAULT_DIR.c_str());
+        return;
+    }
+    while (dirp != nullptr) {
+        struct dirent *dp;
+        if ((dp = readdir(dirp)) == NULL) {
+            break;
+        }       
+        std::string currentStringName(dp->d_name);
+        if (currentStringName != startRunTime_) {
+            if (currentStringName > maxValue) {
+                maxValue = currentStringName;
+                targetTimeDir = currentStringName;
+            }
+        }
+    }
+    (void)closedir(dirp);
+    // Delete the screenshot under the timestamp
+    std::string targetDir_ = DEFAULT_DIR + targetTimeDir +"/screenshot/";
+    WuKongUtil::GetInstance()->DeleteFile(targetDir_);
 }
 
 void Report::DataSetInit()
