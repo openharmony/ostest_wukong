@@ -68,7 +68,7 @@ static void WuKongMutexFile()
 
 static void SetNativeTokenInfo()
 {
-    std::shared_ptr<const char> perms = std::make_shared<const char *[NUMBER_THREE]>();
+    const char **perms = new const char *[NUMBER_THREE];
     if (NUMBER_ZERO < NUMBER_THREE && NUMBER_ONE < NUMBER_THREE && NUMBER_TWO < NUMBER_THREE) {
         uint64_t tokenId;
         perms[NUMBER_ZERO] = "ohos.permission.SET_ABILITY_CONTROLLER";
@@ -88,6 +88,7 @@ static void SetNativeTokenInfo()
         SetSelfTokenID(tokenId);
         OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     }
+    delete[] perms;
 }
 
 static void InitSemaphore(NamedSemaphore& sem, const int count)
