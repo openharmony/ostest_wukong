@@ -36,7 +36,7 @@ ErrCode SwapInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTe
 {
     ErrCode result;
     static bool isBack = true;
-    SwapParam* swapPtr = (SwapParam*)specialTestObject.get();
+    SwapParam* swapPtr = static_cast<SwapParam*>(specialTestObject.get());
     if (swapPtr == nullptr) {
         return OHOS::ERR_INVALID_VALUE;
     }
