@@ -223,8 +223,8 @@ ErrCode TreeManager::UpdateComponentInfo()
         newComponentNode_->SetIndex(count - 1);
 
         // Recurs get all children AccessibilityElementInfo.
-        auto result = RecursGetChildElementInfo(root, newComponentNode_);
-        if (!result) {
+        auto cResult = RecursGetChildElementInfo(root, newComponentNode_);
+        if (!cResult) {
             return OHOS::ERR_INVALID_OPERATION;
         }
         RecursComponent(newComponentNode_);

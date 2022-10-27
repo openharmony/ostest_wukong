@@ -36,7 +36,7 @@ namespace OHOS {
 namespace WuKong {
 namespace {
 const std::string DEFAULT_DIR = "/data/local/tmp/wukong/report/";
-bool TakeWuKongScreenCap(std::string wkScreenPath)
+bool TakeWuKongScreenCap(const std::string &wkScreenPath)
 {
     // get PixelMap from DisplayManager API
     Rosen::DisplayManager &displayMgr = Rosen::DisplayManager::GetInstance();

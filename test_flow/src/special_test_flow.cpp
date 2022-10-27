@@ -385,7 +385,6 @@ ErrCode SpecialTestFlow::CheckPosition(std::vector<std::string> argumentlist)
 {
     int32_t screenWidth = -1;
     int32_t screenHeight = -1;
-    std::string paramError = "the param of position is incorrect";
 
     // get the size of screen
     ErrCode result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
@@ -393,6 +392,7 @@ ErrCode SpecialTestFlow::CheckPosition(std::vector<std::string> argumentlist)
         return result;
     }
     if (argumentlist.size() > 0) {
+        std::string paramError = "the param of position is incorrect";
         if (stoi(argumentlist[0]) > screenWidth || stoi(argumentlist[1]) > screenHeight || stoi(argumentlist[0]) < 0 ||
             stoi(argumentlist[1]) < 0) {
             DEBUG_LOG(paramError.c_str());
