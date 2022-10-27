@@ -137,9 +137,6 @@ bool ComponentManager::Connect()
         condition.notify_all();
     };
 
-    if (g_monitorInstance_ == nullptr) {
-        g_monitorInstance_ = std::make_shared<ComponentEventMonitor>();
-    }
     g_monitorInstance_->SetOnAbilityConnectCallback(onConnectCallback);
     auto ability = Accessibility::AccessibilityUITestAbility::GetInstance();
     if (ability->RegisterAbilityListener(g_monitorInstance_) != Accessibility::RET_OK) {
@@ -156,6 +153,7 @@ bool ComponentManager::Connect()
         std::cout << "Wait connection to AAMS timed out" << std::endl;
         return false;
     }
+    uLock.unlock();
     connected_ = true;
     return true;
 }
@@ -230,8 +228,10 @@ ErrCode ComponentManager::ComponentTouchInput(Accessibility::AccessibilityElemen
     DEBUG_LOG_STR("component Content: (%s), Touch Position: (%d, %d)", type.c_str(), elementTouchX, elementTouchY);
     result = touchInput->PointerInput(elementTouchX, elementTouchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_DOWN);
-    result = touchInput->PointerInput(elementTouchX, elementTouchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
-                                      MMI::PointerEvent::POINTER_ACTION_UP);
+    if (result == OHOS::ERR_OK) {
+        result = touchInput->PointerInput(elementTouchX, elementTouchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
+                                          MMI::PointerEvent::POINTER_ACTION_UP);
+    }
     return result;
 }
 

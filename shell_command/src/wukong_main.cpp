@@ -34,10 +34,10 @@
 
 using namespace OHOS::WuKong;
 
-static const int NUMBER_ZERO = 0;
-static const int NUMBER_ONE = 1;
-static const int NUMBER_TWO = 2;
-static const int NUMBER_THREE = 3;
+static const unsigned int NUMBER_ZERO = 0;
+static const unsigned int NUMBER_ONE = 1;
+static const unsigned int NUMBER_TWO = 2;
+static const unsigned int NUMBER_THREE = 3;
 
 static bool FreeSingtion()
 {
@@ -68,9 +68,9 @@ static void WuKongMutexFile()
 
 static void SetNativeTokenInfo()
 {
-    uint64_t tokenId;
     const char **perms = new const char *[NUMBER_THREE];
     if (NUMBER_ZERO < NUMBER_THREE && NUMBER_ONE < NUMBER_THREE && NUMBER_TWO < NUMBER_THREE) {
+        uint64_t tokenId;
         perms[NUMBER_ZERO] = "ohos.permission.SET_ABILITY_CONTROLLER";
         perms[NUMBER_ONE] = "ohos.permission.CAPTURE_SCREEN";
         perms[NUMBER_TWO] = "ohos.permission.INPUT_MONITORING";
@@ -88,6 +88,7 @@ static void SetNativeTokenInfo()
         SetSelfTokenID(tokenId);
         OHOS::Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
     }
+    delete[] perms;
 }
 
 static void InitSemaphore(NamedSemaphore& sem, const int count)

@@ -31,9 +31,9 @@ const float PERCENTAGE = 100.0;
 void StatisticsException::StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
                                            std::map<std::string, std::shared_ptr<Table>> &destTables)
 {
-    std::string crashType;
     std::stringstream bufferStream;
     for (auto srcDatasIter : srcDatas) {
+        std::string crashType;
         // check exception name
         if (srcDatasIter.count("exception") == 0) {
             return;
@@ -51,9 +51,9 @@ void StatisticsException::StatisticsDetail(std::vector<std::map<std::string, std
         exceptionTotal_++;
     }
 
-    std::string proportionStr;
     std::vector<std::string> line;
     for (auto crashTypesIter : crashTypes_) {
+        std::string proportionStr;
         line.push_back(crashTypesIter);
         int curExceptionTypeCount = exceptionTypeCount_[crashTypesIter];
         DEBUG_LOG_STR("curExceptionTypeCount{%d}", curExceptionTypeCount);

@@ -34,7 +34,7 @@ TouchInput::~TouchInput()
 
 ErrCode TouchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
-    TouchParam* touchPtr = (TouchParam*)specialTestObject.get();
+    TouchParam* touchPtr = static_cast<TouchParam*>(specialTestObject.get());
     if (touchPtr == nullptr) {
         return OHOS::ERR_INVALID_VALUE;
     }

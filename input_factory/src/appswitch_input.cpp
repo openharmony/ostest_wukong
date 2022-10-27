@@ -34,7 +34,7 @@ AppswitchInput::~AppswitchInput()
 
 ErrCode AppswitchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
-    AppSwitchParam* appSwitchPtr = (AppSwitchParam*)specialTestObject.get();
+    AppSwitchParam* appSwitchPtr = static_cast<AppSwitchParam*>(specialTestObject.get());
     if (appSwitchPtr == nullptr) {
         return OHOS::ERR_INVALID_VALUE;
     }
