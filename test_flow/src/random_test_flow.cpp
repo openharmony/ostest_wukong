@@ -20,6 +20,7 @@
 #include "input_factory.h"
 #include "report.h"
 #include "wukong_define.h"
+#include "ability_manager_client.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -259,6 +260,18 @@ ErrCode RandomTestFlow::RunStep()
         ERROR_LOG("inputaction is nullptr");
         return OHOS::ERR_INVALID_VALUE;
     }
+    std::vector<std::string> allowList;
+    WuKongUtil::GetInstance()->GetAllowList(allowList);
+    if (allowList.size() > 0) {
+         std::string bundleName = "com.ohos.launcher";
+        auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+        if (elementName.GetBundleName() == bundleName && allowList.size() > 0) {
+            if (eventTypeId == INPUTTYPE_TOUCHINPUT || eventTypeId == INPUTTYPE_ELEMENTINPUT) {
+                return OHOS::ERR_INVALID_VALUE;
+            }
+        }
+    }
+    
     result = inputaction->RandomInput();
     usleep(intervalArgs_ * oneSecond_);
     return result;
