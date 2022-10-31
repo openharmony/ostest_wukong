@@ -153,7 +153,6 @@ bool ComponentManager::Connect()
         std::cout << "Wait connection to AAMS timed out" << std::endl;
         return false;
     }
-    uLock.unlock();
     connected_ = true;
     return true;
 }
