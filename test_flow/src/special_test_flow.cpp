@@ -392,9 +392,9 @@ ErrCode SpecialTestFlow::CheckPosition(std::vector<std::string> argumentlist)
         return result;
     }
     if (argumentlist.size() > 0) {
-        std::string paramError = "the param of position is incorrect";
         if (stoi(argumentlist[0]) > screenWidth || stoi(argumentlist[1]) > screenHeight || stoi(argumentlist[0]) < 0 ||
             stoi(argumentlist[1]) < 0) {
+            std::string paramError = "the param of position is incorrect";
             DEBUG_LOG(paramError.c_str());
             shellcommand_.ResultReceiverAppend(paramError + "\n");
             result = OHOS::ERR_NO_INIT;
