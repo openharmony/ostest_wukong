@@ -263,9 +263,9 @@ ErrCode RandomTestFlow::RunStep()
     std::vector<std::string> allowList;
     WuKongUtil::GetInstance()->GetAllowList(allowList);
     if (allowList.size() > 0) {
-         std::string bundleName = "com.ohos.launcher";
+        std::string bundleName = "com.ohos.launcher";
         auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
-        if (elementName.GetBundleName() == bundleName && allowList.size() > 0) {
+        if (elementName.GetBundleName() == bundleName) {
             if (eventTypeId == INPUTTYPE_TOUCHINPUT || eventTypeId == INPUTTYPE_ELEMENTINPUT) {
                 return OHOS::ERR_INVALID_VALUE;
             }
