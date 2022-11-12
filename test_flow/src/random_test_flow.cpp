@@ -228,7 +228,7 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
 
 ErrCode RandomTestFlow::RunStep()
 {
-    ErrCode result;
+    ErrCode result = OHOS::ERR_OK;
     // control the count test flow
     if (g_commandCOUNTENABLE == true) {
         totalCount_--;
