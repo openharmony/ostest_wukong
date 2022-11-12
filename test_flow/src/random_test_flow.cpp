@@ -246,7 +246,7 @@ ErrCode RandomTestFlow::RunStep()
     bool inputFlag = true;
     TRACK_LOG_STR("Componentpage path: (%s)", path.c_str());
     char const *systemPath = "pages/system";
-    if (strstr(path.c_str(), systemPath) != NULL){
+    if (strstr(path.c_str(), systemPath) != NULL) {
         inputFlag = false;
     }
     
