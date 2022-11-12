@@ -288,7 +288,7 @@ ErrCode RandomTestFlow::RunStep()
                 return OHOS::ERR_INVALID_VALUE;
             }
         }
-    }   
+    }
     if (inputFlag) {
         result = inputaction->RandomInput();
     } else {
