@@ -21,6 +21,8 @@
 #include "report.h"
 #include "wukong_define.h"
 #include "ability_manager_client.h"
+#include "component_manager.h"
+#include "accessibility_ui_test_ability.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -236,6 +238,18 @@ ErrCode RandomTestFlow::RunStep()
         }
     }
 
+    auto root = std::make_shared<OHOS::Accessibility::AccessibilityElementInfo>();
+    auto accPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
+    // Get root AccessibilityElementInfo from Accessibility
+    accPtr->GetRoot(*(root.get()));
+    std::string path = root->GetPagePath();
+    bool inputFlag = true;
+    TRACK_LOG_STR("Componentpage path: (%s)", path.c_str());
+    char const *systemPath = "pages/system";
+    if (strstr(path.c_str(), systemPath) != NULL){
+        inputFlag = false;
+    }
+    
     std::shared_ptr<InputAction> inputaction = nullptr;
     if (!g_isAppStarted) {
         inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
@@ -243,7 +257,11 @@ ErrCode RandomTestFlow::RunStep()
             ERROR_LOG("inputaction is nullptr");
             return OHOS::ERR_INVALID_VALUE;
         }
-        result = inputaction->RandomInput();
+        if (inputFlag) {
+            result = inputaction->RandomInput();
+        } else {
+            ComponentManager::GetInstance()->BackToPrePage();
+        }
         if (result != OHOS::ERR_OK) {
             ERROR_LOG("launch app failed and exit");
             return result;
@@ -270,9 +288,12 @@ ErrCode RandomTestFlow::RunStep()
                 return OHOS::ERR_INVALID_VALUE;
             }
         }
+    }   
+    if (inputFlag) {
+        result = inputaction->RandomInput();
+    } else {
+        ComponentManager::GetInstance()->BackToPrePage();
     }
-    
-    result = inputaction->RandomInput();
     usleep(intervalArgs_ * oneSecond_);
     return result;
 }
