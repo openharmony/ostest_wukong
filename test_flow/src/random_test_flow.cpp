@@ -226,18 +226,18 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
     return OHOS::ERR_OK;
 }
 
-ErrCode RandomTestFlow::RunStep()
+ErrCode RandomTestFlow::InputScene(std::shared_ptr<InputAction> inputaction,bool inputFlag)
 {
     ErrCode result = OHOS::ERR_OK;
-    // control the count test flow
-    if (g_commandCOUNTENABLE == true) {
-        totalCount_--;
-        if (totalCount_ < 0) {
-            isFinished_ = true;
-            return OHOS::ERR_OK;
-        }
+    if (inputFlag) {
+        result = inputaction->RandomInput();
+    } else {
+        ComponentManager::GetInstance()->BackToPrePage();
     }
+    return result;
+}
 
+bool RandomTestFlow::SetBlockPage(){
     auto root = std::make_shared<OHOS::Accessibility::AccessibilityElementInfo>();
     auto accPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
     // Get root AccessibilityElementInfo from Accessibility
@@ -249,7 +249,21 @@ ErrCode RandomTestFlow::RunStep()
     if (strstr(path.c_str(), systemPath) != NULL) {
         inputFlag = false;
     }
-    
+    return inputFlag;
+}
+
+ErrCode RandomTestFlow::RunStep()
+{
+    ErrCode result = OHOS::ERR_OK;
+    // control the count test flow
+    if (g_commandCOUNTENABLE == true) {
+        totalCount_--;
+        if (totalCount_ < 0) {
+            isFinished_ = true;
+            return OHOS::ERR_OK;
+        }
+    }
+    bool inputFlag = SetBlockPage();
     std::shared_ptr<InputAction> inputaction = nullptr;
     if (!g_isAppStarted) {
         inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
@@ -257,11 +271,7 @@ ErrCode RandomTestFlow::RunStep()
             ERROR_LOG("inputaction is nullptr");
             return OHOS::ERR_INVALID_VALUE;
         }
-        if (inputFlag) {
-            result = inputaction->RandomInput();
-        } else {
-            ComponentManager::GetInstance()->BackToPrePage();
-        }
+        result = InputScene(inputaction,inputFlag);
         if (result != OHOS::ERR_OK) {
             ERROR_LOG("launch app failed and exit");
             return result;
@@ -289,11 +299,7 @@ ErrCode RandomTestFlow::RunStep()
             }
         }
     }
-    if (inputFlag) {
-        result = inputaction->RandomInput();
-    } else {
-        ComponentManager::GetInstance()->BackToPrePage();
-    }
+    result = InputScene(inputaction,inputFlag);
     usleep(intervalArgs_ * oneSecond_);
     return result;
 }
