@@ -226,7 +226,7 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
     return OHOS::ERR_OK;
 }
 
-ErrCode RandomTestFlow::InputScene(std::shared_ptr<InputAction> inputaction,bool inputFlag)
+ErrCode RandomTestFlow::InputScene(std::shared_ptr<InputAction> inputaction, bool inputFlag)
 {
     ErrCode result = OHOS::ERR_OK;
     if (inputFlag) {
@@ -237,7 +237,8 @@ ErrCode RandomTestFlow::InputScene(std::shared_ptr<InputAction> inputaction,bool
     return result;
 }
 
-bool RandomTestFlow::SetBlockPage(){
+bool RandomTestFlow::SetBlockPage()
+{
     auto root = std::make_shared<OHOS::Accessibility::AccessibilityElementInfo>();
     auto accPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
     // Get root AccessibilityElementInfo from Accessibility
@@ -271,7 +272,7 @@ ErrCode RandomTestFlow::RunStep()
             ERROR_LOG("inputaction is nullptr");
             return OHOS::ERR_INVALID_VALUE;
         }
-        result = InputScene(inputaction,inputFlag);
+        result = InputScene(inputaction, inputFlag);
         if (result != OHOS::ERR_OK) {
             ERROR_LOG("launch app failed and exit");
             return result;
@@ -299,7 +300,7 @@ ErrCode RandomTestFlow::RunStep()
             }
         }
     }
-    result = InputScene(inputaction,inputFlag);
+    result = InputScene(inputaction, inputFlag);
     usleep(intervalArgs_ * oneSecond_);
     return result;
 }

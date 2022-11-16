@@ -80,7 +80,7 @@ private:
      */
     ErrCode SetInputPercent(const int option);
 
-    ErrCode InputScene(std::shared_ptr<InputAction> inputaction,bool inputFlag);
+    ErrCode InputScene(std::shared_ptr<InputAction> inputaction, bool inputFlag);
 
     bool SetBlockPage();
 
