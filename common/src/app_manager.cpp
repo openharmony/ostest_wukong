@@ -68,7 +68,11 @@ bool AppManager::BlockAbilityController::AllowAbilityStart(const AAFwk::Want &wa
 // turn to background
 bool AppManager::BlockAbilityController::AllowAbilityBackground(const std::string &bundleName)
 {
-    return false;
+    if (WuKongUtil::GetInstance()->GetOrderFlag()) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 ErrCode AppManager::StartAbilityByBundleInfo(std::string abilityName, std::string bundleName)
