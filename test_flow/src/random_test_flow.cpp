@@ -255,7 +255,7 @@ bool RandomTestFlow::SetBlockPage()
 
 ErrCode RandomTestFlow::RunStep()
 {
-    ErrCode result = OHOS::ERR_OK;
+    ErrCode result;
     // control the count test flow
     if (g_commandCOUNTENABLE == true) {
         totalCount_--;
