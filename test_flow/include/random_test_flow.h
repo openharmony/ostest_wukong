@@ -80,6 +80,10 @@ private:
      */
     ErrCode SetInputPercent(const int option);
 
+    ErrCode InputScene(std::shared_ptr<InputAction> inputaction, bool inputFlag);
+
+    bool SetBlockPage();
+
     int countArgs_ = 10;
 
     // the interval time of test
