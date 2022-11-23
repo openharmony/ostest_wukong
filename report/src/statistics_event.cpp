@@ -14,7 +14,6 @@
  */
 #include "statistics_event.h"
 
-#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <map>
