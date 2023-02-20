@@ -1,0 +1,140 @@
+# Copyright (c) 2022 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/ohos.gni")
+
+wukong_root = "//test/ostest/wukong"
+ability_runtime_root = "//foundation/ability/ability_runtime"
+
+config("wukong_common_config") {
+  include_dirs = [ "//third_party/json/single_include/nlohmann" ]
+  cflags = [ "-D__OHOS__" ]
+  cflags_cc = [ "-fexceptions" ]
+}
+
+accessibility_include_dirs = [
+  "//base/accessibility/interfaces",
+  "//foundation/bundlemanager/bundle_framework/common/log/include",
+  "//foundation/multimodalinput/input/interfaces",
+  "//base/hiviewdfx/hisysevent/interfaces",
+  "//commonlibrary/c_utils/base/include",
+  "//utils/system/safwk/native/include",
+  "//third_party/json/include",
+  "//base/security/access_token/interfaces/innerkits/nativetoken/include",
+  "//base/security/access_token/interfaces/innerkits/token_setproc/include",
+  "//base/security/access_token/interfaces/innerkits/accesstoken/include",
+  "include",
+]
+
+ohos_executable("wukong") {
+  configs = [ ":wukong_common_config" ]
+  sources = [
+    "${ability_runtime_root}/tools/aa/src/shell_command.cpp",
+    "${wukong_root}/common/src/app_manager.cpp",
+    "${wukong_root}/common/src/component_manager.cpp",
+    "${wukong_root}/common/src/multimode_manager.cpp",
+    "${wukong_root}/common/src/wukong_logger.cpp",
+    "${wukong_root}/common/src/wukong_util.cpp",
+    "${wukong_root}/component_event/src/ability_tree.cpp",
+    "${wukong_root}/component_event/src/component_tree.cpp",
+    "${wukong_root}/component_event/src/normal_scene.cpp",
+    "${wukong_root}/component_event/src/page_tree.cpp",
+    "${wukong_root}/component_event/src/scene_delegate.cpp",
+    "${wukong_root}/component_event/src/tree_manager.cpp",
+    "${wukong_root}/component_event/src/wukong_tree.cpp",
+    "${wukong_root}/input_factory/src/appswitch_input.cpp",
+    "${wukong_root}/input_factory/src/component_input.cpp",
+    "${wukong_root}/input_factory/src/hardkey_input.cpp",
+    "${wukong_root}/input_factory/src/input_action.cpp",
+    "${wukong_root}/input_factory/src/input_factory.cpp",
+    "${wukong_root}/input_factory/src/keyboard_input.cpp",
+    "${wukong_root}/input_factory/src/mouse_input.cpp",
+    "${wukong_root}/input_factory/src/record_input.cpp",
+    "${wukong_root}/input_factory/src/swap_input.cpp",
+    "${wukong_root}/input_factory/src/touch_input.cpp",
+    "${wukong_root}/report/src/data_set.cpp",
+    "${wukong_root}/report/src/exception_manager.cpp",
+    "${wukong_root}/report/src/filter.cpp",
+    "${wukong_root}/report/src/filter_category.cpp",
+    "${wukong_root}/report/src/format.cpp",
+    "${wukong_root}/report/src/format_csv.cpp",
+    "${wukong_root}/report/src/format_json.cpp",
+    "${wukong_root}/report/src/report.cpp",
+    "${wukong_root}/report/src/statistics.cpp",
+    "${wukong_root}/report/src/statistics_ability.cpp",
+    "${wukong_root}/report/src/statistics_componment.cpp",
+    "${wukong_root}/report/src/statistics_event.cpp",
+    "${wukong_root}/report/src/statistics_exception.cpp",
+    "${wukong_root}/report/src/sysevent_listener.cpp",
+    "${wukong_root}/report/src/table.cpp",
+    "${wukong_root}/shell_command/src/wukong_main.cpp",
+    "${wukong_root}/shell_command/src/wukong_shell_command.cpp",
+    "${wukong_root}/test_flow/src/random_test_flow.cpp",
+    "${wukong_root}/test_flow/src/special_test_flow.cpp",
+    "${wukong_root}/test_flow/src/test_flow.cpp",
+    "${wukong_root}/test_flow/src/test_flow_factory.cpp",
+  ]
+
+  include_dirs = [
+    "${wukong_root}/common/include",
+    "${wukong_root}/component_event/include",
+    "${wukong_root}/input_factory/include",
+    "${wukong_root}/report/include",
+    "${wukong_root}/shell_command/include",
+    "${wukong_root}/test_flow/include",
+  ]
+
+  include_dirs += accessibility_include_dirs
+
+  deps = [
+    "//base/hiviewdfx/hisysevent/interfaces/native/innerkits/hisysevent_manager:libhisyseventmanager",
+    "//base/security/access_token/interfaces/innerkits/accesstoken:libaccesstoken_sdk",
+    "//base/security/access_token/interfaces/innerkits/nativetoken:libnativetoken",
+    "//base/security/access_token/interfaces/innerkits/token_setproc:libtoken_setproc",
+    "//third_party/libpng:libpng",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "ability_runtime:ability_context_native",
+    "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
+    "ability_runtime:app_manager",
+    "ability_runtime:runtime",
+    "accessibility:accessibility_common",
+    "accessibility:accessibilityclient",
+    "accessibility:accessibleability",
+    "bundle_framework:appexecfwk_base",
+    "bundle_framework:appexecfwk_core",
+    "c_utils:utils",
+    "common_event_service:cesfwk_core",
+    "common_event_service:cesfwk_innerkits",
+    "hisysevent_native:libhisysevent",
+    "hiviewdfx_hilog_native:libhilog",
+    "input:libmmi-client",
+    "ipc:ipc_core",
+    "multimedia_image_framework:image_native",
+    "samgr:samgr_proxy",
+    "window_manager:libdm",
+    "window_manager:libwm",
+  ]
+  install_enable = true
+
+  subsystem_name = "test"
+  part_name = "wukong"
+  output_name = "wukong"
+  defines = [
+    "LOG_TAG=\"WuKong\"",
+    "LOG_DOMAIN = 0xD003200",
+  ]
+}
