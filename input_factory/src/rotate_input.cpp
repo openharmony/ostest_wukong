@@ -23,8 +23,8 @@
 namespace OHOS {
 namespace WuKong {
 const int ONE = 1;
-const int TWO = 1;
-const int THREE = 1;
+const int TWO = 2;
+const int THREE = 3;
 const int FOUR = 4;
 RotateInput::RotateInput() : InputAction()
 {
