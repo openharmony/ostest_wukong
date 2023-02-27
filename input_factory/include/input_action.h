@@ -37,6 +37,7 @@ enum InputType {
     INPUTTYPE_HARDKEYINPUT,    // input power event
     INPUTTYPE_RECORDINPUT,     // input record event
     INPUTTYPE_REPPLAYINPUT,    // input replay event
+    INPUTTYPE_ROTATEINPUT,    // input rotate event
     INPUTTYPE_INVALIDINPUT     // input invaild event
 };
 

@@ -23,6 +23,7 @@
 #include "hardkey_input.h"
 #include "touch_input.h"
 #include "record_input.h"
+#include "rotate_input.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -64,6 +65,10 @@ std::shared_ptr<InputAction> InputFactory::GetInputAction(InputType type)
         }
         case INPUTTYPE_REPPLAYINPUT: {
             input_action = std::make_shared<RecordInput>();
+            break;
+        }
+        case INPUTTYPE_ROTATEINPUT: {
+            input_action = std::make_shared<RotateInput>();
             break;
         }
         default: {

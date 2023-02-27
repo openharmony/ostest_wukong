@@ -106,7 +106,8 @@ Specific test example parsing：
 | -S,--swap       | Set the screen random swap test scale. | No | The default 3%. |
 | -m,--mouse      | Set the screen randommou test ratio. | No | The default 1%. |
 | -k,--keyboard   | Set the screen random keyboard test ratio. | No | The default 2%. |
-| -H,--hardkey    | Set the random hardkey test scale. | No | The default 4%. |
+| -H,--hardkey    | Set the random hardkey test scale. | No | The default 2%. |
+| -r,--rotate     | Set the random rotate test scale.  | No | The default 2%. |
 | -C, --component | Set the Random Control Test Scale. | No | The default 70%. |
 | -T,--time       | Set the total test time, conflicts with -c. | No | Unit minutes, the default is 10 minutes. |
 
