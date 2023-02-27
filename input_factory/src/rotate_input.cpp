@@ -20,10 +20,12 @@
 #include "screen_manager.h"
 #include "wukong_define.h"
 #include "report.h"
-#include "stdio.h"
-#include "stdlib.h"
 namespace OHOS {
 namespace WuKong {
+const int ONE = 1;
+const int TWO = 1;
+const int THREE = 1;
+const int FOUR = 4;
 RotateInput::RotateInput() : InputAction()
 {
     std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
@@ -41,24 +43,23 @@ ErrCode RotateInput::OrderInput(const std::shared_ptr<SpcialTestObject>& special
     std::vector<sptr<Rosen::Screen>> screens;
     Rosen::ScreenManager::GetInstance().GetAllScreens(screens);
 
-    uint32_t orientation = (rand() % 4) + 1;
-    switch (orientation)
-    {
-    case 1:
-        INFO_LOG("Rotate orientation is VERTICAL");
-        break;
-    case 2:
-        INFO_LOG("Rotate orientation is HORIZONTAL");
-        break;
-    case 3:
-        INFO_LOG("Rotate orientation is REVERSE_VERTICAL");
-        break;
-    case 4:
-        INFO_LOG("Rotate orientation is REVERSE_HORIZONTAL");
-        break;
-    
-    default:
-        break;
+    uint32_t orientation = (rand() % FOUR) + ONE;
+    switch (orientation) {
+        case ONE:
+            INFO_LOG("Rotate orientation is VERTICAL");
+            break;
+        case TWO:
+            INFO_LOG("Rotate orientation is HORIZONTAL");
+            break;
+        case THREE:
+            INFO_LOG("Rotate orientation is REVERSE_VERTICAL");
+            break;
+        case FOUR:
+            INFO_LOG("Rotate orientation is REVERSE_HORIZONTAL");
+            break;
+        
+        default:
+            break;
     }
     screens[0]->SetOrientation(static_cast<Rosen::Orientation>(orientation));
     Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
@@ -71,24 +72,23 @@ ErrCode RotateInput::RandomInput()
     std::vector<sptr<Rosen::Screen>> screens;
     Rosen::ScreenManager::GetInstance().GetAllScreens(screens);
 
-    uint32_t orientation = (rand() % 4) + 1;
-    switch (orientation)
-    {
-    case 1:
-        INFO_LOG("Rotate orientation is VERTICAL");
-        break;
-    case 2:
-        INFO_LOG("Rotate orientation is HORIZONTAL");
-        break;
-    case 3:
-        INFO_LOG("Rotate orientation is REVERSE_VERTICAL");
-        break;
-    case 4:
-        INFO_LOG("Rotate orientation is REVERSE_HORIZONTAL");
-        break;
-    
-    default:
-        break;
+    uint32_t orientation = (rand() % FOUR) + ONE;
+    switch (orientation) {
+        case ONE:
+            INFO_LOG("Rotate orientation is VERTICAL");
+            break;
+        case TWO:
+            INFO_LOG("Rotate orientation is HORIZONTAL");
+            break;
+        case THREE:
+            INFO_LOG("Rotate orientation is REVERSE_VERTICAL");
+            break;
+        case FOUR:
+            INFO_LOG("Rotate orientation is REVERSE_HORIZONTAL");
+            break;
+        
+        default:
+            break;
     }
     screens[0]->SetOrientation(static_cast<Rosen::Orientation>(orientation));
     Report::GetInstance()->SyncInputInfo(inputedMsgObject_);

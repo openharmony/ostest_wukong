@@ -93,6 +93,8 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
 const int ONE_HUNDRED_PERCENT = 100;
 // one minute (ms)
 const int ONE_MINUTE = 60000;
+// rotate
+const int ROTATE = 114;
 bool g_commandSEEDENABLE = false;
 bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
@@ -209,10 +211,9 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
     float percent = 0.0;
     try {
         percent = std::stof(optarg);
-        if ((it->first) == 114 && percent == 1) {
+        if ((it->first) == ROTATE && percent == 1) {
             g_isAppStarted = true;
         }
-        
     } catch (const std::exception &e) {
         // try the option argument string convert float.
         shellcommand_.ResultReceiverAppend("error: option '");
