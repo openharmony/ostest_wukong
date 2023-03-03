@@ -43,9 +43,10 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -H, --hardkey              hardkey event percent\n"
     "   -S, --swap                 swap event percent\n"
     "   -T, --time                 test time\n"
-    "   -C, --component            component event percent\n";
+    "   -C, --component            component event percent\n"
+    "   -r, --rotate               rotate event percent\n";
 
-const std::string SHORT_OPTIONS = "a:b:c:hi:k:p:s:t:T:H:m:S:C:";
+const std::string SHORT_OPTIONS = "a:b:c:hi:k:p:s:t:T:H:m:S:C:r:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -61,6 +62,7 @@ const struct option LONG_OPTIONS[] = {
     {"hardkey", required_argument, nullptr, 'H'},    // hardkey percent
     {"prohibit", required_argument, nullptr, 'p'},   // prohibit
     {"component", required_argument, nullptr, 'C'},  // prohibit
+    {"rotate", required_argument, nullptr, 'r'},  // rotate percent
 };
 
 /**
@@ -73,7 +75,8 @@ const vector<int> DEFAULT_INPUT_PERCENT = {
     2,   // INPUTTYPE_KEYBOARDINPUT,   input keyboard event
     70,  // INPUTTYPE_ELEMENTINPUT,    input element event
     10,  // INPUTTYPE_APPSWITCHINPUT,  input appswitch event
-    4    // INPUTTYPE_HARDKEYINPUT,    input hardkey event
+    2,   // INPUTTYPE_HARDKEYINPUT,    input hardkey event
+    2    // INPUTTYPE_ROTATE,          input rotate event
 };
 
 const map<int, InputType> OPTION_INPUT_PERCENT = {
@@ -83,12 +86,15 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
     {'S', INPUTTYPE_SWAPINPUT},       // input swap event
     {'m', INPUTTYPE_MOUSEINPUT},      // input mouse event
     {'t', INPUTTYPE_TOUCHINPUT},      // input touch event
-    {'H', INPUTTYPE_HARDKEYINPUT}     // input hardkey event
+    {'H', INPUTTYPE_HARDKEYINPUT},    // input hardkey event
+    {'r', INPUTTYPE_ROTATEINPUT}      // input rotate event
 };
 
 const int ONE_HUNDRED_PERCENT = 100;
 // one minute (ms)
 const int ONE_MINUTE = 60000;
+// rotate
+const int ROTATE = 114;
 bool g_commandSEEDENABLE = false;
 bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
@@ -200,11 +206,14 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
     if (it == OPTION_INPUT_PERCENT.end()) {
         return OHOS::ERR_INVALID_VALUE;
     }
-    inputType = it->second;
 
+    inputType = it->second;
     float percent = 0.0;
     try {
         percent = std::stof(optarg);
+        if ((it->first) == ROTATE && percent == 1) {
+            g_isAppStarted = true;
+        }
     } catch (const std::exception &e) {
         // try the option argument string convert float.
         shellcommand_.ResultReceiverAppend("error: option '");
@@ -213,7 +222,6 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
         shellcommand_.ResultReceiverAppend(RANDOM_TEST_HELP_MSG);
         return OHOS::ERR_INVALID_VALUE;
     }
-
     // check valid of the option argument
     if (percent > 1 || percent < 0) {
         shellcommand_.ResultReceiverAppend("the input percent more than 1 (100%).\n");
@@ -315,6 +323,7 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         case 'k':
         case 'H':
         case 'a':
+        case 'r':
         case 'C': {
             result = SetInputPercent(option);
             break;
@@ -417,6 +426,7 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
         case 'i':
         case 's':
         case 't':
+        case 'r':
         case 'S':
         case 'p':
         case 'k':

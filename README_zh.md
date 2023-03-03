@@ -109,7 +109,8 @@ wukong部件架构图<br>
 | -S,--swap       | 设置屏幕随机swap测试比例。             | 否   | 默认3%。                                   |
 | -m,--mouse      | 设置屏幕随机mouse测试比例。            | 否   | 默认1%。                                   |
 | -k,--keyboard   | 设置屏幕随机keyboard测试比例。         | 否   | 默认2%。                                   |
-| -H,--hardkey    | 设置随机hardkey测试比例。              | 否   | 默认4%。                                   |
+| -H,--hardkey    | 设置随机hardkey测试比例。              | 否   | 默认2%。                                   |
+| -r,--rotate     | 设置随机rotate测试比例。               | 否   | 默认2%。                                   |
 | -C, --component | 设置随机控件测试比例。                 | 否   | 默认70%。                                  |
 | -T,--time       | 设置测试总时间，与-c冲突。                       | 否   | 单位分钟，默认10分钟。                      |
 

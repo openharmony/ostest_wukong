@@ -83,6 +83,10 @@ public:
                 /* code */
                 inputString = "hardkey";
                 break;
+            case INPUTTYPE_ROTATEINPUT:
+                /* code */
+                inputString = "rotate";
+                break;
             default:
                 break;
         }
