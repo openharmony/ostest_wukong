@@ -23,6 +23,8 @@
       "components": [
         "ability_base",
         "ability_runtime",
+        "access_token",
+        "libpng",
         "accessibility",
         "bundle_framework",
         "common_event_service",
