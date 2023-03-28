@@ -163,6 +163,7 @@ void ComponentManager::Disconnect()
     if (auita != nullptr) {
         auita->Disconnect();
     }
+    connected_ = false;
 }
 uint32_t ComponentManager::AddRegisterListener(std::shared_ptr<ComponentManagerListener> listener)
 {

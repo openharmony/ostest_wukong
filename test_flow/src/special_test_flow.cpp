@@ -41,9 +41,10 @@ const std::string SPECIAL_TEST_HELP_MSG =
     "   -C, --component            component event\n"
     "   -p, --screenshot           get screenshot(only in componment input)\n"
     "   -r, --record               record user operation\n"
-    "   -R, --replay               replay user operation\n";
+    "   -R, --replay               replay user operation\n"
+    "   -u, --uitest               uitest dumpLayout\n";
 
-const std::string SHORT_OPTIONS = "c:hi:T:t:kSbs:e:C:pr:R:";
+const std::string SHORT_OPTIONS = "c:hi:T:t:kSbs:e:C:pr:R:u:";
 const struct option LONG_OPTIONS[] = {
     {"count", required_argument, nullptr, 'c'},      // test count
     {"help", no_argument, nullptr, 'h'},             // help information
@@ -58,7 +59,8 @@ const struct option LONG_OPTIONS[] = {
     {"component", required_argument, nullptr, 'C'},  // the end point of swap
     {"screenshot", no_argument, nullptr, 'p'},       // get photo of screenshot
     {"record", required_argument, nullptr, 'r'},     // record user operation
-    {"replay", required_argument, nullptr, 'R'}      // replay user operation
+    {"replay", required_argument, nullptr, 'R'},     // replay user operation
+    {"uitest", no_argument, nullptr, 'u'}            // uitest dumpLayout
 };
 const int ONE_MINUTE = 60000;
 bool g_commandSWAPENABLE = false;
@@ -72,6 +74,7 @@ bool g_commandCOMPONENTENABLE = false;
 bool g_commandSCREENSHOTENABLE = false;
 bool g_commandRECORDABLE = false;
 bool g_commandREPLAYABLE = false;
+bool g_commandUITEST = false;
 
 const int NUMBER_TWO = 2;
 }  // namespace
@@ -169,7 +172,7 @@ ErrCode SpecialTestFlow::RunStep()
     ErrCode result;
     if (g_commandSCREENSHOTENABLE) {
         std::string screenStorePath;
-        result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath);
+        result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath, g_commandUITEST);
         if (result == OHOS::ERR_OK) {
             Report::GetInstance()->RecordScreenPath(screenStorePath);
         }
@@ -320,6 +323,10 @@ ErrCode SpecialTestFlow::HandleNormalOption(const int option)
         case 'R': {
             g_commandREPLAYABLE = true;
             specialRecordName_ = optarg;
+            break;
+        }
+        case 'u': {
+            g_commandUITEST = true;
             break;
         }
     }
