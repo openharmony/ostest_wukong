@@ -22,12 +22,10 @@ namespace Common {
     // cmd calls
     std::string runProcess(const std::string &cmd)
     {
-        if (FILE* fp = popen(cmd.c_str(), "r"))
-        {
+        if (FILE* fp = popen(cmd.c_str(), "r")) {
             std::ostringstream stm;
             char line[NUMBER];
-            while (fgets(line, NUMBER, fp))
-            {
+            while (fgets(line, NUMBER, fp)) {
                 stm << line;
             }
             pclose(fp);
