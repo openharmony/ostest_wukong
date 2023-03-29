@@ -32,6 +32,9 @@
 #include "system_ability_definition.h"
 #include "wukong_define.h"
 #include "bundle_mgr_proxy.h"
+#include "common.h"
+#include "accessibility_ui_test_ability.h"
+#include "component_manager.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -315,7 +318,7 @@ void WuKongUtil::GetIconPath(std::string &iconpath)
     iconpath = iconPath_;
 }
 
-ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath)
+ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath, bool gCommandUitest)
 {
     using namespace std::chrono;
     ErrCode result = ERR_OK;
@@ -333,6 +336,18 @@ ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath)
     }
     auto wkScreenPath = curDir_ + "screenshot/" + "/" + wukongts + ".png";
     DEBUG_LOG_STR("WukongScreenCap store path is  {%s}", wkScreenPath.c_str());
+    if (gCommandUitest) {
+        auto cm = ComponentManager::GetInstance();
+        auto auita = Accessibility::AccessibilityUITestAbility::GetInstance();
+        auita->Disconnect();
+        std::string uitestCmd = "uitest dumpLayout -i -p " + curDir_ + "screenshot" + "/" + wukongts + ".json";
+        std::string res = Common::runProcess(uitestCmd);
+        cm->Disconnect();
+        if (!cm->Connect()) {
+            ERROR_LOG("ComponentManager Connect failed");
+            return OHOS::ERR_INVALID_OPERATION;
+        }
+    }
     bool isTakeScreen = TakeWuKongScreenCap(wkScreenPath);
     if (isTakeScreen == true) {
         screenStorePath = wkScreenPath;

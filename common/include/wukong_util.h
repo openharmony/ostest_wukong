@@ -117,7 +117,7 @@ public:
      * @brief get screenshot.
      * @return Return ERR_OK on success, others on failure.
      */
-    ErrCode WukongScreenCap(std::string &screenStorePath);
+    ErrCode WukongScreenCap(std::string &screenStorePath, bool gCommandUitest);
 
     /**
      * @brief get all abilities by bundleName string.
