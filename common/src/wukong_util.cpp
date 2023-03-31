@@ -342,7 +342,7 @@ ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath, bool gCommandU
         auita->Disconnect();
         std::string uitestCmd = "uitest dumpLayout -i -p " + curDir_ + "screenshot" + "/" + wukongts + ".json";
         std::string res = Common::runProcess(uitestCmd);
-        DEBUG_LOG_STR("unitestCmd : %s",res.c_str());
+        DEBUG_LOG_STR("unitestCmd : %s", res.c_str());
         cm->Disconnect();
         if (!cm->Connect()) {
             ERROR_LOG("ComponentManager Connect failed");
