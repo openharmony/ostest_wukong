@@ -1,6 +1,6 @@
 {
   "name": "@ohos/wukong",
-  "version": "3.1",
+  "version": "3.2",
   "description": "Automatic Stability Test Tool",
   "publishAs": "code-segment",
   "license": "Apache 2.0",
