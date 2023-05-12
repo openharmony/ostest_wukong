@@ -307,6 +307,16 @@ ErrCode RandomTestFlow::RunStep()
                 return OHOS::ERR_INVALID_VALUE;
             }
         }
+        // allowList 数量大于0 并且 elementName.GetBundleName() 不在allowList里面，重新拉起一个应用
+        auto curBundleName = elementName.GetBundleName();
+        auto it = find(allowList.begin(), allowList.end(), curBundleName);
+        if (it == allowList.end()) {
+            inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
+            if (inputaction == nullptr) {
+                ERROR_LOG("inputaction is nullptr");
+                return OHOS::ERR_INVALID_VALUE;
+            }
+        }
     }
     result = InputScene(inputaction, inputFlag);
     usleep(intervalArgs_ * oneSecond_);
