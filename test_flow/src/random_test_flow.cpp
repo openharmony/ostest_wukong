@@ -297,6 +297,16 @@ ErrCode RandomTestFlow::RunStep()
         ERROR_LOG("inputaction is nullptr");
         return OHOS::ERR_INVALID_VALUE;
     }
+    
+    if (ProtectRightAbility(inputaction, eventTypeId) == OHOS::ERR_INVALID_VALUE){
+        return OHOS::ERR_INVALID_VALUE;
+    }
+    result = InputScene(inputaction, inputFlag);
+    usleep(intervalArgs_ * oneSecond_);
+    return result;
+}
+
+ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId) {
     std::vector<std::string> allowList;
     WuKongUtil::GetInstance()->GetAllowList(allowList);
     if (allowList.size() > 0) {
@@ -318,9 +328,7 @@ ErrCode RandomTestFlow::RunStep()
             }
         }
     }
-    result = InputScene(inputaction, inputFlag);
-    usleep(intervalArgs_ * oneSecond_);
-    return result;
+    return OHOS::ERR_OK;
 }
 
 ErrCode RandomTestFlow::HandleNormalOption(const int option)
