@@ -298,7 +298,7 @@ ErrCode RandomTestFlow::RunStep()
         return OHOS::ERR_INVALID_VALUE;
     }
     
-    if (ProtectRightAbility(inputaction, eventTypeId) == OHOS::ERR_INVALID_VALUE){
+    if (ProtectRightAbility(inputaction, eventTypeId) == OHOS::ERR_INVALID_VALUE) {
         return OHOS::ERR_INVALID_VALUE;
     }
     result = InputScene(inputaction, inputFlag);
