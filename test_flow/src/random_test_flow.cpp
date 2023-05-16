@@ -306,7 +306,8 @@ ErrCode RandomTestFlow::RunStep()
     return result;
 }
 
-ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId) {
+ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId)
+{
     std::vector<std::string> allowList;
     WuKongUtil::GetInstance()->GetAllowList(allowList);
     if (allowList.size() > 0) {
