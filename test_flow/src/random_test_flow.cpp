@@ -297,6 +297,17 @@ ErrCode RandomTestFlow::RunStep()
         ERROR_LOG("inputaction is nullptr");
         return OHOS::ERR_INVALID_VALUE;
     }
+    
+    if (ProtectRightAbility(inputaction, eventTypeId) == OHOS::ERR_INVALID_VALUE) {
+        return OHOS::ERR_INVALID_VALUE;
+    }
+    result = InputScene(inputaction, inputFlag);
+    usleep(intervalArgs_ * oneSecond_);
+    return result;
+}
+
+ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId)
+{
     std::vector<std::string> allowList;
     WuKongUtil::GetInstance()->GetAllowList(allowList);
     if (allowList.size() > 0) {
@@ -307,10 +318,18 @@ ErrCode RandomTestFlow::RunStep()
                 return OHOS::ERR_INVALID_VALUE;
             }
         }
+        // allowList 数量大于0 并且 elementName.GetBundleName() 不在allowList里面，重新拉起一个应用
+        auto curBundleName = elementName.GetBundleName();
+        auto it = find(allowList.begin(), allowList.end(), curBundleName);
+        if (it == allowList.end()) {
+            inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
+            if (inputaction == nullptr) {
+                ERROR_LOG("inputaction is nullptr");
+                return OHOS::ERR_INVALID_VALUE;
+            }
+        }
     }
-    result = InputScene(inputaction, inputFlag);
-    usleep(intervalArgs_ * oneSecond_);
-    return result;
+    return OHOS::ERR_OK;
 }
 
 ErrCode RandomTestFlow::HandleNormalOption(const int option)

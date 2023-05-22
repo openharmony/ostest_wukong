@@ -81,6 +81,13 @@ private:
     ErrCode SetInputPercent(const int option);
 
     ErrCode InputScene(std::shared_ptr<InputAction> inputaction, bool inputFlag);
+    
+    /**
+     * @brief protect the right ability
+     * @param inputaction the inputaction
+     * @param eventTypeId the eventTypeId
+     */
+    ErrCode ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId);
 
     bool SetBlockPage();
 
