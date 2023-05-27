@@ -96,9 +96,7 @@ ohos_executable("wukong") {
 
   include_dirs += accessibility_include_dirs
 
-  deps = [
-    "//third_party/libpng:libpng",
-  ]
+  deps = [ "//third_party/libpng:libpng" ]
 
   external_deps = [
     "ability_base:want",
