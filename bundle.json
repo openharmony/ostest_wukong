@@ -9,7 +9,7 @@
   },
   "component": {
     "name": "wukong",
-    "subsystem": "test",
+    "subsystem": "wukong",
     "syscap": [
       "SystemCapability.Test.WuKong"
     ],
@@ -24,7 +24,6 @@
         "ability_base",
         "ability_runtime",
         "access_token",
-        "libpng",
         "accessibility",
         "bundle_framework",
         "common_event_service",
@@ -38,7 +37,9 @@
         "c_utils",
         "window_manager"
       ],
-      "third_party": []
+      "third_party": [
+        "libpng"
+      ]
     },
     "build": {
       "sub_component": [
