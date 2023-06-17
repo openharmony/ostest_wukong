@@ -37,7 +37,8 @@ public:
     /**
      * @brief init and clear container.
      */
-    void InitContainer() {
+    void InitContainer()
+    {
         inputElementInfoList_.clear();
         inputComponentList_.clear();
         newElementInfoList_.clear();
