@@ -47,6 +47,7 @@ public:
         pageTreeList_.clear();
         componentTreeList_.clear();
     }
+    
     /**
      * @brief update wukong tree by AccessibilityUITestAbility.
      * @return An AccessibilityElementInfo
