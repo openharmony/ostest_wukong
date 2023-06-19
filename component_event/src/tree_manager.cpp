@@ -167,6 +167,7 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
     if (isNewBundle || isNewAbility) {
         currentComponentNode_ = nullptr;
         currentPageNode_ = nullptr;
+        InitContainer();
         isNewAbility_ = true;
     } else {
         // set old screen to current screen data when it is old ability.
