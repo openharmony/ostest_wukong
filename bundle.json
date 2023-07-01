@@ -11,7 +11,7 @@
     "name": "wukong",
     "subsystem": "wukong",
     "syscap": [
-	  "SystemCapability.Test.WuKong"
+      "SystemCapability.Test.WuKong"
     ],
     "features": [],
     "adapted_system_type": [
