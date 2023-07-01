@@ -5,13 +5,12 @@
   "publishAs": "code-segment",
   "license": "Apache 2.0",
   "segment": {
-    "destPath": "test/ostest/wukong"
+    "destPath": "test/wukong"
   },
   "component": {
     "name": "wukong",
-    "subsystem": "wukong",
+    "subsystem": "ostest",
     "syscap": [
-      "SystemCapability.Test.WuKong"
     ],
     "features": [],
     "adapted_system_type": [
