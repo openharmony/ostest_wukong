@@ -32,7 +32,6 @@
         "input",
         "ipc",
         "multimedia_image_framework",
-        "resource_management",
         "samgr",
         "c_utils",
         "window_manager"
