@@ -172,6 +172,7 @@ ErrCode WuKongUtil::GetAllAppInfo()
         validBundleList_.push_back(bundleName);
         validAbilityList_.push_back(item.elementName.GetAbilityName());
     }
+    GetAllAbilities();
     return OHOS::ERR_OK;
 }
 
@@ -411,6 +412,65 @@ void WuKongUtil::GetAllAbilitiesByBundleName(std::string bundleName, std::vector
         }
     }
     TRACK_LOG_END();
+}
+
+ErrCode WuKongUtil::GetAllAbilities()
+{
+    TRACK_LOG_STD();
+    ErrCode result = OHOS::ERR_INVALID_VALUE;
+    sptr<IBundleMgr> bundleMgrProxy = GetBundleMgrProxy();
+    std::vector<BundleInfo> bundleInfos;
+    if (!bundleMgrProxy) {
+        ERROR_LOG("bundleMgrProxy is nullptr");
+        return result;
+    }
+    bool getInfoResult = bundleMgrProxy->GetBundleInfos(BundleFlag::GET_BUNDLE_DEFAULT, bundleInfos, USE_ID);
+    if (!getInfoResult) {
+        ERROR_LOG("GetBundleInfos ERR");
+        return result;
+    }
+    DEBUG_LOG_STR("bundles length{%d}", bundleInfos.size());
+    std::vector<std::string> bundleListTemp;
+    for (auto bundle : bundleList_) {
+        bundleListTemp.push_back(bundle);
+    }
+    for (auto &bundleIter : bundleInfos) {
+        std::string bundleName = bundleIter.name;
+        uint32_t isbundleListTemp = FindElement(bundleListTemp, bundleName);
+        if (isbundleListTemp != INVALIDVALUE) {
+            continue;
+        }
+        DEBUG_LOG_STR("bundleIter.name{%s}", bundleName.c_str());
+        BundleInfo bundleInfo;
+        DEBUG_LOG_STR("map bundleName{%s}", bundleName.c_str());
+        bool getBundleResult =
+            bundleMgrProxy->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, 100);
+        if (!getBundleResult) {
+            ERROR_LOG_STR("WriteWuKongBundleInfo getBundleInfo result %d", getBundleResult);
+            continue;
+        }
+        
+        for (auto &abilityIter : bundleInfo.abilityInfos) {
+            DEBUG_LOG_STR("bundleName{%s} container abilities item{%s}", bundleName.c_str(),
+                            (abilityIter.name).c_str());
+
+            bundleList_.push_back(bundleName);
+            abilityList_.push_back(abilityIter.name);
+            DEBUG_LOG_STR("bundleName: %s, abilityName: %s", bundleName.c_str(), abilityIter.name.c_str());
+            uint32_t isInBlockList = FindElement(blockList_, bundleName);
+            if (isInBlockList != INVALIDVALUE) {
+                continue;
+            }
+            // store the list of bundle names except for block list
+            validBundleList_.push_back(bundleName);
+            validAbilityList_.push_back(abilityIter.name);
+        }
+    }
+    if (validAbilityList_.size() > 0) {
+        result = OHOS::ERR_OK;
+    }
+    TRACK_LOG_END();
+    return result;
 }
 
 std::string WuKongUtil::GetCurrentTestDir()
