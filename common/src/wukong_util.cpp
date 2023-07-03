@@ -440,9 +440,7 @@ ErrCode WuKongUtil::GetAllAbilities()
         if (isbundleListTemp != INVALIDVALUE) {
             continue;
         }
-        DEBUG_LOG_STR("bundleIter.name{%s}", bundleName.c_str());
         BundleInfo bundleInfo;
-        DEBUG_LOG_STR("map bundleName{%s}", bundleName.c_str());
         bool getBundleResult =
             bundleMgrProxy->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, 100);
         if (!getBundleResult) {
