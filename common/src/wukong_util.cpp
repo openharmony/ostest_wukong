@@ -449,9 +449,6 @@ ErrCode WuKongUtil::GetAllAbilities()
         }
         
         for (auto &abilityIter : bundleInfo.abilityInfos) {
-            DEBUG_LOG_STR("bundleName{%s} container abilities item{%s}", bundleName.c_str(),
-                            (abilityIter.name).c_str());
-
             bundleList_.push_back(bundleName);
             abilityList_.push_back(abilityIter.name);
             DEBUG_LOG_STR("bundleName: %s, abilityName: %s", bundleName.c_str(), abilityIter.name.c_str());
