@@ -179,6 +179,12 @@ public:
      */
     bool GetOrderFlag();
 
+    /**
+     * @brief get all ability infos
+     * @return Return ERR_OK if get sth, others not.
+     */
+    ErrCode GetAllAbilities();
+
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 
 private:
