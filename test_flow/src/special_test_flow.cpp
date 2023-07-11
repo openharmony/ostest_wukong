@@ -307,7 +307,7 @@ ErrCode SpecialTestFlow::HandleNormalOption(const int option)
         }
         case 'C': {
             SplitStr(optarg, ",", bundleName_);
-            result = WuKongUtil::GetInstance()->CheckArgumentList(bundleName_);
+            result = WuKongUtil::GetInstance()->CheckArgumentList(bundleName_, true);
             g_commandCOMPONENTENABLE = true;
             break;
         }

@@ -207,15 +207,21 @@ ErrCode WuKongUtil::CheckBundleNameList()
     return OHOS::ERR_OK;
 }
 
-ErrCode WuKongUtil::CheckArgumentList(std::vector<std::string> &arguments)
+ErrCode WuKongUtil::CheckArgumentList(std::vector<std::string> &arguments, bool isAddToList)
 {
     ErrCode result = OHOS::ERR_OK;
     GetAllAppInfo();
     for (uint32_t i = 0; i < arguments.size(); i++) {
         uint32_t index = FindElement(bundleList_, arguments[i]);
         if (index == INVALIDVALUE) {
-            ERROR_LOG_STR("bundle name '%s' is not be included in all bundles", arguments[i].c_str());
-            result = OHOS::ERR_INVALID_VALUE;
+            uint32_t unLaunchedIndex = FindElement(unLaunchedBundleList_, arguments[i]);
+            if (unLaunchedIndex == INVALIDVALUE) {
+                ERROR_LOG_STR("bundle name '%s' is not be included in all bundles", arguments[i].c_str());
+                result = OHOS::ERR_INVALID_VALUE;
+            } else if (isAddToList) {
+                bundleList_.push_back(arguments[i]);
+                abilityList_.push_back(unLaunchedAbilityList_[unLaunchedIndex]);
+            }
         }
     }
     return result;
@@ -224,7 +230,7 @@ ErrCode WuKongUtil::CheckArgumentList(std::vector<std::string> &arguments)
 ErrCode WuKongUtil::SetAllowList(const std::string &optarg)
 {
     SplitStr(optarg, ",", allowList_);
-    ErrCode result = CheckArgumentList(allowList_);
+    ErrCode result = CheckArgumentList(allowList_, true);
     if (result == OHOS::ERR_OK) {
         // delete repeat argument
         DelRepeatArguments(allowList_);
@@ -238,7 +244,7 @@ ErrCode WuKongUtil::SetAllowList(const std::string &optarg)
 ErrCode WuKongUtil::SetBlockList(const std::string &optarg)
 {
     SplitStr(optarg, ",", blockList_);
-    ErrCode result = CheckArgumentList(blockList_);
+    ErrCode result = CheckArgumentList(blockList_, false);
     if (result == OHOS::ERR_OK) {
         // delete repeat argument
         DelRepeatArguments(blockList_);
@@ -430,14 +436,10 @@ ErrCode WuKongUtil::GetAllAbilities()
         return result;
     }
     DEBUG_LOG_STR("bundles length{%d}", bundleInfos.size());
-    std::vector<std::string> bundleListTemp;
-    for (auto bundle : bundleList_) {
-        bundleListTemp.push_back(bundle);
-    }
     for (auto &bundleIter : bundleInfos) {
         std::string bundleName = bundleIter.name;
-        uint32_t isbundleListTemp = FindElement(bundleListTemp, bundleName);
-        if (isbundleListTemp != INVALIDVALUE) {
+        uint32_t bundleListIndex = FindElement(bundleList_, bundleName);
+        if (bundleListIndex != INVALIDVALUE) {
             continue;
         }
         BundleInfo bundleInfo;
@@ -447,21 +449,13 @@ ErrCode WuKongUtil::GetAllAbilities()
             ERROR_LOG_STR("WriteWuKongBundleInfo getBundleInfo result %d", getBundleResult);
             continue;
         }
-        
         for (auto &abilityIter : bundleInfo.abilityInfos) {
-            bundleList_.push_back(bundleName);
-            abilityList_.push_back(abilityIter.name);
+            unLaunchedBundleList_.push_back(bundleName);
+            unLaunchedAbilityList_.push_back(abilityIter.name);
             DEBUG_LOG_STR("bundleName: %s, abilityName: %s", bundleName.c_str(), abilityIter.name.c_str());
-            uint32_t isInBlockList = FindElement(blockList_, bundleName);
-            if (isInBlockList != INVALIDVALUE) {
-                continue;
-            }
-            // store the list of bundle names except for block list
-            validBundleList_.push_back(bundleName);
-            validAbilityList_.push_back(abilityIter.name);
         }
     }
-    if (validAbilityList_.size() > 0) {
+    if (unLaunchedAbilityList_.size() > 0) {
         result = OHOS::ERR_OK;
     }
     TRACK_LOG_END();
