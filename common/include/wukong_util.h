@@ -129,9 +129,10 @@ public:
     /**
      * @brief Check if param is valid
      * @param argumentlist argument list.
+     * @param isAddToList should add check item to bundleList.
      * @return Return ERR_OK argument is valid, others is invalid.
      */
-    ErrCode CheckArgumentList(std::vector<std::string> &arguments);
+    ErrCode CheckArgumentList(std::vector<std::string> &arguments, bool isAddToList);
 
     /**
      * @brief get current test wukong base dir.
@@ -214,6 +215,8 @@ private:
     std::vector<std::string> allowList_;
     std::vector<std::string> blockList_ = {"com.ohos.devicemanagerui", "com.ohos.screenlock",
                                            "com.ohos.permissionmanager"};
+    std::vector<std::string> unLaunchedBundleList_;
+    std::vector<std::string> unLaunchedAbilityList_;
     int32_t screenWidth_ = -1;
     int32_t screenHeight_ = -1;
 
