@@ -218,7 +218,7 @@ ErrCode WuKongUtil::CheckArgumentList(std::vector<std::string> &arguments, bool 
             if (unLaunchedIndex == INVALIDVALUE) {
                 ERROR_LOG_STR("bundle name '%s' is not be included in all bundles", arguments[i].c_str());
                 result = OHOS::ERR_INVALID_VALUE;
-            } else if (isAddToList){
+            } else if (isAddToList) {
                 bundleList_.push_back(arguments[i]);
                 abilityList_.push_back(unLaunchedAbilityList_[unLaunchedIndex]);
             }
