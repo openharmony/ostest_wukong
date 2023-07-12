@@ -161,8 +161,6 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
     // save new bundle for launch multi-application
     if (isNewBundle) {
         InitContainer();
-        DEBUG_LOG_STR("InitContainer: NewAbility Bundle Name: (%s), ability Name: (%s)", newAbilityNode_->bundleName_.c_str(),
-                      newAbilityNode_->abilityName_.c_str());
         abilityTreeList_.push_back(newAbilityNode_);
         currentAbilityNode_ = newAbilityNode_;
     }
