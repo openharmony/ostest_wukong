@@ -39,9 +39,6 @@ public:
      */
     void InitContainer()
     {
-        inputElementInfoList_.clear();
-        inputComponentList_.clear();
-        newElementInfoList_.clear();
         elementInfoList_.clear();
         abilityTreeList_.clear();
         pageTreeList_.clear();
