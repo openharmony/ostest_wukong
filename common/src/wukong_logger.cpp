@@ -127,7 +127,7 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
 
     // write lock avoid write conflicts
     LogInfo logInfo;
-    if (outputLevel_ <= LOG_LEVEL_TRACK) {
+    if (outputLevel_ >= LOG_LEVEL_TRACK) {
         time_t currentTime = time(0);
         char *timeChar = ctime(&currentTime);
         logInfo.logStr_.append(timeChar, strlen(timeChar) - 1);
