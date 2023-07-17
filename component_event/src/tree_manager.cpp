@@ -160,6 +160,7 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
     }
     // save new bundle for launch multi-application
     if (isNewBundle) {
+        InitContainer();
         abilityTreeList_.push_back(newAbilityNode_);
         currentAbilityNode_ = newAbilityNode_;
     }
@@ -167,7 +168,6 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
     if (isNewBundle || isNewAbility) {
         currentComponentNode_ = nullptr;
         currentPageNode_ = nullptr;
-        InitContainer();
         isNewAbility_ = true;
     } else {
         // set old screen to current screen data when it is old ability.
