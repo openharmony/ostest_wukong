@@ -31,7 +31,7 @@
         "hilog",
         "input",
         "ipc",
-        "multimedia_image_framework",
+        "image_framework",
         "samgr",
         "c_utils",
         "window_manager"
