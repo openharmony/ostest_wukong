@@ -399,7 +399,7 @@ void WuKongUtil::GetAllAbilitiesByBundleName(std::string bundleName, std::vector
         return;
     }
     DEBUG_LOG_STR("bundles length{%d}", bundleInfos.size());
-    for (auto &bundleIter : bundleInfos) {
+    for (const auto &bundleIter : bundleInfos) {
         DEBUG_LOG_STR("bundleIter.name{%s}", bundleName.c_str());
         BundleInfo bundleInfo;
         if (bundleIter.name == bundleName) {
@@ -436,7 +436,7 @@ ErrCode WuKongUtil::GetAllAbilities()
         return result;
     }
     DEBUG_LOG_STR("bundles length{%d}", bundleInfos.size());
-    for (auto &bundleIter : bundleInfos) {
+    for (const auto &bundleIter : bundleInfos) {
         std::string bundleName = bundleIter.name;
         uint32_t bundleListIndex = FindElement(bundleList_, bundleName);
         if (bundleListIndex != INVALIDVALUE) {
