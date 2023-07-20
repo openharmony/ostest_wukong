@@ -57,7 +57,7 @@ bool TreeManager::RecursGetChildElementInfo(
         res = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance()->GetChildElementInfo(
             i, *(parent.get()), *(elementChild.get()));
         if (res != Accessibility::RET_OK) {
-            ERROR_LOG("GetChildElementInfo failed!");
+            ERROR_LOG_STR("GetChildElementInfo failed! Errorcode : (%d) ", res);
             return false;
         }
         TRACK_LOG_STR("GetChildElementInfo child ID (%d), child count (%d), Type (%s)",
@@ -210,7 +210,7 @@ ErrCode TreeManager::UpdateComponentInfo()
     // Get root AccessibilityElementInfo from Accessibility,
     auto bResult = aacPtr->GetRoot(*(root.get()));
     if (bResult != Accessibility::RET_OK) {
-        ERROR_LOG("Accessibility Ability get root element info failed!");
+        ERROR_LOG_STR("Accessibility Ability get root element info failed! Errorcode : (%d) ", bResult);
         return OHOS::ERR_INVALID_OPERATION;
     } else {
         // save root AccessibilityElementInfo.
