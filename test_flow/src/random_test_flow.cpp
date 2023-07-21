@@ -34,6 +34,7 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -a, --appswitch            appswitch event percent\n"
     "   -b, --bundle               the bundle name of allowlist\n"
     "   -p, --prohibit             the bundle name of blocklist\n"
+    "   -d, --page                 block page list\n"
     "   -t, --touch                touch event percent\n"
     "   -c, --count                test count\n"
     "   -i, --interval             interval\n"
@@ -46,7 +47,7 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -C, --component            component event percent\n"
     "   -r, --rotate               rotate event percent\n";
 
-const std::string SHORT_OPTIONS = "a:b:c:hi:k:p:s:t:T:H:m:S:C:r:";
+const std::string SHORT_OPTIONS = "a:b:c:d:hi:k:p:s:t:T:H:m:S:C:r:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -62,7 +63,8 @@ const struct option LONG_OPTIONS[] = {
     {"hardkey", required_argument, nullptr, 'H'},    // hardkey percent
     {"prohibit", required_argument, nullptr, 'p'},   // prohibit
     {"component", required_argument, nullptr, 'C'},  // prohibit
-    {"rotate", required_argument, nullptr, 'r'},  // rotate percent
+    {"rotate", required_argument, nullptr, 'r'},     // rotate percent
+    {"page", required_argument, nullptr, 'd'},       // block page
 };
 
 /**
@@ -89,6 +91,11 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
     {'H', INPUTTYPE_HARDKEYINPUT},    // input hardkey event
     {'r', INPUTTYPE_ROTATEINPUT}      // input rotate event
 };
+
+/**
+ * @brief Wukong block page
+ */
+std::vector<std::string> systemPaths;
 
 const int ONE_HUNDRED_PERCENT = 100;
 // one minute (ms)
@@ -245,7 +252,7 @@ ErrCode RandomTestFlow::InputScene(std::shared_ptr<InputAction> inputaction, boo
     return result;
 }
 
-bool RandomTestFlow::SetBlockPage()
+bool RandomTestFlow::SetBlockPage(std::vector<std::string> systemPaths)
 {
     auto root = std::make_shared<OHOS::Accessibility::AccessibilityElementInfo>();
     auto accPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
@@ -254,9 +261,12 @@ bool RandomTestFlow::SetBlockPage()
     std::string path = root->GetPagePath();
     bool inputFlag = true;
     TRACK_LOG_STR("Componentpage path: (%s)", path.c_str());
-    char const *systemPath = "pages/system";
-    if (strstr(path.c_str(), systemPath) != NULL) {
-        inputFlag = false;
+    for (string systemPath : systemPaths) {
+        if (path.find(systemPath) != string::npos) {
+            INFO_LOG_STR("Block the current page and return. Block page : (%s)", path.c_str());
+            inputFlag = false;
+            break;
+        }
     }
     return inputFlag;
 }
@@ -272,7 +282,7 @@ ErrCode RandomTestFlow::RunStep()
             return OHOS::ERR_OK;
         }
     }
-    bool inputFlag = SetBlockPage();
+    bool inputFlag = SetBlockPage(systemPaths);
     std::shared_ptr<InputAction> inputaction = nullptr;
     if (!g_isAppStarted) {
         inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
@@ -381,11 +391,16 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
             result = WuKongUtil::GetInstance()->SetBlockList(optarg);
             break;
         }
+        case 'd': {
+            result = WuKongUtil::GetInstance()->SetBlockPageList(optarg);
+            break;
+        }
         default: {
             result = OHOS::ERR_INVALID_VALUE;
             break;
         }
     }
+    WuKongUtil::GetInstance()->GetBlockPageList(systemPaths);
     WuKongUtil::GetInstance()->SetOrderFlag(false);
     return result;
 }
@@ -442,6 +457,7 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
         case 'a':
         case 'b':
         case 'c':
+        case 'd':
         case 'i':
         case 's':
         case 't':
