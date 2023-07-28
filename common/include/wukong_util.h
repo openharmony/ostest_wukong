@@ -59,6 +59,13 @@ public:
     ErrCode SetBlockList(const std::string &optarg);
 
     /**
+     * @brief Set the BlockPage List.
+     * @param optarg command string.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode SetBlockPageList(const std::string &optarg);
+
+    /**
      * @brief Get the Allow List of the test.
      * @param bundleNameArgs the Allow list.
      */
@@ -69,6 +76,12 @@ public:
      * @param blockList the block list.
      */
     void GetBlockList(std::vector<std::string> &blockList);
+
+    /**
+     * @brief Get the block page List of the test.
+     * @param blockList the block page list.
+     */
+    void GetBlockPageList(std::vector<std::string> &blockPageList);
 
     /**
      * @brief get the bundlelist and ability list.
@@ -215,6 +228,7 @@ private:
     std::vector<std::string> allowList_;
     std::vector<std::string> blockList_ = {"com.ohos.devicemanagerui", "com.ohos.screenlock",
                                            "com.ohos.permissionmanager"};
+    std::vector<std::string> blockPageList_ = {"pages/system"};
     std::vector<std::string> unLaunchedBundleList_;
     std::vector<std::string> unLaunchedAbilityList_;
     int32_t screenWidth_ = -1;
