@@ -101,6 +101,7 @@ Specific test example parsing：
 | -s,--seed       | Set the Random Seed. | No | Configuring the same random seed results in the same random event sequence. |
 | -b,--bundle[bundlename,......,bundlename]     | Set the list of allowed applications for this test, and the -p conflict. | No | By default, test all apps for the current device (app names separated by commas). |
 | -p,--prohibit[bundlename,......,bundlename]   | Set the list of prohibited apps for this test, which conflicts with -b. | No | By default, no applications are prohibited (application names are separated by commas). |
+| -d,--page[page,……,page]                   | Set the list of prohibited pages for this test | Np  | The system default prohibits pages/system pages (page names separated by commas). |
 | -a,--appswitch  | Set the app random pull-up test scale. | No | The default 10%. |
 | -t,--touch      | Set the screen random touch test ratio. | No | The default 10%. |
 | -S,--swap       | Set the screen random swap test scale. | No | The default 3%. |

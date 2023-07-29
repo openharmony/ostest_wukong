@@ -89,7 +89,7 @@ private:
      */
     ErrCode ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId);
 
-    bool SetBlockPage();
+    bool SetBlockPage(std::vector<std::string> systemPaths);
 
     int countArgs_ = 10;
 

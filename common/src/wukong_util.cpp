@@ -255,6 +255,25 @@ ErrCode WuKongUtil::SetBlockList(const std::string &optarg)
     return result;
 }
 
+ErrCode WuKongUtil::SetBlockPageList(const std::string &optarg)
+{
+    ErrCode result = OHOS::ERR_OK;
+    std::vector<std::string> temp;
+    SplitStr(optarg, ",", temp);
+    blockPageList_.insert(blockPageList_.end(), temp.begin(), temp.end());
+    // delete repeat argument
+    DelRepeatArguments(blockPageList_);
+    if (blockPageList_.size() > 0) {
+        stringstream ss;
+        for (const auto& str:blockPageList_) {
+        ss << str << " ";
+        }
+        INFO_LOG_STR("Please confirm that the blocked page is %s", ss.str().c_str());
+        result = OHOS::ERR_OK;
+    }
+    return result;
+}
+
 void WuKongUtil::DelRepeatArguments(std::vector<std::string> &argumentlist)
 {
     std::set<std::string> s(argumentlist.begin(), argumentlist.end());
@@ -269,6 +288,11 @@ void WuKongUtil::GetAllowList(std::vector<std::string> &allowList)
 void WuKongUtil::GetBlockList(std::vector<std::string> &blockList)
 {
     blockList = blockList_;
+}
+
+void WuKongUtil::GetBlockPageList(std::vector<std::string> &blockPageList)
+{
+    blockPageList = blockPageList_;
 }
 
 void WuKongUtil::GetValidBundleList(std::vector<std::string> &validbundlelist)
