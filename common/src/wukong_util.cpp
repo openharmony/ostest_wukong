@@ -424,18 +424,18 @@ void WuKongUtil::GetAllAbilitiesByBundleName(std::string bundleName, std::vector
     }
     DEBUG_LOG_STR("bundles length{%d}", bundleInfos.size());
     for (const auto &bundleIter : bundleInfos) {
-        DEBUG_LOG_STR("bundleIter.name{%s}", bundleName.c_str());
+        TRACK_LOG_STR("bundleIter.name{%s}", bundleIter.name.c_str());
         BundleInfo bundleInfo;
         if (bundleIter.name == bundleName) {
-            DEBUG_LOG_STR("map bundleName{%s}", bundleName.c_str());
+            TRACK_LOG_STR("map bundleName{%s}", bundleIter.name.c_str());
             bool result =
                 bundleMgrProxy->GetBundleInfo(bundleIter.name, BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, 100);
             if (!result) {
-                ERROR_LOG_STR("WriteWuKongBundleInfo getBundleInfo result %d", result);
+                ERROR_LOG_STR("WriteBundleInfo getBundleInfo result %d, bundleName: ", result, bundleIter.name.c_str());
                 break;
             }
             for (auto &abilityIter : bundleInfo.abilityInfos) {
-                DEBUG_LOG_STR("bundleName{%s} container abilities item{%s}", bundleName.c_str(),
+                TRACK_LOG_STR("bundleName{%s} container abilities item{%s}", bundleIter.name.c_str(),
                               (abilityIter.name).c_str());
                 abilities.push_back(abilityIter.name);
             }

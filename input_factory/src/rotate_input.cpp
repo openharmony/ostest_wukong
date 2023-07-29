@@ -43,7 +43,7 @@ ErrCode RotateInput::OrderInput(const std::shared_ptr<SpcialTestObject>& special
     std::vector<sptr<Rosen::Screen>> screens;
     Rosen::ScreenManager::GetInstance().GetAllScreens(screens);
 
-    uint32_t orientation = (rand() % FOUR) + ONE;
+    uint32_t orientation = static_cast<uint32_t>((rand() % FOUR) + ONE);
     switch (orientation) {
         case ONE:
             INFO_LOG("Rotate orientation is VERTICAL");
@@ -72,7 +72,7 @@ ErrCode RotateInput::RandomInput()
     std::vector<sptr<Rosen::Screen>> screens;
     Rosen::ScreenManager::GetInstance().GetAllScreens(screens);
 
-    uint32_t orientation = (rand() % FOUR) + ONE;
+    uint32_t orientation = static_cast<uint32_t>((rand() % FOUR) + ONE);
     switch (orientation) {
         case ONE:
             INFO_LOG("Rotate orientation is VERTICAL");
