@@ -35,6 +35,16 @@ class TreeManager : public DelayedSingleton<TreeManager> {
      */
 public:
     /**
+     * @brief init and clear container.
+     */
+    void InitContainer()
+    {
+        elementInfoList_.clear();
+        abilityTreeList_.clear();
+        pageTreeList_.clear();
+        componentTreeList_.clear();
+    }
+    /**
      * @brief update wukong tree by AccessibilityUITestAbility.
      * @return An AccessibilityElementInfo
      */

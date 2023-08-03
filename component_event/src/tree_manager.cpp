@@ -160,6 +160,7 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
     }
     // save new bundle for launch multi-application
     if (isNewBundle) {
+        InitContainer();
         abilityTreeList_.push_back(newAbilityNode_);
         currentAbilityNode_ = newAbilityNode_;
     }
