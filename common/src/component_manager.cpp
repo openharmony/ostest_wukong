@@ -84,8 +84,8 @@ void ComponentEventMonitor::OnAbilityDisconnected()
 
 void ComponentEventMonitor::OnAccessibilityEvent(const Accessibility::AccessibilityEventInfo& eventInfo)
 {
-    DEBUG_LOG_STR("OnAccessibilityEvent Start %u", eventInfo.GetEventType());
-    DEBUG_LOG_STR("current bundle: %s", eventInfo.GetBundleName().c_str());
+    TRACK_LOG_STR("OnAccessibilityEvent Start %u", eventInfo.GetEventType());
+    TRACK_LOG_STR("current bundle: %s", eventInfo.GetBundleName().c_str());
     if (eventInfo.GetBundleName() == permissionBundleName) {
         auto listenerlist = ComponentManager::GetInstance()->GetListenerList();
         for (auto it : listenerlist) {

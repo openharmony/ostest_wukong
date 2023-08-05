@@ -42,13 +42,13 @@ public:
     uint32_t ComponmentTypesIndex(const std::string &componmentType)
     {
         uint32_t index = componmentTypes_.size();
-        DEBUG_LOG_STR("componmentTypes_.size{%d}", index);
+        TRACK_LOG_STR("componmentTypes_.size{%d}", index);
         uint32_t findIndex = WuKongUtil::GetInstance()->FindElement(componmentTypes_, componmentType);
         if (findIndex != INVALIDVALUE) {
             DEBUG_LOG_STR("findIndex{%d}", findIndex);
             index = findIndex;
         }
-        DEBUG_LOG_STR("current componmentType find index{%d}", index);
+        TRACK_LOG_STR("current componmentType find index{%d}", index);
         return index;
     }
     std::vector<std::string> componmentTypes_;

@@ -41,14 +41,14 @@ public:
     uint32_t ElementTypesIndex(const std::string &eventType)
     {
         uint32_t index = eventTypes_.size();
-        DEBUG_LOG_STR("eventTypes_.size{%d}", index);
+        TRACK_LOG_STR("eventTypes_.size{%d}", index);
         std::vector<std::string>::iterator eventTypesIter;
         eventTypesIter = find(eventTypes_.begin(), eventTypes_.end(), eventType);
         if (eventTypesIter != eventTypes_.end()) {
             index = (uint32_t)(eventTypesIter - eventTypes_.begin());
             DEBUG_LOG_STR("find index{%d}", index);
         }
-        DEBUG_LOG_STR("find index{%d}", index);
+        TRACK_LOG_STR("find index{%d}", index);
         return index;
     }
     std::vector<std::string> eventTypes_;
