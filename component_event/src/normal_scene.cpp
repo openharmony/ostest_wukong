@@ -39,7 +39,7 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
     std::vector<uint32_t> indexList;
     if (randomNumber < NEWPERCENT) {
         for (auto it = componentList.begin(); it != componentList.end(); it++) {
-            DEBUG_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
+            TRACK_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
             if ((*it)->GetInputCount() > MAXINPUTNUM) {
                 indexList.push_back((*it)->GetIndex());
                 TRACK_LOG_STR("index0: %d", distance(componentList.begin(), it));
@@ -47,7 +47,7 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
         }
     } else if (randomNumber < (NEWPERCENT + OLDPERCENT)) {
         for (auto it = componentList.begin(); it != componentList.end(); it++) {
-            DEBUG_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
+            TRACK_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
             if ((*it)->GetInputCount() <= MAXINPUTNUM) {
                 count++;
                 TRACK_LOG_STR("inputed count: %d, componentList size: %d", count, componentList.size());
