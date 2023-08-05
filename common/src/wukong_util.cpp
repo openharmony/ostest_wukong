@@ -432,7 +432,7 @@ void WuKongUtil::GetAllAbilitiesByBundleName(std::string bundleName, std::vector
                 bundleMgrProxy->GetBundleInfo(bundleIter.name, BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, 100);
             if (!result) {
                 ERROR_LOG_STR("WriteBundleInfo getBundleInfo result %d, bundleName: %s", result,
-                                                                                         bundleIter.name.c_str());
+                    bundleIter.name.c_str());
                 break;
             }
             for (auto &abilityIter : bundleInfo.abilityInfos) {
