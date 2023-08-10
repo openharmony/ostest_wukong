@@ -16,7 +16,6 @@ import("//build/ohos.gni")
 ability_runtime_root = "//foundation/ability/ability_runtime"
 
 config("wukong_common_config") {
-  include_dirs = [ "//third_party/json/single_include/nlohmann" ]
   cflags = [ "-D__OHOS__" ]
   cflags_cc = [ "-fexceptions" ]
 }
@@ -28,7 +27,6 @@ accessibility_include_dirs = [
   "//base/hiviewdfx/hisysevent/interfaces",
   "//commonlibrary/c_utils/base/include",
   "//utils/system/safwk/native/include",
-  "//third_party/json/include",
   "//base/security/access_token/interfaces/innerkits/nativetoken/include",
   "//base/security/access_token/interfaces/innerkits/token_setproc/include",
   "//base/security/access_token/interfaces/innerkits/accesstoken/include",

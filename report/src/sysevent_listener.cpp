@@ -21,21 +21,7 @@
 
 namespace OHOS {
 namespace WuKong {
-using nlohmann::json;
 using OHOS::HiviewDFX::HiSysEvent;
-
-namespace {
-template <typename ValueType>
-void ValueGet(const json& jsonData, const std::string& key, const json::value_t vt, ValueType& data)
-{
-    if (jsonData.contains(key)) {
-        if (jsonData[key].type() == vt) {
-            data = jsonData[key].get<ValueType>();
-        }
-    }
-    TRACK_LOG_END();
-}
-}  // namespace
 
 void SysEventListener::OnEvent(std::shared_ptr<HiviewDFX::HiSysEventRecord> sysEvent)
 {
@@ -45,8 +31,6 @@ void SysEventListener::OnEvent(std::shared_ptr<HiviewDFX::HiSysEventRecord> sysE
     std::string domain = sysEvent->GetDomain();
     std::string eventName = sysEvent->GetEventName();
     OHOS::HiviewDFX::HiSysEvent::EventType eventType = sysEvent->GetEventType();
-    std::string eventDetail = sysEvent->AsJson();
-
     TRACK_LOG("----------Exception caught----------");
     TRACK_LOG_STR("domain: %s", domain.c_str());
     TRACK_LOG_STR("eventName: %s", eventName.c_str());
@@ -71,16 +55,11 @@ void SysEventListener::OnEvent(std::shared_ptr<HiviewDFX::HiSysEventRecord> sysE
         default:
             data.type = "UNKNOWN";
     }
-    json jsonData = json::parse(eventDetail, nullptr, false);
-    if (jsonData == json::value_t::discarded) {
-        ERROR_LOG_STR("event detail parse error, the content: %s", eventDetail.c_str());
-    } else {
-        ValueGet<uint64_t>(jsonData, "time_", json::value_t::number_unsigned, data.time);
-        ValueGet<std::string>(jsonData, "tz_", json::value_t::string, data.timeZone);
-        ValueGet<uint64_t>(jsonData, "pid_", json::value_t::number_unsigned, data.pid);
-        ValueGet<uint64_t>(jsonData, "tid_", json::value_t::number_unsigned, data.tid);
-        ValueGet<uint64_t>(jsonData, "uid_", json::value_t::number_unsigned, data.uid);
-    }
+    data.time = sysEvent->GetTime();
+    data.timeZone = sysEvent->GetTimeZone();
+    data.pid = static_cast<uint64_t>(sysEvent->GetPid());
+    data.tid = static_cast<uint64_t>(sysEvent->GetTid());
+    data.uid = static_cast<uint64_t>(sysEvent->GetUid());
     CsvUtils::WriteOneLine(csvFile, data);
 }
 void SysEventListener::OnServiceDied()
