@@ -15,6 +15,8 @@
 
 #include "normal_scene.h"
 
+#include "tree_manager.h"
+
 namespace OHOS {
 namespace WuKong {
 namespace {
@@ -96,6 +98,46 @@ ErrCode NormalScene::SetInputComponent(std::vector<std::shared_ptr<ComponentTree
     if (componentinfo == nullptr) {
         isBack_ = true;
     }
+    return result;
+}
+
+ErrCode NormalScene::SetInputComponentListForFocusInput(std::vector<std::shared_ptr<ComponentTree>> &componentList)
+{
+    ErrCode result = OHOS::ERR_OK;
+    uint32_t count = 0;
+    std::vector<uint32_t> indexList;
+    auto treemanager = TreeManager::GetInstance();
+    uint32_t focusNum = treemanager->GetFocusNum();
+    for (auto it = componentList.begin(); it != componentList.end(); it++) {
+        TRACK_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
+        std::string type = (*it)->GetType();
+        bool needFocus = treemanager->NeedFocus(type);
+        uint32_t limit = needFocus ? focusNum : MAXINPUTNUM;
+        if ((*it)->GetInputCount() >= limit) {
+            indexList.push_back((*it)->GetIndex());
+            count++;
+            TRACK_LOG_STR("index0: %d", distance(componentList.begin(), it));
+        }
+    }
+    if (count >= componentList.size()) {
+        isBack_ = true;
+        indexList.clear();
+        return OHOS::ERR_OK;
+    }
+    TRACK_LOG_STR("componentList size: %d", componentList.size());
+    TRACK_LOG_STR("indexList size: %d", indexList.size());
+    for (auto index : indexList) {
+        for (auto it = componentList.begin(); it != componentList.end(); it++) {
+            if ((*it)->GetIndex() == index) {
+                componentList.erase(it);
+                it--;
+            }
+        }
+    }
+    if (componentList.size() == 0) {
+        isBack_ = true;
+    }
+    indexList.clear();
     return result;
 }
 }  // namespace WuKong

@@ -28,6 +28,7 @@ Submodule responsibilities within the component：<br>
 │       └── src                     
 │           ├── random_test_flow.cpp    # Inherited from TestFlow, is the execution flow of random tests
 │           ├── special_test_flow.cpp   # Inherited from TestFlow, is the execution flow of sequential specific tests
+│           ├── focus_test_flow.cpp     # Inherited from TestFlow, is the execution flow of focus specific tests
 │           ├── test_flow.cpp           # Check whether the command line parameters conform to specifications
 │   ── BUILD.gn                         # Store the configuration of wukong construction, including construction object, method, dependency, hardware architecture, and file format
 │   ── README_zh.md                     # The readme file
@@ -61,6 +62,7 @@ Submodule responsibilities within the component：<br>
 | wukong appinfo | Query support pulling up the application bundleName and the corresponding mainAbility name |               |
 | wukong special | wukong special test |               |
 | wukong exec    | wukong randomly tests |               |
+| wukong focus   | wukong focus tests |               |
 
 
 ### wukong special description
@@ -128,6 +130,15 @@ Random test example parsing：
 | -a  | 0.28   | Parameter Settings Apply random pull up test ratio 28%.         |
 | -t  | 0.72   | Parameter Settings Screen random touch test proportion is 72%.    |
 | -c  | 100  | Parameter Setting The number of execution times is 100.                |
+
+### wukong random description
+
+| Command | Features | Required | Note |
+| --------------- | ------------------------------------ | ---- | ---------------------------------------- |
+| -n,--numberfocus| Set focus number for components.     | No   |                                          |
+| -f, --focustypes| Set the component type to focus on.  | No   | "," to split if more than one.           |
+Other params are same as exec.
+
 
 ## Release notes
 

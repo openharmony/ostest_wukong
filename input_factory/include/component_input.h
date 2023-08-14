@@ -32,6 +32,7 @@ public:
     ~ComponentInput();
     ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject);
     ErrCode RandomInput();
+    ErrCode FocusInput();
     ErrCode GetInputInfo();
 
 private:

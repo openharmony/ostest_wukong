@@ -28,6 +28,7 @@ wukong部件架构图<br>
 │       └── src                     
 │           ├── random_test_flow.cpp    # 继承TestFlow,是随机测试的执行流
 │           ├── special_test_flow.cpp   # 继承TestFlow,是顺序专项测试的执行流
+│           ├── focus_test_flow.cpp     # 继承TestFlow,是专注测试的执行流
 │           ├── test_flow.cpp           # 检查命令行参数是否符合规范
 │   ── BUILD.gn                         # 存放wukong构建的配置，具体包括构建对象、方式、依赖、硬件架构、文件格式
 │   ── README_zh.md                     # readme文件
@@ -61,6 +62,7 @@ wukong部件架构图<br>
 | appinfo | 查询支持拉起应用bundleName和对应的mainAbility名。 |               |
 | special | wukong专项测试。                                   |               |
 | exec    | wukong随机测试。                                   |               |
+| focus   | wukong专注测试。                                   |               |
 
 
 ### wukong special描述
@@ -131,6 +133,13 @@ wukong部件架构图<br>
 | -a  | 0.28          | 参数设置应用随机拉起测试比例28%。          |
 | -t  | 0.72           | 参数设置屏幕随机touch测试比例为72%。    |
 | -c  | 100           | 参数设置执行次数为100次。                |
+
+### wukong focus描述
+| 命令            | 功能                                 | 必选 | 备注                                     |
+| --------------- | ------------------------------------ | ---- | ---------------------------------------- |
+| -n,--numberfocus       | 设置每个控件注入的次数。               | 否   |                         |
+| -f, --focustypes       | 设置需要专注的控件类型。               | 否   | 以英文逗号隔开。                         |
+其他参数继承自exec。
 
 ## 版本说明
 

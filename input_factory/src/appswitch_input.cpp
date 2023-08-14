@@ -84,6 +84,11 @@ ErrCode AppswitchInput::RandomInput()
     return result;
 }
 
+ErrCode AppswitchInput::FocusInput()
+{
+    return AppswitchInput::RandomInput();
+}
+
 ErrCode AppswitchInput::PrintResultOfStartAbility(const ErrCode result, uint32_t index)
 {
     std::vector<std::string> bundleList;

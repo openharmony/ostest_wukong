@@ -27,6 +27,7 @@
 #include "launcher_service.h"
 #include "random_test_flow.h"
 #include "special_test_flow.h"
+#include "focus_test_flow.h"
 #include "system_ability_definition.h"
 #include "test_flow_factory.h"
 
@@ -46,6 +47,7 @@ const std::string WUKONG_HELP_MSG =
     "   -v/--version               wukong version\n"
     "   exec                       run random test\n"
     "   special                    run special test\n"
+    "   focus                      run focus test\n"
     "   appinfo                    show all app information\n";
 }  // namespace
 
@@ -68,6 +70,7 @@ ErrCode WuKongShellCommand::CreateCommandMap()
         {"stop", std::bind(&WuKongShellCommand::RunStopCommand, this)},
         {"exec", std::bind(&WuKongShellCommand::RunTestCommand, this)},
         {"special", std::bind(&WuKongShellCommand::RunTestCommand, this)},
+        {"focus", std::bind(&WuKongShellCommand::RunTestCommand, this)},
         {"appinfo", std::bind(&WuKongShellCommand::ShowAllAppInfo, this)},
     };
     TRACK_LOG_END();

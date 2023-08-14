@@ -49,6 +49,17 @@ public:
      */
     void SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject);
     /*
+     * @brief  deal data under different mode
+     * @return void
+     */
+    void SplitInputMode(std::shared_ptr<InputedMsgObject> &inputedMsgObject, std::map<std::string, std::string> &data);
+    /*
+     * @brief  group data, record them to temp container
+     * @return void
+     */
+    void GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedMsgObject, std::map<std::string, std::string> &data);
+
+    /*
      * @brief Write the content of the test process segmented to the storage csvfile
      * @return void
      */
@@ -67,6 +78,12 @@ public:
     void RecordScreenPath(const std::string &screenPath);
 
     /*
+     * @brief Write the content of the focus input segmented to the storage file
+     * @return void
+     */
+    void SegmentedWriteForFocusInput();
+
+    /*
     * @brief get report exception dir
     * @return void
     */
@@ -78,6 +95,10 @@ public:
      * @return void
      */
     void ExceptionRecord(const std::string &exceptionFilename);
+
+    void SetIsFocusTest(bool isFocus) {
+        is_focus_ = isFocus;
+    }
 private:
     /*
      * @brief dependent environment init, include create file,dir, setting start time
@@ -109,6 +130,7 @@ private:
     // csv filename
     std::string reportCsvFileName_ = "";
     std::string reportJsonFileName_ = "";
+    std::string reportFocusInputFileName_ = "";
     std::string reportExceptionDir_ = "";
     std::string currentTestDir_ = "";
     std::string startRunTime_ = "";
@@ -134,6 +156,10 @@ private:
 
     // screen store path vector
     std::vector<std::string> screenPaths_;
+    //focus_input output container
+    std::vector<std::string> focus_input_vec_;
+    // identify cur test is focus test
+    bool is_focus_ = false;
 };
 }  // namespace WuKong
 }  // namespace OHOS

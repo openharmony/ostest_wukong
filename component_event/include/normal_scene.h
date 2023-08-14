@@ -41,6 +41,8 @@ public:
     ErrCode SetInputComponent(std::vector<std::shared_ptr<ComponentTree>> &componentList,
                               std::shared_ptr<ComponentTree> &componentinfo);
 
+    ErrCode SetInputComponentListForFocusInput(std::vector<std::shared_ptr<ComponentTree>> &componentList);
+
 private:
     bool isBack_ = false;
 };

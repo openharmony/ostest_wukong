@@ -17,6 +17,7 @@
 
 #include "random_test_flow.h"
 #include "special_test_flow.h"
+#include "focus_test_flow.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -27,6 +28,8 @@ std::shared_ptr<TestFlow> TestFlowFactory::GetTestFlow(WuKongShellCommand& shell
         testFlow = std::make_shared<RandomTestFlow>(shellCommand);
     } else if (command == "special") {
         testFlow = std::make_shared<SpecialTestFlow>(shellCommand);
+    } else if (command == "focus") {
+        testFlow = std::make_shared<FocusTestFlow>(shellCommand);
     }
     return testFlow;
 }

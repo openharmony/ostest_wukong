@@ -20,11 +20,13 @@
 #include "accessibility_element_info.h"
 #include "component_tree.h"
 #include "page_tree.h"
+#include "wukong_util.h"
 
 namespace OHOS {
 namespace WuKong {
 namespace {
 const uint32_t INVALIDED_INPUT_INDEX = 0xFFFFFFFF;
+const uint32_t FOCUS_NUM_DEFAULT = 20;
 }
 /**
  * @brief Generate component tree, get AccessibilityElementInfo for current active components.
@@ -44,7 +46,7 @@ public:
         pageTreeList_.clear();
         componentTreeList_.clear();
     }
-    
+
     /**
      * @brief update wukong tree by AccessibilityUITestAbility.
      * @return An AccessibilityElementInfo
@@ -80,6 +82,89 @@ public:
      * for scene update tree.
      */
 public:
+    /**
+     * @brief find the index of component, which one to input
+     * @return the index
+     */
+    std::uint32_t FindInputComponentIndex()
+    {
+        if (page2inputCount_.find(pagePath_) == page2inputCount_.end()) {
+            page2inputCount_[pagePath_] = 1;
+            page2componentIndex_[pagePath_] = (std::uint32_t) rand();
+            return page2componentIndex_[pagePath_];
+        }
+        if (NeedFocus(componmentType_)) {
+            if (page2inputCount_[pagePath_] % (focusNum_ + 1) == 0) {
+                page2componentIndex_[pagePath_] = (std::uint32_t) rand();
+                page2inputCount_[pagePath_] = 0;
+            }
+            page2inputCount_[pagePath_]++;
+        } else {
+            page2inputCount_[pagePath_] = 1;
+            page2componentIndex_[pagePath_] = (std::uint32_t) rand();
+        }
+        return page2componentIndex_[pagePath_];
+    }
+
+    /**
+     * @brief decide whether the component need be focused on
+     * @param type the component type to charge
+     */
+    bool NeedFocus(const std::string & type)
+    {
+        if (focusTypeList_.size() > 0) {
+            uint32_t focusTypeIndex = WuKongUtil::GetInstance()->FindElement(focusTypeList_, type);
+            if (focusTypeIndex == INVALIDVALUE) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @brief set the component's total input number
+     * @param totalNum the number to finish event input
+     */
+    void SetTotalNum(const std::string & totalNum)
+    {
+        totalNum_ = std::stoi(totalNum);
+    }
+
+    /**
+     * @brief set the component's every focused input number
+     * @param totalNum the focus input number
+     */
+    void SetFocusNum(const std::string & focusNum)
+    {
+        focusNum_ = std::stoi(focusNum);
+    }
+
+    /**
+     * @brief set the component's every focused input number
+     */
+    uint32_t GetFocusNum()
+    {
+        return focusNum_;
+    }
+
+    /**
+     * @brief set the component types to focus on
+     * @param totalNum the focus input number
+     */
+    void SetFocusTypeList(const std::string &optarg)
+    {
+        SplitStr(optarg, ",", focusTypeList_);
+    }
+
+    /**
+     * @brief check cur page has Dialog
+     * @return return hasDialog_
+     */
+    bool hasDialog()
+    {
+        return hasDialog_;
+    }
+
     /**
      * @brief set ComponentTree list of active component.
      * @param inputComponentList ComponentTree list.
@@ -173,6 +258,31 @@ public:
         }
     }
 
+    const std::map<std::string, std::uint32_t> GetComponentIndexMap()
+    {
+        return page2componentIndex_;
+    }
+
+    const std::map<std::string, std::uint32_t> GetComponentInputCountMap()
+    {
+        return page2inputCount_;
+    }
+
+    void SetOldPagePath(const std::string& pagePath)
+    {
+        pagePath_ = pagePath;
+    }
+
+    std::string GetPagePath()
+    {
+        return pagePath_;
+    }
+
+    void SetComponentType(const std::string& componmentType)
+    {
+        componmentType_ = componmentType;
+    }
+
     bool RecursComponent(const std::shared_ptr<ComponentTree>& componentTree);
     DECLARE_DELAYED_SINGLETON(TreeManager);
 
@@ -208,6 +318,17 @@ private:
 
     bool isUpdateComponentFinished_ = false;
     bool isNewAbility_ = false;
+
+    std::string pagePath_;
+    std::map<std::uint64_t, std::uint64_t> componentCountMap_;
+    bool hasDialog_ = false;
+
+    std::map<std::string, std::uint32_t> page2componentIndex_;
+    std::map<std::string, std::uint32_t> page2inputCount_;
+    std::string componmentType_ = "";
+    std::uint32_t totalNum_;
+    std::uint32_t focusNum_ = FOCUS_NUM_DEFAULT;
+    std::vector<std::string> focusTypeList_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

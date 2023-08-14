@@ -109,6 +109,16 @@ bool PageTree::SetNodeId()
     nodeId_ |= twoWidth << PAGE_TWO_LAYER_WIDTH_POSION;
     nodeId_ |= lastWidth << PAGE_LAST_LAYER_WIDTH_POSION;
     TRACK_LOG_STR("Page Node ID: (0x%016llX)", nodeId_);
+    // make node id for compare page.
+	auto elementInfo = TreeManager::GetInstance()->GetNewElementInfoList((count_-1));
+    if (elementInfo == nullptr) {
+        ERROR_LOG("get new element info is nullptr");
+        return false;
+    }
+    std::string pagePath_;
+	pagePath_ = elementInfo->GetPagePath();
+    TreeManager::GetInstance()->SetOldPagePath(pagePath_);
+	TRACK_LOG_STR("Componentpage path: (%s)", pagePath_.c_str());
     return true;
 }
 }  // namespace WuKong
