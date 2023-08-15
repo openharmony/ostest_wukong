@@ -262,7 +262,7 @@ void Report::GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedM
     auto inputCompMsgPtr = std::static_pointer_cast<ComponmentInputMsg>(inputedMsgObject);
     std::string item = "";
     time_t currentTime = time(0);
-    std:: timeStr = "";
+    std::string timeStr = "";
     if (currentTime > 0) {
         timeStr = std::to_string(currentTime);
     }
