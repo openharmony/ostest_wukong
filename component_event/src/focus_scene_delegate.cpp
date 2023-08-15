@@ -39,7 +39,7 @@ FocusSceneDelegate::~FocusSceneDelegate()
 }
 
 ErrCode FocusSceneDelegate::GetCurrentComponentInfo(std::shared_ptr<ComponentTree> componentinfo,
-                                               std::vector<std::shared_ptr<ComponentTree>> &componentlist)
+    std::vector<std::shared_ptr<ComponentTree>> &componentlist)
 {
     ErrCode result = OHOS::ERR_OK;
     if (componentinfo == nullptr) {
@@ -97,14 +97,14 @@ ErrCode FocusSceneDelegate::ChooseScene(bool isRandom)
         return OHOS::ERR_NO_INIT;
     }
     std::vector<std::shared_ptr<ComponentTree>> allcomponentlist;
+    // get current page node
+    std::shared_ptr<WuKongTree> currentpage = treemanager->GetCurrentPage();
     // get current component list
     GetCurrentComponentInfo(newcomponents, allcomponentlist);
     // set all component counts of new page
     newpage->SetAllComponentCount(allcomponentlist.size());
     // set valid component counts of new page
     newpage->SetValidComponentCount(allcomponentlist.size());
-    // get current page node
-    std::shared_ptr<WuKongTree> currentpage = treemanager->GetCurrentPage();
     if (currentpage == nullptr) {
         DEBUG_LOG("first page");
         treemanager->AddPage();
@@ -151,7 +151,7 @@ ErrCode FocusSceneDelegate::ChooseScene(bool isRandom)
 }
 
 ErrCode FocusSceneDelegate::CompareComponentInfos(std::shared_ptr<ComponentTree> &newcomponentinfo,
-                                             std::shared_ptr<ComponentTree> &oldcomponentinfo, bool isRandom)
+    std::shared_ptr<ComponentTree> &oldcomponentinfo, bool isRandom)
 {
     ErrCode result;
     DEBUG_LOG("compare page");
@@ -226,7 +226,7 @@ ErrCode FocusSceneDelegate::SetAvailableComponentList(std::shared_ptr<ComponentT
 }
 
 uint32_t FocusSceneDelegate::FindSame(const std::vector<std::shared_ptr<ComponentTree>> &newcomponentlist,
-                                 const std::vector<std::shared_ptr<ComponentTree>> &oldcomponentlist)
+    const std::vector<std::shared_ptr<ComponentTree>> &oldcomponentlist)
 {
     uint32_t count = 0;
     for (auto newIt : newcomponentlist) {

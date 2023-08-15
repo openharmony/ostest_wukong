@@ -99,7 +99,6 @@ public:
         return endY_;
     }
 
-
     DECLARE_DELAYED_SINGLETON(ComponentManager);
 
 private:

@@ -67,7 +67,7 @@ const struct option LONG_OPTIONS[] = {
     {"prohibit", required_argument, nullptr, 'p'},   // prohibit
     {"component", required_argument, nullptr, 'C'},  // prohibit
     {"rotate", required_argument, nullptr, 'r'},     // rotate percent
-    {"numberfocus", required_argument, nullptr, 'n'},// number focus
+    {"numberfocus", required_argument, nullptr, 'n'}, // number focus
     {"focustypes", required_argument, nullptr, 'f'}, // focus types
 };
 
@@ -264,7 +264,7 @@ bool FocusTestFlow::SetBlockPage()
     bool inputFlag = true;
     char const *systemPath = "pages/system";
     char const *passwordPath = "pages/biometricsandpassword";
-    if (strstr(path.c_str(), systemPath) != NULL || 
+    if (strstr(path.c_str(), systemPath) != NULL ||
         strstr(path.c_str(), passwordPath) != NULL) {
         inputFlag = false;
     }
@@ -321,7 +321,8 @@ ErrCode FocusTestFlow::RunStep()
     return result;
 }
 
-ErrCode FocusTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId) {
+ErrCode FocusTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId)
+{
     std::vector<std::string> allowList;
     WuKongUtil::GetInstance()->GetAllowList(allowList);
     if (allowList.size() > 0) {

@@ -228,7 +228,8 @@ void Report::SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject)
     TRACK_LOG_END();
 }
 
-void Report::SplitInputMode(std::shared_ptr<InputedMsgObject> &inputedMsgObject, std::map<std::string, std::string> &data)
+void Report::SplitInputMode(std::shared_ptr<InputedMsgObject> &inputedMsgObject,
+    std::map<std::string, std::string> &data)
 {
     inputedMode inputMode = inputedMsgObject->GetInputedMode();
     switch (inputMode) {
@@ -250,7 +251,8 @@ void Report::SplitInputMode(std::shared_ptr<InputedMsgObject> &inputedMsgObject,
     }
 }
 
-void Report::GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedMsgObject, std::map<std::string, std::string> &data)
+void Report::GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedMsgObject,
+    std::map<std::string, std::string> &data)
 {
     TRACK_LOG_STD();
     inputedMode inputMode = inputedMsgObject->GetInputedMode();
@@ -259,8 +261,13 @@ void Report::GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedM
     }
     auto inputCompMsgPtr = std::static_pointer_cast<ComponmentInputMsg>(inputedMsgObject);
     std::string item = "";
+    time_t currentTime = time(0);
+    std:: timeStr = "";
+    if (currentTime > 0) {
+        timeStr = std::to_string(currentTime);
+    }
     item += std::to_string(taskCount_) + ",";
-    item += std::to_string(time(0)) + ",";
+    item += timeStr + ",";
     item += data["abilityName"] + ",";
     item += inputCompMsgPtr->pagePath_ + ",";
     item += inputCompMsgPtr->componmentType_ + ",";

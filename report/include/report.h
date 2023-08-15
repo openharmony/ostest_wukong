@@ -57,7 +57,8 @@ public:
      * @brief  group data, record them to temp container
      * @return void
      */
-    void GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedMsgObject, std::map<std::string, std::string> &data);
+    void GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedMsgObject, std::map<std::string,
+        std::string> &data);
 
     /*
      * @brief Write the content of the test process segmented to the storage csvfile
@@ -96,7 +97,8 @@ public:
      */
     void ExceptionRecord(const std::string &exceptionFilename);
 
-    void SetIsFocusTest(bool isFocus) {
+    void SetIsFocusTest(bool isFocus)
+    {
         is_focus_ = isFocus;
     }
 private:
@@ -156,7 +158,7 @@ private:
 
     // screen store path vector
     std::vector<std::string> screenPaths_;
-    //focus_input output container
+    // focus_input output container
     std::vector<std::string> focus_input_vec_;
     // identify cur test is focus test
     bool is_focus_ = false;
