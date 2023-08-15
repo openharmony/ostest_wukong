@@ -37,6 +37,12 @@ public:
     ErrCode RandomInput();
 
     /**
+     * @brief started up a app by ability.
+     * @return Return ERR_OK on success， others on failure.
+     */
+    ErrCode FocusInput();
+
+    /**
      * @brief get information of inputted event.
      * @return Return ERR_OK on success， others on failure.
      */

@@ -21,6 +21,7 @@
 #include "input_msg_object.h"
 #include "report.h"
 #include "scene_delegate.h"
+#include "focus_scene_delegate.h"
 #include "tree_manager.h"
 #include "wukong_define.h"
 
@@ -283,6 +284,57 @@ ErrCode ComponentInput::RandomInput()
         }
     }
     DEBUG_LOG_STR("component random input result (%d)", result);
+    return result;
+}
+
+ErrCode ComponentInput::FocusInput()
+{
+    ErrCode result = OHOS::ERR_OK;
+    auto treemanager = TreeManager::GetInstance();
+    result = treemanager->UpdateComponentInfo();
+    auto componentManager = ComponentManager::GetInstance();
+    DEBUG_LOG_STR("update componentinfo result (%d)", result);
+    if (result == OHOS::ERR_OK) {
+        auto delegate = FocusSceneDelegate::GetInstance();
+        delegate->ChooseScene(true);
+        auto componentInfos = treemanager->GetActiveElementInfos();
+        DEBUG_LOG_STR("component list size (%d)", componentInfos.size());
+        DEBUG_LOG_STR("back: %d", delegate->IsBackToPrePage());
+        if (delegate->IsBackToPrePage()) {
+            result = componentManager->BackToPrePage();
+        } else if (componentInfos.size() > 0) {
+            uint32_t randIndex = treemanager->FindInputComponentIndex();
+            DEBUG_LOG_STR("ComponentInput::FocusInput START: randomIndex: %u", randIndex);
+            uint32_t index = randIndex % componentInfos.size();
+            DEBUG_LOG_STR("component input index (%d)", index);
+            auto componentinfo = componentInfos[index];
+            int actionType = JudgeComponentType(*(componentinfo.get()));
+            if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
+                actionType = OHOS::Accessibility::ACCESSIBILITY_ACTION_CLICK;
+            }
+
+            result = componentManager->ComponentEventInput(*(componentinfo.get()), actionType);
+            DEBUG_LOG_STR("action type: %d, sequence input: %d", actionType, result);
+            if (result == OHOS::ERR_OK) {
+                treemanager->SetInputcomponentIndex(actionType, index);
+                std::shared_ptr<ComponmentInputMsg> componentInputMsg = std::make_shared<ComponmentInputMsg>();
+                componentInputMsg->pageComponments = delegate->GetComponentTypeList();
+                componentInputMsg->componmentType_ = componentinfo->GetComponentType();
+                componentInputMsg->pagePath_ = componentinfo->GetPagePath();
+                componentInputMsg->startX_ = componentManager->GetStartX();
+                componentInputMsg->startY_ = componentManager->GetStartY();
+                componentInputMsg->endX_ = componentManager->GetEndX();
+                componentInputMsg->endY_ = componentManager->GetEndY();
+                componentInputMsg->content_ = componentinfo->GetContent();
+                TreeManager::GetInstance()->SetComponentType(componentinfo->GetComponentType());
+                Report::GetInstance()->SyncInputInfo(componentInputMsg);
+            }
+        } else {
+            ERROR_LOG("component list is null");
+            result = OHOS::ERR_NO_INIT;
+        }
+    }
+    DEBUG_LOG_STR("component focus input result (%d)", result);
     return result;
 }
 

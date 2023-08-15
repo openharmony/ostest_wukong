@@ -63,6 +63,42 @@ public:
      */
     ErrCode BackToPrePage();
 
+    /**
+     * @brief get locate info.
+     * @return Return startX_.
+     */
+    int32_t GetStartX()
+    {
+        return startX_;
+    }
+
+    /**
+     * @brief get locate info.
+     * @return Return startY_.
+     */
+    int32_t GetStartY()
+    {
+        return startY_;
+    }
+
+    /**
+     * @brief get locate info.
+     * @return Return endX_.
+     */
+    int32_t GetEndX()
+    {
+        return endX_;
+    }
+
+    /**
+     * @brief get locate info.
+     * @return Return endY_.
+     */
+    int32_t GetEndY()
+    {
+        return endY_;
+    }
+
     DECLARE_DELAYED_SINGLETON(ComponentManager);
 
 private:

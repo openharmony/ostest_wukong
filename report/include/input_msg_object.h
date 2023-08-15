@@ -105,6 +105,12 @@ public:
     std::string componmentType_ = "";
     uint32_t pageId_ = 0;
     std::vector<std::string> pageComponments;
+    std::string pagePath_;
+    std::string content_;
+    int32_t startX_;
+    int32_t startY_;
+    int32_t endX_;
+    int32_t endY_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

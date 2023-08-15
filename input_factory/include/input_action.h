@@ -65,6 +65,15 @@ public:
         return OHOS::ERR_INVALID_VALUE;
     }
 
+    /**
+     * @brief input a touch event in focus test for a certain times.
+     * @return Return ERR_OK on success， others on failure.
+     */
+    virtual ErrCode FocusInput()
+    {
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
     virtual ErrCode GetInputInfo()
     {
         return OHOS::ERR_INVALID_VALUE;

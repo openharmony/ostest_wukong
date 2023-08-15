@@ -116,6 +116,7 @@ void Report::EnvInit()
     // setting filename
     reportCsvFileName_ = currentTestDir_ + "wukong_report.csv";
     reportJsonFileName_ = currentTestDir_ + "data.js";
+    reportFocusInputFileName_ = currentTestDir_ + "focus_report";
 
     INFO_LOG_STR("Report CSV: (%s)", reportCsvFileName_.c_str());
     INFO_LOG_STR("Report JSON: (%s)", reportJsonFileName_.c_str());
@@ -191,24 +192,7 @@ void Report::SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject)
     data["bundleName"] = elementName.GetBundleName();
     data["abilityName"] = elementName.GetAbilityName();
     DEBUG_LOG_STR("bundleName{%s} abilityName{%s} ", data["bundleName"].c_str(), data["abilityName"].c_str());
-    inputedMode inputMode = inputedMsgObject->GetInputedMode();
-    switch (inputMode) {
-        case multimodeInput: {
-            auto inputMutlMsgPtr = std::static_pointer_cast<MultimodeInputMsg>(inputedMsgObject);
-            data["event"] = inputMutlMsgPtr->GetInputType();
-            DEBUG_LOG_STR("eventType{%s}", data["event"].c_str());
-            break;
-        }
-
-        case componmentInput: {
-            auto inputCompMsgPtr = std::static_pointer_cast<ComponmentInputMsg>(inputedMsgObject);
-            ComponmentInfoArrange(data["bundleName"], inputCompMsgPtr, data);
-            DEBUG_LOG("componmentType map");
-            break;
-        }
-        default:
-            break;
-    }
+    SplitInputMode(inputedMsgObject, data);
 
     // first appswitch abandon
     std::map<std::string, std::string>::iterator it = data.find("event");
@@ -229,12 +213,70 @@ void Report::SyncInputInfo(std::shared_ptr<InputedMsgObject> inputedMsgObject)
     abilityDataSet_->FilterData(data);
     taskCount_++;
     DEBUG_LOG_STR("taskCount{%d}", taskCount_);
+    if (is_focus_) {
+        GroupFocusDataAndRecord(inputedMsgObject, data);
+    }
     // statistics and storage every 10 data
     if ((taskCount_ % SEGMENT_STATISTICS_LENGTH) == 0) {
         HilogFileRecord();
         SegmentedWriteCSV();
         SegmentedWriteJson();
+        if (is_focus_) {
+            SegmentedWriteForFocusInput();
+        }
     }
+    TRACK_LOG_END();
+}
+
+void Report::SplitInputMode(std::shared_ptr<InputedMsgObject> &inputedMsgObject,
+    std::map<std::string, std::string> &data)
+{
+    inputedMode inputMode = inputedMsgObject->GetInputedMode();
+    switch (inputMode) {
+        case multimodeInput: {
+            auto inputMutlMsgPtr = std::static_pointer_cast<MultimodeInputMsg>(inputedMsgObject);
+            data["event"] = inputMutlMsgPtr->GetInputType();
+            DEBUG_LOG_STR("eventType{%s}", data["event"].c_str());
+            break;
+        }
+
+        case componmentInput: {
+            auto inputCompMsgPtr = std::static_pointer_cast<ComponmentInputMsg>(inputedMsgObject);
+            ComponmentInfoArrange(data["bundleName"], inputCompMsgPtr, data);
+            DEBUG_LOG("componmentType map");
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void Report::GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedMsgObject,
+    std::map<std::string, std::string> &data)
+{
+    TRACK_LOG_STD();
+    inputedMode inputMode = inputedMsgObject->GetInputedMode();
+    if (inputMode != componmentInput) {
+        return;
+    }
+    auto inputCompMsgPtr = std::static_pointer_cast<ComponmentInputMsg>(inputedMsgObject);
+    std::string item = "";
+    time_t currentTime = time(0);
+    std::string timeStr = "";
+    if (currentTime > 0) {
+        timeStr = std::to_string(currentTime);
+    }
+    item += std::to_string(taskCount_) + ",";
+    item += timeStr + ",";
+    item += data["abilityName"] + ",";
+    item += inputCompMsgPtr->pagePath_ + ",";
+    item += inputCompMsgPtr->componmentType_ + ",";
+    item += std::to_string(inputCompMsgPtr->startX_) + ",";
+    item += std::to_string(inputCompMsgPtr->startY_) + ",";
+    item += std::to_string(inputCompMsgPtr->endX_) + ",";
+    item += std::to_string(inputCompMsgPtr->endY_) + ",";
+    item += inputCompMsgPtr->content_;
+    focus_input_vec_.push_back(item);
     TRACK_LOG_END();
 }
 
@@ -398,6 +440,32 @@ void Report::SegmentedWriteJson()
     TRACK_LOG_END();
 }
 
+void Report::SegmentedWriteForFocusInput()
+{
+    TRACK_LOG_STD();
+    DEBUG_LOG("SegmentedWriteForFocusInput start");
+    // csv report format
+    if (reportFocusInputFileName_.empty()) {
+        return;
+    }
+
+    std::stringstream modules;
+    std::string moduleInput;
+    for (size_t i = 0; i < focus_input_vec_.size(); ++i) {
+        modules << focus_input_vec_[i];
+        if (i < focus_input_vec_.size() - 1) {
+            modules << std::endl;
+        }
+    }
+    focus_input_vec_.clear();
+    std::string jsonContent = modules.str();
+    std::fstream jsonFileStream(reportFocusInputFileName_, std::ios::app);
+    jsonFileStream << jsonContent << std::endl;
+    jsonFileStream.close();
+    DEBUG_LOG("SegmentedWriteForFocusInput end");
+    TRACK_LOG_END();
+}
+
 void Report::HilogFileRecord()
 {
     struct dirent *dp;
@@ -453,6 +521,9 @@ void Report::Finish()
 {
     SegmentedWriteCSV();
     SegmentedWriteJson();
+    if (is_focus_) {
+        SegmentedWriteForFocusInput();
+    }
     ExceptionManager::GetInstance()->StopCatching();
 }
 
