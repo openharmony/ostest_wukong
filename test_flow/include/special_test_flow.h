@@ -82,6 +82,12 @@ private:
      */
     ErrCode LauncherApp();
 
+    /**
+     * @brief protect the right ability
+     * @return return ERR_OK is valid, others is invalid.
+     */
+    ErrCode ProtectRightAbility();
+
     uint32_t timerId_ = 0;
     int countArgs_ = 10;
 
