@@ -16,7 +16,7 @@
 #include "special_test_flow.h"
 
 #include <string>
-
+#include "ability_manager_client.h"
 #include "report.h"
 #include "string_ex.h"
 #include "wukong_define.h"
@@ -183,6 +183,9 @@ ErrCode SpecialTestFlow::RunStep()
     if (result != OHOS::ERR_OK) {
         WARN_LOG("This test failed");
     }
+    if (ProtectRightAbility() == OHOS::ERR_INVALID_VALUE) {
+        return OHOS::ERR_INVALID_VALUE;
+    }
     if (g_commandCOMPONENTENABLE) {
         if (specialTestObject_->isAllFinished_) {
             isFinished_ = true;
@@ -195,6 +198,42 @@ ErrCode SpecialTestFlow::RunStep()
         isFinished_ = true;
     }
     usleep(intervalArgs_ * oneSecond_);
+    return result;
+}
+ErrCode SpecialTestFlow::ProtectRightAbility()
+{
+    ErrCode result = OHOS::ERR_OK;
+    auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    auto curBundleName = elementName.GetBundleName();
+    auto static lastBundleName = elementName.GetBundleName();
+    if (curBundleName != lastBundleName) {
+        auto it = find(bundleName_.begin(), bundleName_.end(), curBundleName);
+        if (it == bundleName_.end()) {
+            std::vector<std::string> bundleList(0);
+            std::vector<std::string> abilityList(0);
+            auto util = WuKongUtil::GetInstance();
+            util->GetBundleList(bundleList, abilityList);
+            if (bundleList.size() == 0 || abilityList.size() == 0) {
+                ERROR_LOG_STR("bundleList (%u) or abilityList (%u) is 0", bundleList.size(), abilityList.size());
+                return OHOS::ERR_INVALID_VALUE;
+            }
+            uint32_t index = util->FindElement(bundleList, lastBundleName);
+            if (index == INVALIDVALUE) {
+                ERROR_LOG("not found bundle");
+                return OHOS::ERR_INVALID_VALUE;
+            }
+            // start ability through bundle information
+            result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
+            if (result == OHOS::ERR_OK) {
+                INFO_LOG_STR("Bundle Name: (%s) startup successful", bundleList[index].c_str());
+            } else {
+                INFO_LOG_STR("Bundle Name: (%s) startup failed", bundleList[index].c_str());
+            }
+        } else {
+            lastBundleName = curBundleName;
+            DEBUG_LOG_STR("lastBundleName change to : %s", curBundleName.c_str());
+        }
+    }
     return result;
 }
 
