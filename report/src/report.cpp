@@ -450,7 +450,6 @@ void Report::SegmentedWriteForFocusInput()
     }
 
     std::stringstream modules;
-    std::string moduleInput;
     for (size_t i = 0; i < focus_input_vec_.size(); ++i) {
         modules << focus_input_vec_[i];
         if (i < focus_input_vec_.size() - 1) {
