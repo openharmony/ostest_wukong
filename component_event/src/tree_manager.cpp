@@ -198,7 +198,6 @@ bool TreeManager::ReconnectAccessibility()
         ERROR_LOG("cm is nullptr");
     }
     cm->Disconnect();
-    // connect to accessibility
     if (!cm->Connect()) {
         ERROR_LOG("ComponentManager Connect failed");
         return false;
