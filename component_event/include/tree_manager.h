@@ -48,6 +48,12 @@ public:
     }
 
     /**
+     * @brief Reconnect Accessibility while failure.
+     * @return whether successed.
+     */
+    bool ReconnectAccessibility();
+
+    /**
      * @brief update wukong tree by AccessibilityUITestAbility.
      * @return An AccessibilityElementInfo
      */
@@ -119,15 +125,6 @@ public:
             }
         }
         return true;
-    }
-
-    /**
-     * @brief set the component's total input number
-     * @param totalNum the number to finish event input
-     */
-    void SetTotalNum(const std::string & totalNum)
-    {
-        totalNum_ = std::stoi(totalNum);
     }
 
     /**
@@ -326,7 +323,6 @@ private:
     std::map<std::string, std::uint32_t> page2componentIndex_;
     std::map<std::string, std::uint32_t> page2inputCount_;
     std::string componmentType_ = "";
-    std::uint32_t totalNum_;
     std::uint32_t focusNum_ = FOCUS_NUM_DEFAULT;
     std::vector<std::string> focusTypeList_;
 };

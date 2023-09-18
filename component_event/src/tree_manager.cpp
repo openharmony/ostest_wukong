@@ -21,6 +21,8 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
+const int TWOSECONDS = 2000000;
+
 class ComponentManagerMonitor : public ComponentManagerListener {
     void OnStatusUpdated(ComponentStatus status) override
     {
@@ -187,6 +189,25 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
     return OHOS::ERR_OK;
 }
 
+bool TreeManager::ReconnectAccessibility()
+{
+    usleep(TWOSECONDS);
+    ERROR_LOG("Start ReconnectAccessibility");
+    auto cm = ComponentManager::GetInstance();
+    if (cm == nullptr) {
+        ERROR_LOG("cm is nullptr");
+    }
+    cm->Disconnect();
+    // connect to accessibility
+    if (!cm->Connect()) {
+        ERROR_LOG("ComponentManager Connect failed");
+        return false;
+    } else {
+        DEBUG_LOG("ComponentManager connected successfully");
+        return true;
+    }
+}
+
 ErrCode TreeManager::UpdateComponentInfo()
 {
     TRACK_LOG_STD();
@@ -209,7 +230,12 @@ ErrCode TreeManager::UpdateComponentInfo()
 
     // Get root AccessibilityElementInfo from Accessibility,
     auto bResult = aacPtr->GetRoot(*(root.get()));
-    if (bResult != Accessibility::RET_OK) {
+    if (bResult == Accessibility::RET_ERR_NO_CONNECTION) {
+        ERROR_LOG_STR("Accessibility Ability get root element info failed! Errorcode : (%d) ", bResult);
+        if (!ReconnectAccessibility()) {
+            return OHOS::ERR_INVALID_OPERATION;
+        }
+    } else if (bResult != Accessibility::RET_OK) {
         ERROR_LOG_STR("Accessibility Ability get root element info failed! Errorcode : (%d) ", bResult);
         return OHOS::ERR_INVALID_OPERATION;
     } else {
