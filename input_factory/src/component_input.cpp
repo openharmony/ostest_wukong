@@ -289,9 +289,8 @@ ErrCode ComponentInput::RandomInput()
 
 ErrCode ComponentInput::FocusInput()
 {
-    ErrCode result = OHOS::ERR_OK;
     auto treemanager = TreeManager::GetInstance();
-    result = treemanager->UpdateComponentInfo();
+    ErrCode result = treemanager->UpdateComponentInfo();
     auto componentManager = ComponentManager::GetInstance();
     DEBUG_LOG_STR("update componentinfo result (%d)", result);
     if (result == OHOS::ERR_OK) {
