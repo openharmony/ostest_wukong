@@ -196,15 +196,16 @@ bool TreeManager::ReconnectAccessibility()
     auto cm = ComponentManager::GetInstance();
     if (cm == nullptr) {
         ERROR_LOG("cm is nullptr");
+        return false;
     }
     cm->Disconnect();
     if (!cm->Connect()) {
         ERROR_LOG("ComponentManager Connect failed");
-        return false;
     } else {
-        DEBUG_LOG("ComponentManager connected successfully");
-        return true;
+        DEBUG_LOG("ComponentManager attempted to connect successfully");
     }
+    // Even if the connection succeeds, it will take the next time to run, so the return value for this section is false
+    return false;
 }
 
 ErrCode TreeManager::UpdateComponentInfo()
