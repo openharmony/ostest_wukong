@@ -107,10 +107,10 @@ public:
     std::vector<std::string> pageComponments;
     std::string pagePath_;
     std::string content_;
-    int32_t startX_;
-    int32_t startY_;
-    int32_t endX_;
-    int32_t endY_;
+    int32_t startX_ = 0;
+    int32_t startY_ = 0;
+    int32_t endX_ = 0;
+    int32_t endY_ = 0;
 };
 }  // namespace WuKong
 }  // namespace OHOS
