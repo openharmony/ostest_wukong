@@ -204,7 +204,7 @@ bool TreeManager::ReconnectAccessibility()
     } else {
         DEBUG_LOG("ComponentManager attempted to connect successfully");
     }
-    //Even if the connection succeeds, it will take the next time to run, so the return value for this section is false
+    // Even if the connection succeeds, it will take the next time to run, so the return value for this section is false
     return false;
 }
 
