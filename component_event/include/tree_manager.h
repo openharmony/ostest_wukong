@@ -48,10 +48,9 @@ public:
     }
 
     /**
-     * @brief Reconnect Accessibility while failure.
-     * @return whether successed.
+     * @brief Reconnect Accessibility.
      */
-    bool ReconnectAccessibility();
+    void ReconnectAccessibility();
 
     /**
      * @brief update wukong tree by AccessibilityUITestAbility.
