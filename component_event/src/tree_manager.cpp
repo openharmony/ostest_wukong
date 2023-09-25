@@ -189,23 +189,21 @@ ErrCode TreeManager::MakeAndCheckNewAbility()
     return OHOS::ERR_OK;
 }
 
-bool TreeManager::ReconnectAccessibility()
+void TreeManager::ReconnectAccessibility()
 {
     usleep(TWOSECONDS);
     ERROR_LOG("Start ReconnectAccessibility");
     auto cm = ComponentManager::GetInstance();
     if (cm == nullptr) {
         ERROR_LOG("cm is nullptr");
-        return false;
+        return;
     }
     cm->Disconnect();
     if (!cm->Connect()) {
         ERROR_LOG("ComponentManager Connect failed");
     } else {
-        DEBUG_LOG("ComponentManager attempted to connect successfully");
+        DEBUG_LOG("ComponentManager connect successfully");
     }
-    // Even if the connection succeeds, it will take the next time to run, so the return value for this section is false
-    return false;
 }
 
 ErrCode TreeManager::UpdateComponentInfo()
@@ -230,13 +228,11 @@ ErrCode TreeManager::UpdateComponentInfo()
 
     // Get root AccessibilityElementInfo from Accessibility,
     auto bResult = aacPtr->GetRoot(*(root.get()));
-    if (bResult == Accessibility::RET_ERR_NO_CONNECTION) {
-        ERROR_LOG_STR("Accessibility Ability get root element info failed! Errorcode : (%d) ", bResult);
-        if (!ReconnectAccessibility()) {
-            return OHOS::ERR_INVALID_OPERATION;
+    if (bResult != Accessibility::RET_OK) {
+        ERROR_LOG_STR("Accessibility Ability get root element info failed! ErrCode : (%d) ", bResult);
+        if (bResult == Accessibility::RET_ERR_NO_CONNECTION) {
+            ReconnectAccessibility();
         }
-    } else if (bResult != Accessibility::RET_OK) {
-        ERROR_LOG_STR("Accessibility Ability get root element info failed! Errorcode : (%d) ", bResult);
         return OHOS::ERR_INVALID_OPERATION;
     } else {
         // save root AccessibilityElementInfo.
