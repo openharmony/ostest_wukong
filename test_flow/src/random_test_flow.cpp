@@ -45,9 +45,11 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -S, --swap                 swap event percent\n"
     "   -T, --time                 test time\n"
     "   -C, --component            component event percent\n"
-    "   -r, --rotate               rotate event percent\n";
+    "   -r, --rotate               rotate event percent\n"
+    "   -e, --allow ability        the ability name of allowlist\n"
+    "   -E, --blick ability        the ability name of blicklist\n";
 
-const std::string SHORT_OPTIONS = "a:b:c:d:hi:k:p:s:t:T:H:m:S:C:r:";
+const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hi:k:p:s:t:T:H:m:S:C:r:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -65,6 +67,8 @@ const struct option LONG_OPTIONS[] = {
     {"component", required_argument, nullptr, 'C'},  // prohibit
     {"rotate", required_argument, nullptr, 'r'},     // rotate percent
     {"page", required_argument, nullptr, 'd'},       // block page
+    {"allow ability", required_argument, nullptr, 'e'},
+    {"blick ability", required_argument, nullptr, 'E'},
 };
 
 /**
@@ -107,6 +111,9 @@ bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
 bool g_commandCOUNTENABLE = false;
 bool g_isAppStarted = false;
+bool g_commandALLOWABILITYENABLE = false;
+bool g_commandBLOCKABILITYENABLE = false;
+bool g_commandALLOWBUNDLEENABLE = false;
 }  // namespace
 using namespace std;
 
@@ -252,7 +259,7 @@ ErrCode RandomTestFlow::InputScene(std::shared_ptr<InputAction> inputaction, boo
     return result;
 }
 
-bool RandomTestFlow::SetBlockPage(std::vector<std::string> systemPaths)
+bool RandomTestFlow::SetBlockPage(const std::vector<std::string> systemPaths)
 {
     auto root = std::make_shared<OHOS::Accessibility::AccessibilityElementInfo>();
     auto accPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
@@ -299,6 +306,9 @@ ErrCode RandomTestFlow::RunStep()
         g_isAppStarted = true;
         usleep(intervalArgs_ * oneSecond_);
     }
+    if (g_commandBLOCKABILITYENABLE == true) {
+        inputFlag = CheckBlockAbility();
+    }
     // input event, get event index form event list by random algorithm.
     int eventindex = rand() % ONE_HUNDRED_PERCENT;
     InputType eventTypeId = (InputType)(eventList_.at(eventindex));
@@ -320,7 +330,7 @@ ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputa
 {
     std::vector<std::string> allowList;
     WuKongUtil::GetInstance()->GetAllowList(allowList);
-    if (allowList.size() > 0) {
+    if (allowList.size() > 0 && g_commandALLOWABILITYENABLE == false) {
         std::string bundleName = "com.ohos.launcher";
         auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
         if (elementName.GetBundleName() == bundleName) {
@@ -338,6 +348,28 @@ ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputa
                 return OHOS::ERR_INVALID_VALUE;
             }
         }
+    } else if (allowList.size() > 0 && g_commandALLOWABILITYENABLE == true) {
+        std::vector<std::string> abilityList;
+        WuKongUtil::GetInstance()->GetAllowAbilityList(abilityList);
+        auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+        auto curBundleName = elementName.GetBundleName();
+        auto curAbilityName = elementName.GetAbilityName();
+        TRACK_LOG_STR("curAbilityName : %s", curAbilityName.c_str());
+        auto bundleIndex = find(allowList.begin(), allowList.end(), curBundleName);
+        auto abilityIndex = find(abilityList.begin(), abilityList.end(), curAbilityName);
+        if (bundleIndex == allowList.end() || abilityIndex == abilityList.end()) {
+            int index = rand() % abilityList.size();
+            // start ability through bundle infomation
+            ErrCode result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], allowList[0]);
+            // print the result of start event
+            if (result ==OHOS::ERR_OK) {
+                INFO_LOG_STR("Ability Name : ("%s") startup successful", abilityList[index].c_str());
+            } else {
+                ERROR_LOG_STR("Ability Name : ("%s") startup failed", abilityList[index].c_str());
+            }
+            TRACK_LOG_STR("ability index : %d", index);
+        }
+        return OHOS::ERR_OK;
     }
     return OHOS::ERR_OK;
 }
@@ -359,6 +391,14 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         }
         case 'b': {
             result = WuKongUtil::GetInstance()->SetAllowList(optarg);
+            g_commandALLOWBUNDLEENABLE = true;
+            break;
+        }
+        case 'e': {
+            result = WuKongUtil::GetInstance()->SetAllowAbilityList(optarg);
+            if (result != OHOS::ERR_INVALID_VALUE) {
+                result = CheckArgument(option);
+            }
             break;
         }
         case 'c': {
@@ -389,6 +429,13 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         }
         case 'p': {
             result = WuKongUtil::GetInstance()->SetBlockList(optarg);
+            break;
+        }
+        case 'E': {
+            result = WuKongUtil::GetInstance()->SetBlockAbilityList(optarg);
+            if (result != OHOS::ERR_INVALID_VALUE) {
+                result = CheckArgument(option);
+            }
             break;
         }
         case 'd': {
@@ -436,6 +483,38 @@ ErrCode RandomTestFlow::CheckArgument(const int option)
             }
             break;
         }
+        case 'e': {
+            if (g_commandALLOWABILITYENABLE == false) {
+                g_commandALLOWABILITYENABLE = true;
+                if (g_commandALLOWBUNDLEENABLE == true) {
+                result = OHOS::ERR_OK;
+                } else {
+                    ERROR_LOG("invalid param : When -e is configured, -b must be configured.");
+                    ERROR_LOG("invalid param : please ensure that the -b is before the -e");
+                    result = OHOS::ERR_INVALID_VALUE;
+                }
+            } else {
+                ERROR_LOG("invalid param : please check params of '-e'.");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
+            break;
+        }
+        case 'E': {
+            if (g_commandBLOCKABILITYENABLE == false) {
+                g_commandBLOCKABILITYENABLE = true;
+                if (g_commandALLOWBUNDLEENABLE == true) {
+                    result = OHOS::ERR_OK;
+                } else {
+                    ERROR_LOG("invalid param : When -E is configure, -b must be configured.");
+                    ERROR_LOG("invalid param : Plese ensure that the -b is before the -E.");
+                    result = OHOS::ERR_INVALID_VALUE;
+                }
+            } else {
+                ERROR_LOG("invalid param : please check params of '-E'.");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
+            break;
+        }
         default: {
             result = OHOS::ERR_INVALID_VALUE;
             break;
@@ -458,6 +537,7 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
         case 'b':
         case 'c':
         case 'd':
+        case 'e':
         case 'i':
         case 's':
         case 't':
@@ -469,6 +549,7 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
         case 'T':
         case 'm':
         case 'C':
+        case 'E':
             // error: option 'x' requires a value.
             shellcommand_.ResultReceiverAppend("error: option '-");
             shellcommand_.ResultReceiverAppend(string(1, optopt));
@@ -511,6 +592,21 @@ void RandomTestFlow::TestTimeout()
 {
     g_commandTIMEENABLE = false;
     isFinished_ = true;
+}
+bool RandomTestFlow::CheckBlockAbility()
+{
+    bool inputFlag = true;
+    auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    auto currentBundle = elementName.GetBundleName();
+    auto currentAbility = elementName.GetAbilityName();
+    std::vector<string> blockAbilityList;
+    WuKongUtil::GetInstance()->GetBlockAbilityList(blockAbilityList);
+    auto it = blockAbilityList.find(currentAbility);
+    if (it != blockAbilityList.end()) {
+        INFO_LOG_STR("Block the current Ability and return. Block Ability : (%s)", currentAbility.c_str());
+        inputFlag = false;
+    }
+    return inputFlag;
 }
 }  // namespace WuKong
 }  // namespace OHOS

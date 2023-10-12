@@ -241,6 +241,61 @@ ErrCode WuKongUtil::SetAllowList(const std::string &optarg)
     return result;
 }
 
+ErrCode WuKongUtil::CheckAbilityArgumentList(std::vector<std::string> &arguments)
+{
+    ErrCode result = OHOS::ERR_OK;
+    GetAllAppInfo();
+    for (uint32_t i = 0; i < arguments.size(); i++) {
+        uint32_t index = FindElement(unLaunchedAbilityList_, arguments[i]);
+        if (index == INVALIDVALUE) {
+            ERROR_LOG_STR("Ability name '%s' is not be included in all abilities", arguments[i].c_str());
+            result = OHOS::ERR_INVALID_VALUE;
+        }
+    }
+    return result;
+}
+
+ErrCode WuKongUtil::SetAllowAbilityList(const std::string &optarg)
+{
+    SplitStr(optarg, ",", allowAbilityList_);
+    ErrCode result = CheckAbilityArgumentList(allowAbilityList_);
+    if (result == OHOS::ERR_OK) {
+        // delete repeat argument
+        DelRepeatArguments(allowAbilityList_);
+        if (allowAbilityList_.size() > 0) {
+            result = CheckAbilityNameList();
+        }
+    }
+    return result;
+}
+
+ErrCode WuKongUtil::SetBlockAbilityList(const std::string &optarg)
+{
+    SplitStr(optarg, ",", blockAbilityList_);
+    ErrCode result = CheckAbilityArgumentList(blockAbilityList_);
+    if (result == OHOS::ERR_OK) {
+        // delete repeat argument
+        DelRepeatArguments(blockAbilityList_);
+        if (blockAbilityList_.size() > 0) {
+            result = CheckAbilityNameList();
+        }
+    }
+    return result;
+}
+
+ErrCode WuKongUtil::CheckAbilityNameList()
+{
+    std::set<std::string> m(allowAbilityList_.begin(), allowAbilityList_.end());
+
+    for (auto it = blockAbilityList_.begin(); it != blockAbilityList_.end(); it++) {
+        if (m.find(*it) != m.end()) {
+            ERROR_LOG("invalid param:please check params of '-e' and '-E'");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+    }
+    return OHOS::ERR_OK;
+}
+
 ErrCode WuKongUtil::SetBlockList(const std::string &optarg)
 {
     SplitStr(optarg, ",", blockList_);
@@ -285,9 +340,19 @@ void WuKongUtil::GetAllowList(std::vector<std::string> &allowList)
     allowList = allowList_;
 }
 
+void WuKongUtil::GetAllowAbilityList(std::vector<std::string> &allowAbilityList)
+{
+    allowAbilityList = allowAbilityList_;
+}
+
 void WuKongUtil::GetBlockList(std::vector<std::string> &blockList)
 {
     blockList = blockList_;
+}
+
+void WuKongUtil::GetBlockAbilityList(std::vector<std::string> &blockAbilityList)
+{
+    blockAbilityList = blockAbilityList_;
 }
 
 void WuKongUtil::GetBlockPageList(std::vector<std::string> &blockPageList)

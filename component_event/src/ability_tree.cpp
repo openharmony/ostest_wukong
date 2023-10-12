@@ -56,7 +56,7 @@ bool AbilityTree::SetNodeId()
     abilityName_ = elementName.GetAbilityName();
     nameSize = abilityName_.size();
     nodeId_ |= nameSize << ABILITY_ABILITY_NAME_SIZE_POSION;
-    nodeId_ |= GetSubName(abilityName_, nameCount) << ABILITY_ABILITY_NAME_POSION;
+    nodeId_ |= GetSubName(abilityName_, nameCount, true) << ABILITY_ABILITY_NAME_POSION;
 
     TRACK_LOG_STR("Ability Node ID: (0x%016llX)", nodeId_);
     return true;
