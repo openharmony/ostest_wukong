@@ -597,11 +597,10 @@ bool RandomTestFlow::CheckBlockAbility()
 {
     bool inputFlag = true;
     auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
-    auto currentBundle = elementName.GetBundleName();
     auto currentAbility = elementName.GetAbilityName();
     std::vector<string> blockAbilityList;
     WuKongUtil::GetInstance()->GetBlockAbilityList(blockAbilityList);
-    auto it = blockAbilityList.find(currentAbility);
+    auto it = find(blockAbilityList.begin(), blockAbilityList.end(), currentAbility);
     if (it != blockAbilityList.end()) {
         INFO_LOG_STR("Block the current Ability and return. Block Ability : (%s)", currentAbility.c_str());
         inputFlag = false;

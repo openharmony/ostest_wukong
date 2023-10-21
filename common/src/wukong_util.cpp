@@ -246,7 +246,7 @@ ErrCode WuKongUtil::CheckAbilityArgumentList(std::vector<std::string> &arguments
     ErrCode result = OHOS::ERR_OK;
     GetAllAppInfo();
     for (uint32_t i = 0; i < arguments.size(); i++) {
-        uint32_t index = FindElement(unLaunchedAbilityList_, arguments[i]);
+        uint32_t index = FindElement(allAbilityList_, arguments[i]);
         if (index == INVALIDVALUE) {
             ERROR_LOG_STR("Ability name '%s' is not be included in all abilities", arguments[i].c_str());
             result = OHOS::ERR_INVALID_VALUE;
@@ -529,9 +529,6 @@ ErrCode WuKongUtil::GetAllAbilities()
     for (const auto &bundleIter : bundleInfos) {
         std::string bundleName = bundleIter.name;
         uint32_t bundleListIndex = FindElement(bundleList_, bundleName);
-        if (bundleListIndex != INVALIDVALUE) {
-            continue;
-        }
         BundleInfo bundleInfo;
         bool getBundleResult =
             bundleMgrProxy->GetBundleInfo(bundleName, BundleFlag::GET_BUNDLE_WITH_ABILITIES, bundleInfo, 100);
@@ -539,10 +536,20 @@ ErrCode WuKongUtil::GetAllAbilities()
             ERROR_LOG_STR("WriteWuKongBundleInfo getBundleInfo result %d", getBundleResult);
             continue;
         }
-        for (auto &abilityIter : bundleInfo.abilityInfos) {
-            unLaunchedBundleList_.push_back(bundleName);
-            unLaunchedAbilityList_.push_back(abilityIter.name);
-            DEBUG_LOG_STR("bundleName: %s, abilityName: %s", bundleName.c_str(), abilityIter.name.c_str());
+        if (bundleListIndex != INVALIDVALUE) {
+            for (auto &abilityIter : bundleInfo.abilityInfos) {
+                allBundleList_.push_back(bundleName);
+                allAbilityList_.push_back(abilityIter.name);
+                DEBUG_LOG_STR("bundleName: %s, abilityName: %s", bundleName.c_str(), abilityIter.name.c_str());
+            }
+        } else {
+            for (auto &abilityIter : bundleInfo.abilityInfos) {
+                unLaunchedBundleList_.push_back(bundleName);
+                unLaunchedAbilityList_.push_back(abilityIter.name);
+                allBundleList_.push_back(bundleName);
+                allAbilityList_.push_back(abilityIter.name);
+                DEBUG_LOG_STR("bundleName: %s, abilityName: %s", bundleName.c_str(), abilityIter.name.c_str());
+            }
         }
     }
     if (unLaunchedAbilityList_.size() > 0) {

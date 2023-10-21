@@ -71,11 +71,37 @@ public:
      * @return Return ERR_OK on success, others on failure.
      */
     ErrCode SetBlockAbilityList(const std::string &optarg);
+
+    /**
+     * @brief Check if AbilityName is valid
+     * @return Return ERR_OK argument is valid, others is invalid.
+     */
     ErrCode CheckAbilityNameList();
+
+    /**
+     * @brief Get the Allow Ability List of the test.
+     * @param bundleNameArgs the Allow Ability list.
+     */
     void GetAllowAbilityList(std::vector<std::string> &allowAbilityList);
+
+    /**
+     * @brief Check the list of allowed abilities to cannibalize
+     * @return Return ERR_OK is ok, others have not ok.
+     */
     ErrCode CheckAbilityArgumentList(std::vector<std::string> &allowAbilityList);
-    ErrCode SetAllowAbilityList(const std::string & optarg);
+
+    /**
+     * @brief Set Allow Ability List.
+     * @param optarg the Ability list of the test.
+     */
+    ErrCode SetAllowAbilityList(const std::string &optarg);
+
+    /**
+     * @brief Get the Block Ability List of the test.
+     * @param blockAbilityList the block Ability List.
+     */
     void GetBlockAbilityList(std::vector<std::string> &blockAbilityList);
+
     /**
      * @brief Get the Allow List of the test.
      * @param bundleNameArgs the Allow list.
