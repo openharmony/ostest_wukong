@@ -66,6 +66,43 @@ public:
     ErrCode SetBlockPageList(const std::string &optarg);
 
     /**
+     * @brief Set the BlockAbility List.
+     * @param optarg command string.
+     * @return Return ERR_OK on success, others on failure.
+     */
+    ErrCode SetBlockAbilityList(const std::string &optarg);
+
+    /**
+     * @brief Check if AbilityName is valid
+     * @return Return ERR_OK argument is valid, others is invalid.
+     */
+    ErrCode CheckAbilityNameList();
+
+    /**
+     * @brief Get the Allow Ability List of the test.
+     * @param bundleNameArgs the Allow Ability list.
+     */
+    void GetAllowAbilityList(std::vector<std::string> &allowAbilityList);
+
+    /**
+     * @brief Check the list of allowed abilities to cannibalize
+     * @return Return ERR_OK is ok, others have not ok.
+     */
+    ErrCode CheckAbilityArgumentList(std::vector<std::string> &allowAbilityList);
+
+    /**
+     * @brief Set Allow Ability List.
+     * @param optarg the Ability list of the test.
+     */
+    ErrCode SetAllowAbilityList(const std::string &optarg);
+
+    /**
+     * @brief Get the Block Ability List of the test.
+     * @param blockAbilityList the block Ability List.
+     */
+    void GetBlockAbilityList(std::vector<std::string> &blockAbilityList);
+
+    /**
      * @brief Get the Allow List of the test.
      * @param bundleNameArgs the Allow list.
      */
@@ -223,14 +260,18 @@ private:
     std::string iconPath_;
     std::vector<std::string> bundleList_;
     std::vector<std::string> abilityList_;
+    std::vector<std::string> allowAbilityList_;
     std::vector<std::string> validBundleList_;
     std::vector<std::string> validAbilityList_;
     std::vector<std::string> allowList_;
     std::vector<std::string> blockList_ = {"com.ohos.devicemanagerui", "com.ohos.screenlock",
                                            "com.ohos.permissionmanager"};
     std::vector<std::string> blockPageList_ = {"pages/system"};
+    std::vector<std::string> blockAbilityList_;
     std::vector<std::string> unLaunchedBundleList_;
     std::vector<std::string> unLaunchedAbilityList_;
+    std::vector<std::string> allBundleList_;
+    std::vector<std::string> allAbilityList_;
     int32_t screenWidth_ = -1;
     int32_t screenHeight_ = -1;
 

@@ -49,6 +49,7 @@ private:
 
     /**
      * @brief check if the '-c' and 'T' is exist at the same time
+     * @brief check if the '-e' and '-E' is legal
      * @param option command letter.
      * @return Return ERR_OK on success, others on failure.
      */
@@ -88,6 +89,11 @@ private:
      * @param eventTypeId the eventTypeId
      */
     ErrCode ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId);
+
+    /**
+     * @brief Check block ability is legal
+     */
+    bool CheckBlockAbility();
 
     bool SetBlockPage(std::vector<std::string> systemPaths);
 
