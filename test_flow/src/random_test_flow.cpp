@@ -50,7 +50,7 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -E, --block ability        the ability name of blocklist\n"
     "   -I, --screenshot           get screenshot(only in random input)\n";
 
-const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hi:k:p:s:t:T:H:m:S:C:r:";
+const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIi:k:p:s:t:T:H:m:S:C:r:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -70,7 +70,7 @@ const struct option LONG_OPTIONS[] = {
     {"page", required_argument, nullptr, 'd'},       // block page
     {"allow ability", required_argument, nullptr, 'e'},
     {"blick ability", required_argument, nullptr, 'E'},
-    {"screenshot", no_argument, nullptr, "I"},
+    {"screenshot", no_argument, nullptr, 'I'},
 };
 
 /**
@@ -294,12 +294,11 @@ ErrCode RandomTestFlow::RunStep()
             return OHOS::ERR_OK;
         }
     }
-    if(g_commandSCREENSHOTENABLE) {
+    if (g_commandSCREENSHOTENABLE) {
         std::string screenStorePath;
         result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath, g_commandUITEST);
-        if(result == OHOS::ERR_OK) {
-            INFO_LOG("Luming : screen shot enable");
-            Reprot::GetInstacne()->RecordScreenPath(screenStorePath);
+        if (result == OHOS::ERR_OK) {
+            Report::GetInstance()->RecordScreenPath(screenStorePath);
         }
     }
     bool inputFlag = SetBlockPage(systemPaths);
@@ -391,7 +390,12 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
 {
     ErrCode result = OHOS::ERR_OK;
     switch (option) {
-        case 't': case 'm': case 'S': case 'k': case 'a': case 'r':
+        case 't':
+        case 'm':
+        case 'S':
+        case 'k':
+        case 'a':
+        case 'r':
         case 'C': {
             result = SetInputPercent(option);
             break;
