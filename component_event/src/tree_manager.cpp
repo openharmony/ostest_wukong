@@ -72,6 +72,8 @@ bool TreeManager::RecursGetChildElementInfo(
         // Generate ComponentTree.
         std::shared_ptr<ComponentTree> componentChild = std::make_shared<ComponentTree>();
         componentChild->SetIndex(newElementInfoList_.size() - 1);
+        TRACK_LOG_STR("newElementInfoList_ is (%d), componentChild->GetIndex() is (%d)",
+                      newElementInfoList_.size(), componentChild->GetIndex());
         // set ComponentTree parent
         componentChild->SetParent(componentParent);
         componentParent->AddChild(componentChild);
