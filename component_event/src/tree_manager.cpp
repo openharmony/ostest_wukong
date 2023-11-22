@@ -15,6 +15,7 @@
 #include "tree_manager.h"
 
 #include "accessibility_ui_test_ability.h"
+#include "ability_manager_client.h"
 #include "component_manager.h"
 #include "touch_input.h"
 
@@ -22,7 +23,7 @@ namespace OHOS {
 namespace WuKong {
 namespace {
 const int TWOSECONDS = 2000000;
-
+const int MAXRECURSION = 5000;
 class ComponentManagerMonitor : public ComponentManagerListener {
     void OnStatusUpdated(ComponentStatus status) override
     {
@@ -72,8 +73,14 @@ bool TreeManager::RecursGetChildElementInfo(
         // Generate ComponentTree.
         std::shared_ptr<ComponentTree> componentChild = std::make_shared<ComponentTree>();
         componentChild->SetIndex(newElementInfoList_.size() - 1);
-        TRACK_LOG_STR("newElementInfoList_ is (%d), componentChild->GetIndex() is (%d)",
-                      newElementInfoList_.size(), componentChild->GetIndex());
+        TRACK_LOG_STR("componentChild->GetIndex() is (%d)", componentChild->GetIndex());
+        if (MAXRECURSION < componentChild->GetIndex()) {
+            auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+            auto curBundleName = elementName.GetBundleName();
+            ERROR_LOG("The recursion GetChildElementInfo is too deep. Please check the application.");
+            ERROR_LOG_STR("Now BundleName is (%s) , Deep is (%d)", curBundleName.c_str(), componentChild->GetIndex());
+            return false;
+        }
         // set ComponentTree parent
         componentChild->SetParent(componentParent);
         componentParent->AddChild(componentChild);
