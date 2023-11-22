@@ -46,7 +46,8 @@ private:
     virtual const struct option* GetOptionArguments(std::string &shortOpts) override;
     ErrCode HandleUnknownOption(const char optopt) override;
     ErrCode HandleNormalOption(const int option) override;
-
+    ErrCode CheckArgumentOptionOfe();
+    ErrCode CheckArgumentOptionOfE();
     /**
      * @brief check if the '-c' and 'T' is exist at the same time
      * @brief check if the '-e' and '-E' is legal

@@ -47,9 +47,10 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -C, --component            component event percent\n"
     "   -r, --rotate               rotate event percent\n"
     "   -e, --allow ability        the ability name of allowlist\n"
-    "   -E, --blick ability        the ability name of blicklist\n";
+    "   -E, --block ability        the ability name of blocklist\n"
+    "   -I, --screenshot           get screenshot(only in random input)\n";
 
-const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hi:k:p:s:t:T:H:m:S:C:r:";
+const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIi:k:p:s:t:T:H:m:S:C:r:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -69,6 +70,7 @@ const struct option LONG_OPTIONS[] = {
     {"page", required_argument, nullptr, 'd'},       // block page
     {"allow ability", required_argument, nullptr, 'e'},
     {"blick ability", required_argument, nullptr, 'E'},
+    {"screenshot", no_argument, nullptr, 'I'},
 };
 
 /**
@@ -114,6 +116,9 @@ bool g_isAppStarted = false;
 bool g_commandALLOWABILITYENABLE = false;
 bool g_commandBLOCKABILITYENABLE = false;
 bool g_commandALLOWBUNDLEENABLE = false;
+bool g_commandSCREENSHOTENABLE = false;
+// default false
+bool g_commandUITEST = false;
 }  // namespace
 using namespace std;
 
@@ -289,6 +294,13 @@ ErrCode RandomTestFlow::RunStep()
             return OHOS::ERR_OK;
         }
     }
+    if (g_commandSCREENSHOTENABLE) {
+        std::string screenStorePath;
+        result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath, g_commandUITEST);
+        if (result == OHOS::ERR_OK) {
+            Report::GetInstance()->RecordScreenPath(screenStorePath);
+        }
+    }
     bool inputFlag = SetBlockPage(systemPaths);
     std::shared_ptr<InputAction> inputaction = nullptr;
     if (!g_isAppStarted) {
@@ -382,7 +394,6 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         case 'm':
         case 'S':
         case 'k':
-        case 'H':
         case 'a':
         case 'r':
         case 'C': {
@@ -415,6 +426,10 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         case 'i': {
             intervalArgs_ = std::stoi(optarg);
             TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+            break;
+        }
+        case 'I': {
+            g_commandSCREENSHOTENABLE = true;
             break;
         }
         case 's': {
@@ -484,35 +499,11 @@ ErrCode RandomTestFlow::CheckArgument(const int option)
             break;
         }
         case 'e': {
-            if (g_commandALLOWABILITYENABLE == false) {
-                g_commandALLOWABILITYENABLE = true;
-                if (g_commandALLOWBUNDLEENABLE == true) {
-                result = OHOS::ERR_OK;
-                } else {
-                    ERROR_LOG("invalid param : When -e is configured, -b must be configured.");
-                    ERROR_LOG("invalid param : please ensure that the -b is before the -e");
-                    result = OHOS::ERR_INVALID_VALUE;
-                }
-            } else {
-                ERROR_LOG("invalid param : please check params of '-e'.");
-                result = OHOS::ERR_INVALID_VALUE;
-            }
+            result = CheckArgumentOptionOfe();
             break;
         }
         case 'E': {
-            if (g_commandBLOCKABILITYENABLE == false) {
-                g_commandBLOCKABILITYENABLE = true;
-                if (g_commandALLOWBUNDLEENABLE == true) {
-                    result = OHOS::ERR_OK;
-                } else {
-                    ERROR_LOG("invalid param : When -E is configure, -b must be configured.");
-                    ERROR_LOG("invalid param : Plese ensure that the -b is before the -E.");
-                    result = OHOS::ERR_INVALID_VALUE;
-                }
-            } else {
-                ERROR_LOG("invalid param : please check params of '-E'.");
-                result = OHOS::ERR_INVALID_VALUE;
-            }
+            result = CheckArgumentOptionOfE();
             break;
         }
         default: {
@@ -593,6 +584,41 @@ void RandomTestFlow::TestTimeout()
     g_commandTIMEENABLE = false;
     isFinished_ = true;
 }
+
+ErrCode RandomTestFlow::CheckArgumentOptionOfe()
+{
+    if (g_commandALLOWABILITYENABLE == false) {
+        g_commandALLOWABILITYENABLE = true;
+        if (g_commandALLOWBUNDLEENABLE == true) {
+            return OHOS::ERR_OK;
+        } else {
+            ERROR_LOG("invalid param : When -e is configured, -b must be configured.");
+            ERROR_LOG("invalid param : please ensure that the -b is before the -e");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+    } else {
+        ERROR_LOG("invalid param : please check params of '-e'.");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+}
+
+ErrCode RandomTestFlow::CheckArgumentOptionOfE()
+{
+    if (g_commandBLOCKABILITYENABLE == false) {
+        g_commandBLOCKABILITYENABLE = true;
+        if (g_commandALLOWBUNDLEENABLE == true) {
+            return OHOS::ERR_OK;
+        } else {
+            ERROR_LOG("invalid param : When -E is configure, -b must be configured.");
+            ERROR_LOG("invalid param : Plese ensure that the -b is before the -E.");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+    } else {
+        ERROR_LOG("invalid param : please check params of '-E'.");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+}
+
 bool RandomTestFlow::CheckBlockAbility()
 {
     bool inputFlag = true;
