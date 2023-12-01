@@ -23,6 +23,7 @@
 #include <sys/inotify.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <policycoreutils.h>
 
 #include "ability_manager_client.h"
 #include "element_name.h"
@@ -104,6 +105,7 @@ Report::Report()
 void Report::EnvInit()
 {
     const std::string DEFAULT_DIR = "/data/local/tmp/wukong/report/";
+    const std::string ROOT_DIR = "/data/local/tmp/wukong/";
     startRunTime_ = WuKongUtil::GetInstance()->GetStartRunTime();
     // Get a screenshot within the previous timestamp of the current timestamp
     DIR *dirp = nullptr;
@@ -123,6 +125,8 @@ void Report::EnvInit()
 
     reportExceptionDir_ = currentTestDir_ + "exception/";
     INFO_LOG_STR("Report exception dir: (%s)", reportExceptionDir_.c_str());
+    int reslut = Restorecon(ROOT_DIR.c_str());
+    INFO_LOG_STR("Restorecon is %d",reslut);
     int dirExist = access(reportExceptionDir_.c_str(), F_OK);
     if (dirExist != 0) {
         int dirStatus = mkdir((reportExceptionDir_).c_str(), 0777);
