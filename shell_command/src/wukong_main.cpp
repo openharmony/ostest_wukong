@@ -58,7 +58,7 @@ static void WuKongMutexFile()
     if (fileExist == 0) {
         DEBUG_LOG("File exist. Now create wukong test mutex.");
     } else {
-        const int wuKongGm = mkdir("/dev/shm", 0777);
+        const int wuKongGm = mkdir("/dev/shm", 0754);
         DEBUG_LOG("File create. Now create wukong test mutex.");
         if (wuKongGm == -1) {
             DEBUG_LOG("Error creating directory!");

@@ -120,7 +120,7 @@ WuKongUtil::WuKongUtil()
         dirStr.append(str);
         dirStr.append("/");
         if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
-            int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
+            int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRGRP);
             if (ret != 0 && dirStr != "/data/" && dirStr != "/data/local/") {
                 std::cerr << "failed to create dir: " << dirStr << std::endl;
                 break;
@@ -423,7 +423,7 @@ ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath, bool gCommandU
     if (fileExist_ == 0) {
         DEBUG_LOG("File exist.");
     } else {
-        const int wukongScreenShot = mkdir((curDir_ + "screenshot").c_str(), 0777);
+        const int wukongScreenShot = mkdir((curDir_ + "screenshot").c_str(), 0754);
         DEBUG_LOG("File create.");
         if (wukongScreenShot == -1) {
             DEBUG_LOG("Error creating directory!");

@@ -42,7 +42,7 @@ bool InitReportFolder()
     DIR *rootDir = nullptr;
     if ((rootDir = opendir(DEFAULT_DIR.c_str())) == nullptr) {
         Restorecon(DEFAULT_DIR.c_str());
-        int ret = mkdir(DEFAULT_DIR.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
+        int ret = mkdir(DEFAULT_DIR.c_str(), S_IROTH | S_IRWXU | S_IRGRP);
         if (ret != 0) {
             ERROR_LOG_STR("failed to create dir: %s", DEFAULT_DIR.c_str());
             return false;
