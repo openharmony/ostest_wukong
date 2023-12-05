@@ -112,7 +112,6 @@ WuKongUtil::WuKongUtil()
     } else {
         startRunTime_ = "unvalid_time";
     }
-    RestoreconRecurse(ROOT_DIR.c_str());
     curDir_ = DEFAULT_DIR + startRunTime_ + "/";
     DEBUG_LOG_STR("common dir{%s}", curDir_.c_str());
     DIR *rootDir = nullptr;
@@ -124,6 +123,7 @@ WuKongUtil::WuKongUtil()
         dirStr.append("/");
         if ((rootDir = opendir(dirStr.c_str())) == nullptr) {
             int ret = mkdir(dirStr.c_str(), S_IROTH | S_IRWXU | S_IRGRP);
+            Restorecon(dirStr.c_str());
             if (ret != 0 && dirStr != "/data/" && dirStr != "/data/local/" && dirStr != "/data/local/tmp/") {
                 std::cerr << "failed to create dir: " << dirStr << std::endl;
                 break;
