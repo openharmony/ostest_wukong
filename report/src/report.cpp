@@ -125,7 +125,7 @@ void Report::EnvInit()
     INFO_LOG_STR("Report exception dir: (%s)", reportExceptionDir_.c_str());
     int dirExist = access(reportExceptionDir_.c_str(), F_OK);
     if (dirExist != 0) {
-        int dirStatus = mkdir((reportExceptionDir_).c_str(), 0754);
+        int dirStatus = mkdir((reportExceptionDir_).c_str(), 0777);
         if (dirStatus == -1) {
             ERROR_LOG("exception dir create fail");
         }

@@ -73,7 +73,7 @@ bool InitReportFolder()
 {
     DIR *rootDir = nullptr;
     if ((rootDir = opendir(g_defaultDir.c_str())) == nullptr) {
-        int ret = mkdir(g_defaultDir.c_str(), S_IROTH | S_IRWXU | S_IRGRP);
+        int ret = mkdir(g_defaultDir.c_str(), S_IROTH | S_IRWXU | S_IRWXG);
         if (ret != 0) {
             std::cerr << "failed to create dir: " << g_defaultDir << std::endl;
             return false;
