@@ -394,6 +394,7 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
         case 'm':
         case 'S':
         case 'k':
+        case 'H':
         case 'a':
         case 'r':
         case 'C': {
