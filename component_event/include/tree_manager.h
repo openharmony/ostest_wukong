@@ -48,7 +48,7 @@ public:
     }
 
     /**
-     * @brief Reconnect Accessibility.
+     * @brief Reestablish accessible connections.
      */
     void ReconnectAccessibility();
 

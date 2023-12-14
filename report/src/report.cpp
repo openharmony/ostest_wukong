@@ -542,7 +542,8 @@ void Report::ComponmentInfoArrange(const std::string &bundle, std::shared_ptr<Co
     }
     componmentRecord.pageIdComponments[inputCompMsgPtr->pageId_] = inputCompMsgPtr->pageComponments;
     std::map<std::string, uint32_t>::iterator componmentTypeCountIter;
-    uint32_t componmentTypeInputedCount = 0, componmentTypeTotal = 0;
+    uint32_t componmentTypeInputedCount = 0;
+    uint32_t componmentTypeTotal = 0;
     componmentTypeCountIter = componmentRecord.componmentTypeCount.find(inputCompMsgPtr->componmentType_);
     if (componmentTypeCountIter != componmentRecord.componmentTypeCount.end()) {
         componmentTypeInputedCount = componmentTypeCountIter->second;

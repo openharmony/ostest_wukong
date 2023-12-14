@@ -79,6 +79,7 @@ Submodule responsibilities within the component：<br>
 | -b, --bilateral     | Set the round-trip swipe. | No | By default, there is no round-trip swipe. |
 | -t, --touch[x,y]    | Click test. | No | -                   |
 | -T, --time          | Set the total test time. | No | Unit minutes, the default is 10 minutes. |
+| -p, --screenshot  | Screenshot of control testing. | No | -|
 | -C, --component     | The control sequentially traverses the test. | No | You need to set the test app name. |
 
 #### Example of wukong Special test
@@ -112,6 +113,7 @@ Specific test example parsing：
 | -H,--hardkey    | Set the random hardkey test scale. | No | The default 2%. |
 | -r,--rotate     | Set the random rotate test scale.  | No | The default 2%. |
 | -C, --component | Set the Random Control Test Scale. | No | The default 70%. |
+| -I, --screenshot  | Screenshot of control testing. | No | -|
 | -T,--time       | Set the total test time, conflicts with -c. | No | Unit minutes, the default is 10 minutes. |
 
 > Instructions: Configuring the same random seed results in the same sequence of random events
