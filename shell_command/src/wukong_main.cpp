@@ -78,7 +78,7 @@ static void SetNativeTokenInfo()
         perms[NUMBER_THREE] = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
         NativeTokenInfoParams infoInstance = {
             .dcapsNum = 0,
-            .permsNum = 3,
+            .permsNum = NUMBER_FOUR,
             .aclsNum = 0,
             .dcaps = nullptr,
             .perms = perms,
