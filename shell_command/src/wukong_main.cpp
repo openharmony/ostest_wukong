@@ -38,6 +38,7 @@ static const unsigned int NUMBER_ZERO = 0;
 static const unsigned int NUMBER_ONE = 1;
 static const unsigned int NUMBER_TWO = 2;
 static const unsigned int NUMBER_THREE = 3;
+static const unsigned int NUMBER_FOUR = 4;
 
 static bool FreeSingtion()
 {
@@ -68,12 +69,13 @@ static void WuKongMutexFile()
 
 static void SetNativeTokenInfo()
 {
-    const char **perms = new const char *[NUMBER_THREE];
+    const char **perms = new const char *[NUMBER_FOUR];
     if (NUMBER_ZERO < NUMBER_THREE && NUMBER_ONE < NUMBER_THREE && NUMBER_TWO < NUMBER_THREE) {
         uint64_t tokenId;
         perms[NUMBER_ZERO] = "ohos.permission.SET_ABILITY_CONTROLLER";
         perms[NUMBER_ONE] = "ohos.permission.CAPTURE_SCREEN";
         perms[NUMBER_TWO] = "ohos.permission.INPUT_MONITORING";
+        perms[NUMBER_THREE] = "ohos.permission.GET_BUNDLE_INFO_PRIVILEGED";
         NativeTokenInfoParams infoInstance = {
             .dcapsNum = 0,
             .permsNum = 3,
