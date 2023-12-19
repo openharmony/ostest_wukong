@@ -137,7 +137,7 @@ ErrCode NormalScene::SetInputComponentListForFocusInput(std::vector<std::shared_
         indexList.clear();
         return OHOS::ERR_OK;
     }
-    //just determine back or not, can not remove component because of locating component after
+    // just determine back or not, can not remove component because of locating component after
     if (componentList.size() == 0) {
         isBack_ = true;
     }

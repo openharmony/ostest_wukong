@@ -262,7 +262,7 @@ ErrCode RandomTestFlow::SetBlackWhiteSheet(const int option)
     ErrCode result = OHOS::ERR_OK;
     if (option == 'b') {
         result = WuKongUtil::GetInstance()->SetAllowList(optarg);
-	    g_commandALLOWBUNDLEENABLE = true;
+        g_commandALLOWBUNDLEENABLE = true;
     } else if (option == 'p') {
         result = WuKongUtil::GetInstance()->SetBlockList(optarg);
     } else if (option == 'e') {
@@ -292,10 +292,10 @@ ErrCode RandomTestFlow::SetRunningParam(const int option)
         result = CheckArgument(option);
     } else if (option == 'i') {
         intervalArgs_ = std::stoi(optarg);
-	    TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+        TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
     } else if (option == 's') {
         seedArgs_ = std::stoi(optarg);
-	    g_commandSEEDENABLE = true;
+        g_commandSEEDENABLE = true;
     }
     return OHOS::ERR_OK;
 }

@@ -262,7 +262,7 @@ ErrCode FocusTestFlow::SetBlackWhiteSheet(const int option)
     ErrCode result = OHOS::ERR_OK;
     if (option == 'b') {
         result = WuKongUtil::GetInstance()->SetAllowList(optarg);
-	    g_commandALLOWBUNDLEENABLE = true;
+        g_commandALLOWBUNDLEENABLE = true;
     } else if (option == 'p') {
         result = WuKongUtil::GetInstance()->SetBlockList(optarg);
     } else if (option == 'e') {
