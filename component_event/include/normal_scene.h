@@ -43,6 +43,12 @@ public:
 
     ErrCode SetInputComponentListForFocusInput(std::vector<std::shared_ptr<ComponentTree>> &componentList);
 
+    void SubtractComponent(std::vector<std::shared_ptr<ComponentTree>> &componentList,
+    std::vector<uint32_t> &indexList);
+
+    bool IsComponentBlock(std::shared_ptr<ComponentTree> &comp, std::vector<std::string> &compIdBlock,
+    std::vector<std::string> &compTypeBlock);
+
 private:
     bool isBack_ = false;
 };

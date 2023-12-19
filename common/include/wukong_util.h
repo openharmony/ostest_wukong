@@ -42,7 +42,15 @@ public:
      * @param key the key subscript in the bundle list.
      * @return the location of the key bundle in the bundlelist.
      */
-    uint32_t FindElement(std::vector<std::string> bundleList, std::string key);
+    uint32_t FindElement(std::vector<std::string> &bundleList, std::string key);
+
+    /**
+     * @brief to find if the key bundle is in the bundle list.
+     * @param bundleList the bundlelist of test
+     * @param key the key subscript in the bundle list.
+     * @return if the key bundle in the bundlelist.
+     */
+    bool ContainsElement(std::vector<std::string> &bundleList, std::string key);
 
     /**
      * @brief Set the Allow List.
@@ -236,6 +244,37 @@ public:
      */
     ErrCode GetAllAbilities();
 
+    /*
+     * @brief set the component id block list
+     * @param compIdBlockList
+     */
+    void SetCompIdBlockList(const std::string &optarg);
+
+    /*
+     * @brief get the component id block list
+     * @return compIdBlockList
+     */
+    std::vector<std::string> GetCompIdBlockList();
+
+    /*
+     * @brief set the component Type block list
+     * @param compTypeBlockList
+     */
+    void SetCompTypeBlockList(const std::string &optarg);
+
+    /*
+     * @brief get the component Type block list
+     * @return compTypeBlockList
+     */
+    std::vector<std::string> GetCompTypeBlockList();
+
+    /*
+     * @brief cmd calls
+     * @param cmd
+     * @return cmd result
+     */
+    std::string runProcess(std::string cmd);
+
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 
 private:
@@ -280,6 +319,8 @@ private:
 
     bool orderFlag_ = false;
     std::vector<std::string> tempAllowList_;
+    std::vector<std::string> compIdBlockList_ = {};
+    std::vector<std::string> compTypeBlockList_ = {"Divider"};
 };
 
 class WukongSemaphore {

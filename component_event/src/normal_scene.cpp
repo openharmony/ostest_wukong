@@ -39,10 +39,13 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
     uint32_t count = 0;
     DEBUG_LOG_STR("randomNumber: %d", randomNumber);
     std::vector<uint32_t> indexList;
+    auto util = WuKongUtil::GetInstance();
+    std::vector<std::string> compIdBlock = util->GetCompIdBlockList();
+    std::vector<std::string> compTypeBlock = util->GetCompTypeBlockList();
     if (randomNumber < NEWPERCENT) {
         for (auto it = componentList.begin(); it != componentList.end(); it++) {
             TRACK_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
-            if ((*it)->GetInputCount() > MAXINPUTNUM) {
+            if ((*it)->GetInputCount() > MAXINPUTNUM || IsComponentBlock((*it), compIdBlock, compTypeBlock)) {
                 indexList.push_back((*it)->GetIndex());
                 TRACK_LOG_STR("index0: %d", distance(componentList.begin(), it));
             }
@@ -50,7 +53,7 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
     } else if (randomNumber < (NEWPERCENT + OLDPERCENT)) {
         for (auto it = componentList.begin(); it != componentList.end(); it++) {
             TRACK_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
-            if ((*it)->GetInputCount() <= MAXINPUTNUM) {
+            if ((*it)->GetInputCount() <= MAXINPUTNUM || IsComponentBlock((*it), compIdBlock, compTypeBlock)) {
                 count++;
                 TRACK_LOG_STR("inputed count: %d, componentList size: %d", count, componentList.size());
                 indexList.push_back((*it)->GetIndex());
@@ -61,20 +64,15 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
     if (count >= componentList.size()) {
         if ((componentList.size() == 0) || (randomNumber < ONEHUNDRED && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
             isBack_ = true;
+        } else {
+            SubtractComponent(componentList, indexList);
         }
         indexList.clear();
         return OHOS::ERR_OK;
     }
     TRACK_LOG_STR("componentList size: %d", componentList.size());
     TRACK_LOG_STR("indexList size: %d", indexList.size());
-    for (auto index : indexList) {
-        for (auto it = componentList.begin(); it != componentList.end(); it++) {
-            if ((*it)->GetIndex() == index) {
-                componentList.erase(it);
-                it--;
-            }
-        }
-    }
+    SubtractComponent(componentList, indexList);
     if ((componentList.size() == 0) || (randomNumber < ONEHUNDRED && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
         isBack_ = true;
     }
@@ -85,11 +83,23 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
 ErrCode NormalScene::SetInputComponent(std::vector<std::shared_ptr<ComponentTree>> &componentList,
                                        std::shared_ptr<ComponentTree> &componentinfo)
 {
+    auto util = WuKongUtil::GetInstance();
+    std::vector<std::string> compIdBlock = util->GetCompIdBlockList();
+    std::vector<std::string> compTypeBlock = util->GetCompTypeBlockList();
     ErrCode result = OHOS::ERR_OK;
     if (!componentList.empty()) {
+        auto treemanager = TreeManager::GetInstance();
+        bool hasDialog = treemanager->HasDialog();
+        bool meetDialog = false;
         for (auto it : componentList) {
+            if (it->GetType() == "Dialog") {
+                meetDialog = true;
+            }
+            if (hasDialog && !meetDialog) {
+                continue;
+            }
             DEBUG_LOG_STR("component inputcount: %d, node id: %016llX", it->GetInputCount(), it->GetNodeId());
-            if (it->GetInputCount() < 1) {
+            if (it->GetInputCount() < 1 && !IsComponentBlock(it, compIdBlock, compTypeBlock)) {
                 componentinfo = it;
                 break;
             }
@@ -108,12 +118,15 @@ ErrCode NormalScene::SetInputComponentListForFocusInput(std::vector<std::shared_
     std::vector<uint32_t> indexList;
     auto treemanager = TreeManager::GetInstance();
     uint32_t focusNum = treemanager->GetFocusNum();
+    auto util = WuKongUtil::GetInstance();
+    std::vector<std::string> compIdBlock = util->GetCompIdBlockList();
+    std::vector<std::string> compTypeBlock = util->GetCompTypeBlockList();
     for (auto it = componentList.begin(); it != componentList.end(); it++) {
         TRACK_LOG_STR("component inputcount: %d", (*it)->GetInputCount());
         std::string type = (*it)->GetType();
         bool needFocus = treemanager->NeedFocus(type);
         uint32_t limit = needFocus ? focusNum : MAXINPUTNUM;
-        if ((*it)->GetInputCount() >= limit) {
+        if ((*it)->GetInputCount() >= limit || IsComponentBlock((*it), compIdBlock, compTypeBlock)) {
             indexList.push_back((*it)->GetIndex());
             count++;
             TRACK_LOG_STR("index0: %d", distance(componentList.begin(), it));
@@ -124,8 +137,17 @@ ErrCode NormalScene::SetInputComponentListForFocusInput(std::vector<std::shared_
         indexList.clear();
         return OHOS::ERR_OK;
     }
-    TRACK_LOG_STR("componentList size: %d", componentList.size());
-    TRACK_LOG_STR("indexList size: %d", indexList.size());
+    //just determine back or not, can not remove component because of locating component after
+    if (componentList.size() == 0) {
+        isBack_ = true;
+    }
+    indexList.clear();
+    return result;
+}
+
+void NormalScene::SubtractComponent(std::vector<std::shared_ptr<ComponentTree>> &componentList,
+    std::vector<uint32_t> &indexList)
+{
     for (auto index : indexList) {
         for (auto it = componentList.begin(); it != componentList.end(); it++) {
             if ((*it)->GetIndex() == index) {
@@ -134,11 +156,24 @@ ErrCode NormalScene::SetInputComponentListForFocusInput(std::vector<std::shared_
             }
         }
     }
-    if (componentList.size() == 0) {
-        isBack_ = true;
+}
+
+bool NormalScene::IsComponentBlock(std::shared_ptr<ComponentTree> &comp, std::vector<std::string> &compIdBlock,
+    std::vector<std::string> &compTypeBlock)
+{
+    std::string id = comp->GetInspectorKey();
+    std::string type = comp->GetType();
+    auto util = WuKongUtil::GetInstance();
+    if (util->ContainsElement(compIdBlock, id)) {
+        DEBUG_LOG_STR("Block Id: %s", id.c_str());
+        return true;
     }
-    indexList.clear();
-    return result;
+    if (util->ContainsElement(compTypeBlock, type)) {
+        DEBUG_LOG_STR("Block type: %s", type.c_str());
+        return true;
+    }
+    DEBUG_LOG_STR("UnBlock Id: %s, type: %s", id.c_str(), type.c_str());
+    return false;
 }
 }  // namespace WuKong
 }  // namespace OHOS

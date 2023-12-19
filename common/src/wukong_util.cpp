@@ -185,13 +185,18 @@ void WuKongUtil::GetBundleList(std::vector<std::string> &bundlelist, std::vector
     abilitylist = abilityList_;
 }
 
-uint32_t WuKongUtil::FindElement(std::vector<std::string> bundleList, std::string key)
+uint32_t WuKongUtil::FindElement(std::vector<std::string> &bundleList, std::string key)
 {
     auto it = find(bundleList.begin(), bundleList.end(), key);
     if (it != bundleList.end()) {
         return distance(bundleList.begin(), it);
     }
     return INVALIDVALUE;
+}
+
+bool WuKongUtil::ContainsElement(std::vector<std::string> &bundleList, std::string key)
+{
+    return INVALIDVALUE != FindElement(bundleList, key);
 }
 
 ErrCode WuKongUtil::CheckBundleNameList()
@@ -626,6 +631,43 @@ bool WuKongUtil::DeleteFile(std::string targetDir)
     }
     (void)closedir(dirdp);
     return true;
+}
+
+void WuKongUtil::SetCompIdBlockList(const std::string &optarg)
+{
+    SplitStr(optarg, ",", compIdBlockList_);
+}
+
+std::vector<std::string> WuKongUtil::GetCompIdBlockList()
+{
+    return compIdBlockList_;
+}
+
+void WuKongUtil::SetCompTypeBlockList(const std::string &optarg)
+{
+    SplitStr(optarg, ",", compTypeBlockList_);
+}
+
+std::vector<std::string> WuKongUtil::GetCompTypeBlockList()
+{
+    return compTypeBlockList_;
+}
+
+std::string WuKongUtil::runProcess(std::string cmd)
+{
+    const unsigned int NUMBER_SIZE = 1024;
+    if (FILE* fp = popen(cmd.c_str(), "r")) {
+        std::ostringstream ostrStream;
+        char line[NUMBER_SIZE];
+        while (fgets(line, NUMBER_SIZE, fp)) {
+            ostrStream << line;
+        }
+        pclose(fp);
+        return ostrStream.str();
+    } else {
+        ERROR_LOG("popen function failed");
+    }
+    return "";
 }
 }  // namespace WuKong
 }  // namespace OHOS

@@ -84,7 +84,7 @@ ErrCode AppswitchInput::RandomInput()
     return result;
 }
 
-ErrCode AppswitchInput::FocusInput()
+ErrCode AppswitchInput::FocusInput(bool shouldScreenCap)
 {
     return AppswitchInput::RandomInput();
 }

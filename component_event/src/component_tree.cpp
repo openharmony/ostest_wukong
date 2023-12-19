@@ -87,7 +87,8 @@ bool ComponentTree::SetNodeId()
     nodeId_ |= h << COMPONENT_HEIGHT_POSION;
     nodeId_ |= str << COMPONENT_CONTENT_POSION;
     nodeId_ |= index_ << COMPONENT_RESERVED_POSION;
-    TRACK_LOG_STR("component Node ID: (0x%016llX)", nodeId_);
+    inspectorKey_ =  elementInfo->GetInspectorKey();
+    TRACK_LOG_STR("component Node ID: (0x%016llX), inspectorKey: (%s)", nodeId_, inspectorKey_.c_str());
     return true;
 }
 }  // namespace WuKong

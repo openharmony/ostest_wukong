@@ -32,11 +32,14 @@ public:
     ~ComponentInput();
     ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject);
     ErrCode RandomInput();
-    ErrCode FocusInput();
+    ErrCode FocusInput(bool shouldScreenCap);
     ErrCode GetInputInfo();
 
 private:
     int JudgeComponentType(OHOS::Accessibility::AccessibilityElementInfo& elementInfo);
+    uint32_t ChooseRightComponentIndex(
+        std::vector<std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>> &componentInfos,
+        std::vector<std::shared_ptr<ComponentTree>> &wComponentInfos, bool shouldScreenCap);
 };
 }  // namespace WuKong
 }  // namespace OHOS

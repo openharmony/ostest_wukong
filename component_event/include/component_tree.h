@@ -50,6 +50,26 @@ public:
         return rect_;
     }
 
+    const std::string& GetInspectorKey()
+    {
+        return inspectorKey_;
+    }
+
+    void SetInspectorKey(const std::string& inspectorKey)
+    {
+        inspectorKey_ = inspectorKey;
+    }
+
+    bool IsTopComponent()
+    {
+        return isTopComponent_;
+    }
+
+    void SetTopComponent()
+    {
+        isTopComponent_ = true;
+    }
+
 private:
     friend class TreeManager;
     virtual bool SetNodeId() override;
@@ -68,6 +88,8 @@ private:
     std::string type_;
     uint32_t expectedInputCount_;
     std::map<uint32_t, uint32_t> inputTypeCountMap_;
+    std::string inspectorKey_;
+    bool isTopComponent_ = false;
 };
 }  // namespace WuKong
 }  // namespace OHOS

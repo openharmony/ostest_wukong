@@ -297,77 +297,13 @@ ErrCode SpecialTestFlow::HandleUnknownOption(const char optopt)
 ErrCode SpecialTestFlow::HandleNormalOption(const int option)
 {
     ErrCode result = OHOS::ERR_OK;
-    switch (option) {
-        case 'S': {
-            g_commandSWAPENABLE = true;
-            break;
-        }
-        case 'k': {
-            g_commandPOWERENABLE = true;
-            break;
-        }
-        case 'c':
-        case 'T':
-            CheckArgument(option);
-            break;
-        case 'h': {
-            shellcommand_.ResultReceiverAppend(SPECIAL_TEST_HELP_MSG);
-            result = ERR_NO_INIT;
-            g_commandHELPENABLE = true;
-            break;
-        }
-        case 'i': {
-            intervalArgs_ = std::stoi(optarg);
-            TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
-            break;
-        }
-        case 't': {
-            SplitStr(optarg, ",", touchParam_);
-            // check if param is valid
-            result = CheckPosition(touchParam_);
-            g_commandTOUCHENABLE = true;
-            break;
-        }
-        case 'b': {
-            g_commandGOBACKENABLE = true;
-            break;
-        }
-        case 's': {
-            SplitStr(optarg, ",", swapStartPoint_);
-            // check if param is valid
-            result = CheckPosition(swapStartPoint_);
-            break;
-        }
-        case 'e': {
-            SplitStr(optarg, ",", swapEndPoint_);
-            // check if param is valid
-            result = CheckPosition(swapEndPoint_);
-            break;
-        }
-        case 'C': {
-            SplitStr(optarg, ",", bundleName_);
-            result = WuKongUtil::GetInstance()->CheckArgumentList(bundleName_, true);
-            g_commandCOMPONENTENABLE = true;
-            break;
-        }
-        case 'p': {
-            g_commandSCREENSHOTENABLE = true;
-            break;
-        }
-        case 'r': {
-            g_commandRECORDABLE = true;
-            specialRecordName_ = optarg;
-            break;
-        }
-        case 'R': {
-            g_commandREPLAYABLE = true;
-            specialRecordName_ = optarg;
-            break;
-        }
-        case 'u': {
-            g_commandUITEST = true;
-            break;
-        }
+    if (option == 'c' || option == 'T') {
+        CheckArgument(option);
+    } else if (option == 'i' || option == 't' || option == 's' || option == 'e' || option == 'C') {
+        result = SetRunningParam(option);
+    } else if (option == 'S' || option == 'k' || option == 'h' || option == 'b' || option == 'p' ||
+        option == 'r' || option == 'R' || option == 'u') {
+        result = SetRunningIndicator(option);
     }
     WuKongUtil::GetInstance()->SetOrderFlag(true);
     return result;
@@ -410,6 +346,60 @@ ErrCode SpecialTestFlow::CheckArgument(const int option)
         }
     }
     return result;
+}
+
+ErrCode SpecialTestFlow::SetRunningParam(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    if (option == 'i') {
+        intervalArgs_ = std::stoi(optarg);
+        TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+    } else if (option == 't') {
+        SplitStr(optarg, ",", touchParam_);
+        // check if param is valid
+        result = CheckPosition(touchParam_);
+        g_commandTOUCHENABLE = true;
+    } else if (option == 's') {
+        SplitStr(optarg, ",", swapStartPoint_);
+        // check if param is valid
+        result = CheckPosition(swapStartPoint_);
+    } else if (option == 'e') {
+        SplitStr(optarg, ",", swapEndPoint_);
+        // check if param is valid
+        result = CheckPosition(swapEndPoint_);
+    } else if (option == 'C') {
+        SplitStr(optarg, ",", bundleName_);
+        result = WuKongUtil::GetInstance()->CheckArgumentList(bundleName_, true);
+        g_commandCOMPONENTENABLE = true;
+    }
+    return OHOS::ERR_OK;
+}
+
+ErrCode SpecialTestFlow::SetRunningIndicator(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    if (option == 'S') {
+        g_commandSWAPENABLE = true;
+    } else if (option == 'k') {
+        g_commandPOWERENABLE = true;
+    } else if (option == 'h') {
+        shellcommand_.ResultReceiverAppend(SPECIAL_TEST_HELP_MSG);
+        result = ERR_NO_INIT;
+        g_commandHELPENABLE = true;
+    } else if (option == 'b') {
+        g_commandGOBACKENABLE = true;
+    } else if (option == 'p') {
+        g_commandSCREENSHOTENABLE = true;
+    } else if (option == 'r') {
+        g_commandRECORDABLE = true;
+        specialRecordName_ = optarg;
+    } else if (option == 'R') {
+        g_commandREPLAYABLE = true;
+        specialRecordName_ = optarg;
+    } else if (option == 'u') {
+        g_commandUITEST = true;
+    }
+    return OHOS::ERR_OK;
 }
 
 void SpecialTestFlow::RegisterTimer()

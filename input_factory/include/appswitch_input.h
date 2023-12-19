@@ -40,7 +40,7 @@ public:
      * @brief started up a app by ability.
      * @return Return ERR_OK on success， others on failure.
      */
-    ErrCode FocusInput();
+    ErrCode FocusInput(bool shouldScreenCap);
 
     /**
      * @brief get information of inputted event.

@@ -69,7 +69,7 @@ public:
      * @brief input a touch event in focus test for a certain times.
      * @return Return ERR_OK on success， others on failure.
      */
-    virtual ErrCode FocusInput()
+    virtual ErrCode FocusInput(bool shouldScreenCap)
     {
         return OHOS::ERR_INVALID_VALUE;
     }

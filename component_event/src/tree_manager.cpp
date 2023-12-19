@@ -18,6 +18,8 @@
 #include "ability_manager_client.h"
 #include "component_manager.h"
 #include "touch_input.h"
+#include "report.h"
+#include "wukong_util.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -53,6 +55,11 @@ bool TreeManager::RecursGetChildElementInfo(
     if (componentParent == nullptr) {
         ERROR_LOG("tree parent is null!");
         return false;
+    }
+    // identify whether has top components
+    if (parent->GetComponentType() == "Dialog") {
+        hasDialog_ = true;
+        dialogComponent_ = componentParent;
     }
     for (int32_t i = 0; i < parent->GetChildCount(); i++) {
         auto elementChild = std::make_shared<OHOS::Accessibility::AccessibilityElementInfo>();
@@ -118,6 +125,20 @@ bool TreeManager::RecursComponent(const std::shared_ptr<ComponentTree>& componen
         RecursComponent(std::static_pointer_cast<ComponentTree>(tree));
     }
     return true;
+}
+
+void TreeManager::RecursSetDialog(const std::shared_ptr<ComponentTree>& componentTree)
+{
+    if (componentTree == nullptr) {
+        return;
+    }
+    componentTree->SetTopComponent();
+    DEBUG_LOG_STR("Component Node Index:(%d), NodeId:(0x%016llX), input count:(%u)", componentTree->GetIndex(),
+                  componentTree->GetNodeId(), componentTree->GetInputCount());
+    auto children = componentTree->GetChildren();
+    for (auto tree : children) {
+        RecursSetDialog(std::static_pointer_cast<ComponentTree>(tree));
+    }
 }
 
 bool TreeManager::FindAbility(const std::shared_ptr<AbilityTree>& abilityNode)
@@ -234,7 +255,8 @@ ErrCode TreeManager::UpdateComponentInfo()
 
     auto root = std::make_shared<OHOS::Accessibility::AccessibilityElementInfo>();
     auto aacPtr = OHOS::Accessibility::AccessibilityUITestAbility::GetInstance();
-
+    hasDialog_ = false;
+    dialogComponent_ = nullptr;
     // Get root AccessibilityElementInfo from Accessibility,
     auto bResult = aacPtr->GetRoot(*(root.get()));
     if (bResult != Accessibility::RET_OK) {
@@ -260,6 +282,7 @@ ErrCode TreeManager::UpdateComponentInfo()
             return OHOS::ERR_INVALID_OPERATION;
         }
         RecursComponent(newComponentNode_);
+        RecursSetDialog(dialogComponent_);
     }
     // Generate Page Node
     newPageNode_ = std::make_shared<PageTree>();
@@ -517,6 +540,40 @@ bool TreeManager::UpdateCurrentPage(bool isAdd)
     }
     TRACK_LOG_END();
     return true;
+}
+
+std::uint32_t TreeManager::FindInputComponentIndex(bool shouldScreenCap)
+{
+    if (page2inputCount_.find(pagePath_) == page2inputCount_.end()) {
+        page2inputCount_[pagePath_] = 1;
+        page2componentIndex_[pagePath_] = (std::uint32_t) rand();
+        ScreenCapture(shouldScreenCap);
+        return page2componentIndex_[pagePath_];
+    }
+    if (NeedFocus(componmentType_)) {
+        if (page2inputCount_[pagePath_] % (focusNum_ + 1) == 0) {
+            page2componentIndex_[pagePath_] = (std::uint32_t) rand();
+            page2inputCount_[pagePath_] = 0;
+            ScreenCapture(shouldScreenCap);
+        }
+        page2inputCount_[pagePath_]++;
+    } else {
+        page2inputCount_[pagePath_] = 1;
+        page2componentIndex_[pagePath_] = (std::uint32_t) rand();
+    }
+    return page2componentIndex_[pagePath_];
+}
+
+void TreeManager::ScreenCapture(bool shouldScreenCap)
+{
+    if (!shouldScreenCap) {
+        return;
+    }
+    std::string screenStorePath;
+    ErrCode result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath, false);
+    if (result == OHOS::ERR_OK) {
+        Report::GetInstance()->RecordScreenPath(screenStorePath);
+    }
 }
 }  // namespace WuKong
 }  // namespace OHOS
