@@ -262,25 +262,35 @@ ErrCode ComponentInput::RandomInput()
         DEBUG_LOG_STR("component list size (%d)", componentInfos.size());
         DEBUG_LOG_STR("back: %d", delegate->IsBackToPrePage());
         if (delegate->IsBackToPrePage()) {
+            DEBUG_LOG("componentInputBranch1");
             result = ComponentManager::GetInstance()->BackToPrePage();
+            DEBUG_LOG("componentInputBranch1 end");
         } else if (componentInfos.size() > 0) {
+            DEBUG_LOG("componentInputBranch2");
             uint32_t index = (uint32_t)(rand()) % componentInfos.size();
-            DEBUG_LOG_STR("component input index (%d), NodeId (%d), InspectorKey (%s)", index,
-                wComponentInfos[index]->GetNodeId(), wComponentInfos[index]->GetInspectorKey().c_str());
+            DEBUG_LOG_STR("component input index (%d), NodeId (%d)", index,
+                wComponentInfos[index]->GetNodeId());
             int actionType = JudgeComponentType(*(componentInfos[index].get()));
             if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
                 actionType = OHOS::Accessibility::ACCESSIBILITY_ACTION_CLICK;
             }
+            DEBUG_LOG("componentInputBranch2 before input");
             result = ComponentManager::GetInstance()->ComponentEventInput(*(componentInfos[index].get()), actionType);
+            DEBUG_LOG("componentInputBranch2 after input");
             if (result == OHOS::ERR_OK) {
                 treemanager->SetInputcomponentIndex(actionType, index);
                 std::shared_ptr<ComponmentInputMsg> componentInputMsg = std::make_shared<ComponmentInputMsg>();
+                DEBUG_LOG("componentInputBranch2 after componentInputMsg");
                 componentInputMsg->pageComponments = delegate->GetComponentTypeList();
                 componentInputMsg->pageId_ = delegate->GetCurrentPageId();
                 componentInputMsg->componmentType_ = componentInfos[index]->GetComponentType();
+                DEBUG_LOG("componentInputBranch2 before SyncInputInfo");
                 Report::GetInstance()->SyncInputInfo(componentInputMsg);
+                DEBUG_LOG("componentInputBranch2 after SyncInputInfo");
             }
+            DEBUG_LOG("componentInputBranch2 end");
         } else {
+            DEBUG_LOG("componentInputBranch3");
             ERROR_LOG("component list is null");
             result = OHOS::ERR_NO_INIT;
         }
@@ -309,8 +319,8 @@ ErrCode ComponentInput::FocusInput(bool shouldScreenCap)
             DEBUG_LOG_STR("after ChooseRightComponentIndex (%d), comp cnt (%d)index (%d)",
                           componentInfos.size(), wComponentInfos.size(), index);
             auto componentinfo = componentInfos[index];
-            DEBUG_LOG_STR("component input index (%d), NodeId (%d), InspectorKey (%s)", index,
-                          wComponentInfos[index]->GetNodeId(), wComponentInfos[index]->GetInspectorKey().c_str());
+            DEBUG_LOG_STR("component input index (%d), NodeId (%d)", index,
+                          wComponentInfos[index]->GetNodeId());
             int actionType = JudgeComponentType(*(componentinfo.get()));
             if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
                 actionType = OHOS::Accessibility::ACCESSIBILITY_ACTION_CLICK;
