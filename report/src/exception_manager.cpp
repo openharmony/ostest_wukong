@@ -80,6 +80,10 @@ bool ExceptionManager::StartCatching()
     std::string eventName = "";
     sysRules.emplace_back(domain, eventName);
     toolListener = std::make_shared<SysEventListener>(csvFile);
+    if (toolListener == nullptr) {
+        ERROR_LOG("toolListener is nullptr and please check the csvFile is ok");
+        return false;
+    }
     return HiSysEventManager::AddListener(toolListener, sysRules) == 0;
 }
 
