@@ -258,27 +258,39 @@ ErrCode ComponentInput::RandomInput()
         auto delegate = SceneDelegate::GetInstance();
         delegate->ChooseScene(true);
         auto componentInfos = treemanager->GetActiveElementInfos();
+        auto wComponentInfos = treemanager->GetActiveComponentInfos();
         DEBUG_LOG_STR("component list size (%d)", componentInfos.size());
         DEBUG_LOG_STR("back: %d", delegate->IsBackToPrePage());
         if (delegate->IsBackToPrePage()) {
+            DEBUG_LOG("componentInputBranch1");
             result = ComponentManager::GetInstance()->BackToPrePage();
+            DEBUG_LOG("componentInputBranch1 end");
         } else if (componentInfos.size() > 0) {
+            DEBUG_LOG("componentInputBranch2");
             uint32_t index = (uint32_t)(rand()) % componentInfos.size();
-            DEBUG_LOG_STR("component input index (%d)", index);
+            DEBUG_LOG_STR("component input index (%d), NodeId (%d)", index,
+                wComponentInfos[index]->GetNodeId());
             int actionType = JudgeComponentType(*(componentInfos[index].get()));
             if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
                 actionType = OHOS::Accessibility::ACCESSIBILITY_ACTION_CLICK;
             }
+            DEBUG_LOG("componentInputBranch2 before input");
             result = ComponentManager::GetInstance()->ComponentEventInput(*(componentInfos[index].get()), actionType);
+            DEBUG_LOG("componentInputBranch2 after input");
             if (result == OHOS::ERR_OK) {
                 treemanager->SetInputcomponentIndex(actionType, index);
                 std::shared_ptr<ComponmentInputMsg> componentInputMsg = std::make_shared<ComponmentInputMsg>();
+                DEBUG_LOG("componentInputBranch2 after componentInputMsg");
                 componentInputMsg->pageComponments = delegate->GetComponentTypeList();
                 componentInputMsg->pageId_ = delegate->GetCurrentPageId();
                 componentInputMsg->componmentType_ = componentInfos[index]->GetComponentType();
+                DEBUG_LOG("componentInputBranch2 before SyncInputInfo");
                 Report::GetInstance()->SyncInputInfo(componentInputMsg);
+                DEBUG_LOG("componentInputBranch2 after SyncInputInfo");
             }
+            DEBUG_LOG("componentInputBranch2 end");
         } else {
+            DEBUG_LOG("componentInputBranch3");
             ERROR_LOG("component list is null");
             result = OHOS::ERR_NO_INIT;
         }
@@ -287,7 +299,7 @@ ErrCode ComponentInput::RandomInput()
     return result;
 }
 
-ErrCode ComponentInput::FocusInput()
+ErrCode ComponentInput::FocusInput(bool shouldScreenCap)
 {
     auto treemanager = TreeManager::GetInstance();
     ErrCode result = treemanager->UpdateComponentInfo();
@@ -297,22 +309,25 @@ ErrCode ComponentInput::FocusInput()
         auto delegate = FocusSceneDelegate::GetInstance();
         delegate->ChooseScene(true);
         auto componentInfos = treemanager->GetActiveElementInfos();
+        auto wComponentInfos = treemanager->GetActiveComponentInfos();
         DEBUG_LOG_STR("component list size (%d)", componentInfos.size());
         DEBUG_LOG_STR("back: %d", delegate->IsBackToPrePage());
         if (delegate->IsBackToPrePage()) {
             result = componentManager->BackToPrePage();
         } else if (componentInfos.size() > 0) {
-            uint32_t randIndex = treemanager->FindInputComponentIndex();
-            DEBUG_LOG_STR("ComponentInput::FocusInput START: randomIndex: %u", randIndex);
-            uint32_t index = randIndex % componentInfos.size();
-            DEBUG_LOG_STR("component input index (%d)", index);
+            uint32_t index = ChooseRightComponentIndex(componentInfos, wComponentInfos, shouldScreenCap);
+            DEBUG_LOG_STR("after ChooseRightComponentIndex (%d), comp cnt (%d)index (%d)",
+                          componentInfos.size(), wComponentInfos.size(), index);
             auto componentinfo = componentInfos[index];
+            DEBUG_LOG_STR("component input index (%d), NodeId (%d)", index,
+                          wComponentInfos[index]->GetNodeId());
             int actionType = JudgeComponentType(*(componentinfo.get()));
             if (actionType == Accessibility::ACCESSIBILITY_ACTION_INVALID) {
                 actionType = OHOS::Accessibility::ACCESSIBILITY_ACTION_CLICK;
             }
 
             result = componentManager->ComponentEventInput(*(componentinfo.get()), actionType);
+            DEBUG_LOG_STR("after ChooseRightComponentIndex3 (%d), index (%d)", componentInfos.size(), index);
             DEBUG_LOG_STR("action type: %d, sequence input: %d", actionType, result);
             if (result == OHOS::ERR_OK) {
                 treemanager->SetInputcomponentIndex(actionType, index);
@@ -335,6 +350,33 @@ ErrCode ComponentInput::FocusInput()
     }
     DEBUG_LOG_STR("component focus input result (%d)", result);
     return result;
+}
+
+uint32_t ComponentInput::ChooseRightComponentIndex(
+    std::vector<std::shared_ptr<OHOS::Accessibility::AccessibilityElementInfo>> &componentInfos,
+    std::vector<std::shared_ptr<ComponentTree>> &wComponentInfos, bool shouldScreenCap)
+{
+    auto treemanager = TreeManager::GetInstance();
+    uint32_t index;
+    if (treemanager->HasDialog()) {
+        DEBUG_LOG("Has dialog");
+        std::vector<uint32_t> indexList;
+        int count = wComponentInfos.size();
+        for (int i = 0; i < count; i++) {
+            auto it = wComponentInfos[i];
+            if (it->IsTopComponent()) {
+                indexList.push_back(i);
+            }
+        }
+        uint32_t randIndex = (std::uint32_t) rand() % indexList.size();
+        index = indexList[randIndex];
+    } else {
+        DEBUG_LOG("no dialog");
+        uint32_t randIndex = treemanager->FindInputComponentIndex(shouldScreenCap);
+        DEBUG_LOG_STR("ComponentInput::FocusInput START: randomIndex: %u", randIndex);
+        index = randIndex % componentInfos.size();
+    }
+    return index;
 }
 
 ErrCode ComponentInput::GetInputInfo()

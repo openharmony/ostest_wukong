@@ -28,8 +28,7 @@ const float MINCOVERAGE = 0.9;
 uint8_t LISTITEM_COUNT = 0;
 uint8_t GRID_COUNT = 0;
 uint8_t NUMBER_ZERO = 0;
-uint8_t NUMBER_FOUR = 4;
-uint8_t NUMBER_FIVE = 5;
+uint8_t LISTITEM_COUNT_LIMIT = 100;
 }  // namespace
 SceneDelegate::SceneDelegate()
 {
@@ -63,11 +62,8 @@ ErrCode SceneDelegate::GetCurrentComponentInfo(std::shared_ptr<ComponentTree> co
                 isListItem = true;
                 LISTITEM_COUNT++;
             }
-            if (isListItem && LISTITEM_COUNT > NUMBER_FOUR) {
-                componenttree = std::static_pointer_cast<ComponentTree>(componentinfos[componentinfos.size() - 1]);
-            }
             GetCurrentComponentInfo(componenttree, componentlist);
-            if (isListItem && LISTITEM_COUNT >= NUMBER_FIVE) {
+            if (isListItem && LISTITEM_COUNT >= LISTITEM_COUNT_LIMIT) {
                 break;
             }
         }
@@ -168,10 +164,12 @@ ErrCode SceneDelegate::CompareComponentInfos(std::shared_ptr<ComponentTree> &new
     float samePercent = 0.0;
     // get the same count in new component list and current component list
     uint32_t samecount = FindSame(newChildList, currentChildList);
-    if (newChildList.size() > currentChildList.size()) {
-        samePercent = (float)samecount / (float)currentChildList.size();
-    } else {
-        samePercent = (float)samecount / (float)newChildList.size();
+    if (samecount > 0) {
+        if (newChildList.size() > currentChildList.size()) {
+            samePercent = (float)samecount / (float)currentChildList.size();
+        } else {
+            samePercent = (float)samecount / (float)newChildList.size();
+        }
     }
 
     DEBUG_LOG_STR("same percent: %2f", samePercent);
@@ -289,7 +287,10 @@ ErrCode SceneDelegate::FindSamePageInParent(bool &isFound, bool isRandom)
                 ERROR_LOG("old page is nullptr");
                 return OHOS::ERR_NO_INIT;
             }
-            float coverage = (float)oldpage->GetInputCount() / (float)oldpage->GetValidComponentCount();
+            float coverage = 0.0;
+            if (oldpage->GetValidComponentCount() > 0) {
+                coverage = (float)oldpage->GetInputCount() / (float)oldpage->GetValidComponentCount();
+            }
 
             TRACK_LOG_STR("layer: (%d)", layer);
             if (!treemanager->UpdatePage(layer)) {

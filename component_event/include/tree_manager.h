@@ -77,6 +77,15 @@ public:
     }
 
     /**
+     * @brief get AccessibilityElementInfo list of active component.
+     * @return input AccessibilityElementInfo list
+     */
+    const std::vector<std::shared_ptr<ComponentTree>>& GetActiveComponentInfos()
+    {
+        return inputComponentList_;
+    }
+
+    /**
      * @brief set input event component, and input type.
      * @param index index of active element info list.
      * @param actionType component input type.
@@ -91,25 +100,12 @@ public:
      * @brief find the index of component, which one to input
      * @return the index
      */
-    std::uint32_t FindInputComponentIndex()
-    {
-        if (page2inputCount_.find(pagePath_) == page2inputCount_.end()) {
-            page2inputCount_[pagePath_] = 1;
-            page2componentIndex_[pagePath_] = (std::uint32_t) rand();
-            return page2componentIndex_[pagePath_];
-        }
-        if (NeedFocus(componmentType_)) {
-            if (page2inputCount_[pagePath_] % (focusNum_ + 1) == 0) {
-                page2componentIndex_[pagePath_] = (std::uint32_t) rand();
-                page2inputCount_[pagePath_] = 0;
-            }
-            page2inputCount_[pagePath_]++;
-        } else {
-            page2inputCount_[pagePath_] = 1;
-            page2componentIndex_[pagePath_] = (std::uint32_t) rand();
-        }
-        return page2componentIndex_[pagePath_];
-    }
+    std::uint32_t FindInputComponentIndex(bool shouldScreenCap);
+
+    /**
+     * @brief take Screen Capture
+     */
+    void ScreenCapture(bool shouldScreenCap);
 
     /**
      * @brief decide whether the component need be focused on
@@ -156,7 +152,7 @@ public:
      * @brief check cur page has Dialog
      * @return return hasDialog_
      */
-    bool hasDialog()
+    bool HasDialog()
     {
         return hasDialog_;
     }
@@ -280,6 +276,8 @@ public:
     }
 
     bool RecursComponent(const std::shared_ptr<ComponentTree>& componentTree);
+
+    void RecursSetDialog(const std::shared_ptr<ComponentTree>& componentTree);
     DECLARE_DELAYED_SINGLETON(TreeManager);
 
 private:
@@ -318,6 +316,7 @@ private:
     std::string pagePath_;
     std::map<std::uint64_t, std::uint64_t> componentCountMap_;
     bool hasDialog_ = false;
+    std::shared_ptr<ComponentTree> dialogComponent_ = nullptr;
 
     std::map<std::string, std::uint32_t> page2componentIndex_;
     std::map<std::string, std::uint32_t> page2inputCount_;

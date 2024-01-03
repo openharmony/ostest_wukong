@@ -48,9 +48,11 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -r, --rotate               rotate event percent\n"
     "   -e, --allow ability        the ability name of allowlist\n"
     "   -E, --block ability        the ability name of blocklist\n"
+    "   -Y, --blockCompId          the id list of block component\n"
+    "   -y, --blockCompType        the type list of block component\n"
     "   -I, --screenshot           get screenshot(only in random input)\n";
 
-const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIi:k:p:s:t:T:H:m:S:C:r:";
+const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIi:k:p:s:t:T:H:m:S:C:r:Y:y:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -69,7 +71,9 @@ const struct option LONG_OPTIONS[] = {
     {"rotate", required_argument, nullptr, 'r'},     // rotate percent
     {"page", required_argument, nullptr, 'd'},       // block page
     {"allow ability", required_argument, nullptr, 'e'},
-    {"blick ability", required_argument, nullptr, 'E'},
+    {"block ability", required_argument, nullptr, 'E'},
+    {"blockCompId", required_argument, nullptr, 'Y'},
+    {"blockCompType", required_argument, nullptr, 'y'},
     {"screenshot", no_argument, nullptr, 'I'},
 };
 
@@ -253,6 +257,62 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
     return OHOS::ERR_OK;
 }
 
+ErrCode RandomTestFlow::SetBlackWhiteSheet(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    if (option == 'b') {
+        result = WuKongUtil::GetInstance()->SetAllowList(optarg);
+        g_commandALLOWBUNDLEENABLE = true;
+    } else if (option == 'p') {
+        result = WuKongUtil::GetInstance()->SetBlockList(optarg);
+    } else if (option == 'e') {
+        result = WuKongUtil::GetInstance()->SetAllowAbilityList(optarg);
+        if (result != OHOS::ERR_INVALID_VALUE) {
+            result = CheckArgument(option);
+        }
+    } else if (option == 'E') {
+        result = WuKongUtil::GetInstance()->SetBlockAbilityList(optarg);
+        if (result != OHOS::ERR_INVALID_VALUE) {
+            result = CheckArgument(option);
+        }
+    } else if (option == 'd') {
+        result = WuKongUtil::GetInstance()->SetBlockPageList(optarg);
+    } else if (option == 'Y') {
+        WuKongUtil::GetInstance()->SetCompIdBlockList(optarg);
+    } else if (option == 'y') {
+        WuKongUtil::GetInstance()->SetCompTypeBlockList(optarg);
+    }
+    return OHOS::ERR_OK;
+}
+
+ErrCode RandomTestFlow::SetRunningParam(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    if (option == 'c' || option == 'T') {
+        result = CheckArgument(option);
+    } else if (option == 'i') {
+        intervalArgs_ = std::stoi(optarg);
+        TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+    } else if (option == 's') {
+        seedArgs_ = std::stoi(optarg);
+        g_commandSEEDENABLE = true;
+    }
+    return OHOS::ERR_OK;
+}
+
+ErrCode RandomTestFlow::SetRunningIndicator(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    if (option == 'h') {
+        shellcommand_.ResultReceiverAppend(RANDOM_TEST_HELP_MSG);
+        result = OHOS::ERR_NO_INIT;
+        g_commandHELPENABLE = true;
+    } else if (option == 'I') {
+        g_commandSCREENSHOTENABLE = true;
+    }
+    return OHOS::ERR_OK;
+}
+
 ErrCode RandomTestFlow::InputScene(std::shared_ptr<InputAction> inputaction, bool inputFlag)
 {
     ErrCode result = OHOS::ERR_OK;
@@ -389,79 +449,19 @@ ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputa
 ErrCode RandomTestFlow::HandleNormalOption(const int option)
 {
     ErrCode result = OHOS::ERR_OK;
-    switch (option) {
-        case 't':
-        case 'm':
-        case 'S':
-        case 'k':
-        case 'H':
-        case 'a':
-        case 'r':
-        case 'C': {
-            result = SetInputPercent(option);
-            break;
+    if (option == 't' || option == 'm' || option == 'S' || option == 'k' || option == 'a' ||
+        option == 'r' || option == 'C' || option == 'H') {
+        result = SetInputPercent(option);
+    } else {
+        result = SetBlackWhiteSheet(option);
+        if (result != OHOS::ERR_OK) {
+            return result;
         }
-        case 'b': {
-            result = WuKongUtil::GetInstance()->SetAllowList(optarg);
-            g_commandALLOWBUNDLEENABLE = true;
-            break;
+        result = SetRunningParam(option);
+        if (result != OHOS::ERR_OK) {
+            return result;
         }
-        case 'e': {
-            result = WuKongUtil::GetInstance()->SetAllowAbilityList(optarg);
-            if (result != OHOS::ERR_INVALID_VALUE) {
-                result = CheckArgument(option);
-            }
-            break;
-        }
-        case 'c': {
-            // check if the '-c' and 'T' is exist at the same time
-            result = CheckArgument(option);
-            break;
-        }
-        case 'h': {
-            shellcommand_.ResultReceiverAppend(RANDOM_TEST_HELP_MSG);
-            result = OHOS::ERR_NO_INIT;
-            g_commandHELPENABLE = true;
-            break;
-        }
-        case 'i': {
-            intervalArgs_ = std::stoi(optarg);
-            TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
-            break;
-        }
-        case 'I': {
-            g_commandSCREENSHOTENABLE = true;
-            break;
-        }
-        case 's': {
-            seedArgs_ = std::stoi(optarg);
-            g_commandSEEDENABLE = true;
-            break;
-        }
-        case 'T': {
-            // check if the '-c' and 'T' is exist at the same time
-            result = CheckArgument(option);
-            break;
-        }
-        case 'p': {
-            result = WuKongUtil::GetInstance()->SetBlockList(optarg);
-            break;
-        }
-        case 'E': {
-            result = WuKongUtil::GetInstance()->SetBlockAbilityList(optarg);
-            if (result != OHOS::ERR_INVALID_VALUE) {
-                result = CheckArgument(option);
-            }
-            break;
-        }
-        case 'd': {
-            result = WuKongUtil::GetInstance()->SetBlockPageList(optarg);
-            break;
-        }
-        default: {
-            result = OHOS::ERR_INVALID_VALUE;
-            break;
-        }
+        result = SetRunningIndicator(option);
     }
     WuKongUtil::GetInstance()->GetBlockPageList(systemPaths);
     WuKongUtil::GetInstance()->SetOrderFlag(false);
@@ -542,6 +542,8 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
         case 'm':
         case 'C':
         case 'E':
+        case 'Y':
+        case 'y':
             // error: option 'x' requires a value.
             shellcommand_.ResultReceiverAppend("error: option '-");
             shellcommand_.ResultReceiverAppend(string(1, optopt));

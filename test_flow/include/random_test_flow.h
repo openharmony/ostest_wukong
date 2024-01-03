@@ -82,6 +82,24 @@ private:
      */
     ErrCode SetInputPercent(const int option);
 
+    /**
+     * @brief set black white sheet
+     * @param option the param of test
+     */
+    ErrCode SetBlackWhiteSheet(const int option);
+
+    /**
+     * @brief set running param
+     * @param option the param of test
+     */
+    ErrCode SetRunningParam(const int option);
+
+    /**
+     * @brief set set running indicator
+     * @param option the param of test
+     */
+    ErrCode SetRunningIndicator(const int option);
+
     ErrCode InputScene(std::shared_ptr<InputAction> inputaction, bool inputFlag);
     
     /**

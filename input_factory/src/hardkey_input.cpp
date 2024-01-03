@@ -24,6 +24,7 @@ namespace WuKong {
 namespace {
 const int HARDKEY_COUNT = 2;
 const int DOWN_TIME = 10;
+bool g_shouldWakeup = true;
 }  // namespace
 HardkeyInput::HardkeyInput() : InputAction()
 {
@@ -36,8 +37,16 @@ HardkeyInput::~HardkeyInput() {}
 
 ErrCode HardkeyInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
-    ErrCode result = MultimodeManager::GetInstance()->SingleKeyCodeInput(MMI::KeyEvent::KEYCODE_POWER, DOWN_TIME);
-    return result;
+    auto util = WuKongUtil::GetInstance();
+    std::string hCmdw = "power-shell wakeup";
+    std::string hCmds = "power-shell suspend";
+    if (g_shouldWakeup) {
+        util->runProcess(hCmdw);
+    } else {
+        util->runProcess(hCmds);
+    }
+    g_shouldWakeup = !g_shouldWakeup;
+    return OHOS::ERR_OK;
 }
 
 ErrCode HardkeyInput::RandomInput()

@@ -54,6 +54,18 @@ private:
     ErrCode CheckArgument(const int option);
 
     /**
+     * @brief set running param
+     * @param option the param of test
+     */
+    ErrCode SetRunningParam(const int option);
+
+    /**
+     * @brief set set running indicator
+     * @param option the param of test
+     */
+    ErrCode SetRunningIndicator(const int option);
+
+    /**
      * @brief registered timer to monitor test time
      */
     void RegisterTimer();

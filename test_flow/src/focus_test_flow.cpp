@@ -36,6 +36,7 @@ const std::string FOCUS_TEST_HELP_MSG =
     "   -a, --appswitch            appswitch event percent\n"
     "   -b, --bundle               the bundle name of allowlist\n"
     "   -p, --prohibit             the bundle name of blocklist\n"
+    "   -d, --page                 block page list\n"
     "   -t, --touch                touch event percent\n"
     "   -c, --count                test count\n"
     "   -i, --interval             interval\n"
@@ -48,9 +49,14 @@ const std::string FOCUS_TEST_HELP_MSG =
     "   -C, --component            component event percent\n"
     "   -r, --rotate               rotate event percent\n"
     "   -n, --numberfocus          the number of inputs to focus on some component one time\n"
-    "   -f, --focustypes           the component type to focus on\n";
+    "   -f, --focustypes           the component type to focus on\n"
+    "   -e, --allow ability        the ability name of allowlist\n"
+    "   -E, --block ability        the ability name of blocklist\n"
+    "   -Y, --blockCompId          the id list of block component\n"
+    "   -y, --blockCompType        the type list of block component\n"
+    "   -I, --screenshot           get screenshot\n";
 
-const std::string SHORT_OPTIONS = "a:b:c:hi:k:p:s:t:T:H:m:S:C:r:n:f:";
+const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIi:k:p:s:t:T:H:m:S:C:r:n:f:Y:y:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -69,6 +75,12 @@ const struct option LONG_OPTIONS[] = {
     {"rotate", required_argument, nullptr, 'r'},     // rotate percent
     {"numberfocus", required_argument, nullptr, 'n'}, // number focus
     {"focustypes", required_argument, nullptr, 'f'}, // focus types
+    {"page", required_argument, nullptr, 'd'},       // block page
+    {"allow ability", required_argument, nullptr, 'e'},
+    {"block ability", required_argument, nullptr, 'E'},
+    {"blockCompId", required_argument, nullptr, 'Y'},
+    {"blockCompType", required_argument, nullptr, 'y'},
+    {"screenshot", no_argument, nullptr, 'I'}, // get screenshot
 };
 
 /**
@@ -106,6 +118,10 @@ bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
 bool g_commandCOUNTENABLE = false;
 bool g_isAppStarted = false;
+bool g_commandSCREENSHOTENABLE = false;
+bool g_commandALLOWABILITYENABLE = false;
+bool g_commandBLOCKABILITYENABLE = false;
+bool g_commandALLOWBUNDLEENABLE = false;
 }  // namespace
 using namespace std;
 
@@ -241,12 +257,72 @@ ErrCode FocusTestFlow::SetInputPercent(const int option)
     return OHOS::ERR_OK;
 }
 
+ErrCode FocusTestFlow::SetBlackWhiteSheet(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    if (option == 'b') {
+        result = WuKongUtil::GetInstance()->SetAllowList(optarg);
+        g_commandALLOWBUNDLEENABLE = true;
+    } else if (option == 'p') {
+        result = WuKongUtil::GetInstance()->SetBlockList(optarg);
+    } else if (option == 'e') {
+        result = WuKongUtil::GetInstance()->SetAllowAbilityList(optarg);
+        if (result != OHOS::ERR_INVALID_VALUE) {
+            result = CheckArgument(option);
+        }
+    } else if (option == 'E') {
+        result = WuKongUtil::GetInstance()->SetBlockAbilityList(optarg);
+        if (result != OHOS::ERR_INVALID_VALUE) {
+            result = CheckArgument(option);
+        }
+    } else if (option == 'd') {
+        result = WuKongUtil::GetInstance()->SetBlockPageList(optarg);
+    } else if (option == 'Y') {
+        WuKongUtil::GetInstance()->SetCompIdBlockList(optarg);
+    } else if (option == 'y') {
+        WuKongUtil::GetInstance()->SetCompTypeBlockList(optarg);
+    }
+    return OHOS::ERR_OK;
+}
+
+ErrCode FocusTestFlow::SetRunningParam(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    if (option == 'c' || option == 'T') {
+        result = CheckArgument(option);
+    } else if (option == 'i') {
+        intervalArgs_ = std::stoi(optarg);
+        TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+    } else if (option == 's') {
+        seedArgs_ = std::stoi(optarg);
+        g_commandSEEDENABLE = true;
+    } else if (option == 'n') {
+        TreeManager::GetInstance()->SetFocusNum(optarg);
+    } else if (option == 'f') {
+        TreeManager::GetInstance()->SetFocusTypeList(optarg);
+    }
+    return OHOS::ERR_OK;
+}
+
+ErrCode FocusTestFlow::SetRunningIndicator(const int option)
+{
+    ErrCode result = OHOS::ERR_OK;
+    if (option == 'h') {
+        shellcommand_.ResultReceiverAppend(FOCUS_TEST_HELP_MSG);
+        result = OHOS::ERR_NO_INIT;
+        g_commandHELPENABLE = true;
+    } else if (option == 'I') {
+        g_commandSCREENSHOTENABLE = true;
+    }
+    return OHOS::ERR_OK;
+}
+
 ErrCode FocusTestFlow::InputScene(std::shared_ptr<InputAction> inputaction, bool inputFlag)
 {
     ErrCode result = OHOS::ERR_OK;
     if (inputFlag) {
         TRACK_LOG("inputScene branck 1");
-        result = inputaction->FocusInput();
+        result = inputaction->FocusInput(g_commandSCREENSHOTENABLE);
     } else {
         TRACK_LOG("inputScene branck 2");
         ComponentManager::GetInstance()->BackToPrePage();
@@ -345,64 +421,19 @@ ErrCode FocusTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputac
 ErrCode FocusTestFlow::HandleNormalOption(const int option)
 {
     ErrCode result = OHOS::ERR_OK;
-    switch (option) {
-        case 't':
-        case 'm':
-        case 'S':
-        case 'k':
-        case 'H':
-        case 'a':
-        case 'r':
-        case 'C': {
-            result = SetInputPercent(option);
-            break;
+    if (option == 't' || option == 'm' || option == 'S' || option == 'k' || option == 'H' ||
+        option == 'a' || option == 'r' || option == 'C') {
+        result = SetInputPercent(option);
+    } else {
+        result = SetBlackWhiteSheet(option);
+        if (result != OHOS::ERR_OK) {
+            return result;
         }
-        case 'b': {
-            result = WuKongUtil::GetInstance()->SetAllowList(optarg);
-            break;
+        result = SetRunningParam(option);
+        if (result != OHOS::ERR_OK) {
+            return result;
         }
-        case 'c': {
-            // check if the '-c' and 'T' is exist at the same time
-            result = CheckArgument(option);
-            break;
-        }
-        case 'h': {
-            shellcommand_.ResultReceiverAppend(FOCUS_TEST_HELP_MSG);
-            result = OHOS::ERR_NO_INIT;
-            g_commandHELPENABLE = true;
-            break;
-        }
-        case 'i': {
-            intervalArgs_ = std::stoi(optarg);
-            TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
-            break;
-        }
-        case 's': {
-            seedArgs_ = std::stoi(optarg);
-            g_commandSEEDENABLE = true;
-            break;
-        }
-        case 'T': {
-            // check if the '-c' and 'T' is exist at the same time
-            result = CheckArgument(option);
-            break;
-        }
-        case 'p': {
-            result = WuKongUtil::GetInstance()->SetBlockList(optarg);
-            break;
-        }
-        case 'n': {
-            TreeManager::GetInstance()->SetFocusNum(optarg);
-            break;
-        }
-        case 'f': {
-            TreeManager::GetInstance()->SetFocusTypeList(optarg);
-            break;
-        }
-        default: {
-            result = OHOS::ERR_INVALID_VALUE;
-            break;
-        }
+        result = SetRunningIndicator(option);
     }
     WuKongUtil::GetInstance()->SetOrderFlag(false);
     return result;
@@ -439,6 +470,14 @@ ErrCode FocusTestFlow::CheckArgument(const int option)
             }
             break;
         }
+        case 'e': {
+            result = CheckArgumentOptionOfe();
+            break;
+        }
+        case 'E': {
+            result = CheckArgumentOptionOfE();
+            break;
+        }
         default: {
             result = OHOS::ERR_INVALID_VALUE;
             break;
@@ -473,6 +512,8 @@ ErrCode FocusTestFlow::HandleUnknownOption(const char optopt)
         case 'C':
         case 'n':
         case 'f':
+        case 'Y':
+        case 'y':
             // error: option 'x' requires a value.
             shellcommand_.ResultReceiverAppend("error: option '-");
             shellcommand_.ResultReceiverAppend(string(1, optopt));
@@ -515,6 +556,40 @@ void FocusTestFlow::TestTimeout()
 {
     g_commandTIMEENABLE = false;
     isFinished_ = true;
+}
+
+ErrCode FocusTestFlow::CheckArgumentOptionOfe()
+{
+    if (g_commandALLOWABILITYENABLE == false) {
+        g_commandALLOWABILITYENABLE = true;
+        if (g_commandALLOWBUNDLEENABLE == true) {
+            return OHOS::ERR_OK;
+        } else {
+            ERROR_LOG("invalid param : When -e is configured, -b must be configured.");
+            ERROR_LOG("invalid param : please ensure that the -b is before the -e");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+    } else {
+        ERROR_LOG("invalid param : please check params of '-e'.");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+}
+
+ErrCode FocusTestFlow::CheckArgumentOptionOfE()
+{
+    if (g_commandBLOCKABILITYENABLE == false) {
+        g_commandBLOCKABILITYENABLE = true;
+        if (g_commandALLOWBUNDLEENABLE == true) {
+            return OHOS::ERR_OK;
+        } else {
+            ERROR_LOG("invalid param : When -E is configure, -b must be configured.");
+            ERROR_LOG("invalid param : Plese ensure that the -b is before the -E.");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+    } else {
+        ERROR_LOG("invalid param : please check params of '-E'.");
+        return OHOS::ERR_INVALID_VALUE;
+    }
 }
 }  // namespace WuKong
 }  // namespace OHOS
