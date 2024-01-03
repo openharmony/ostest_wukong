@@ -452,12 +452,15 @@ ErrCode RandomTestFlow::HandleNormalOption(const int option)
     if (option == 't' || option == 'm' || option == 'S' || option == 'k' || option == 'a' ||
         option == 'r' || option == 'C' || option == 'H') {
         result = SetInputPercent(option);
-    } else if (option == 'b' || option == 'p' || option == 'e' || option == 'E' ||
-        option == 'd' || option == 'Y' || option == 'y') {
+    } else {
         result = SetBlackWhiteSheet(option);
-    } else if (option == 'c' || option == 'i' || option == 's' || option == 'T') {
+        if (result != OHOS::ERR_OK) {
+            return result;
+        }
         result = SetRunningParam(option);
-    } else if (option == 'h' || option == 'I') {
+        if (result != OHOS::ERR_OK) {
+            return result;
+        }
         result = SetRunningIndicator(option);
     }
     WuKongUtil::GetInstance()->GetBlockPageList(systemPaths);

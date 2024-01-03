@@ -424,13 +424,15 @@ ErrCode FocusTestFlow::HandleNormalOption(const int option)
     if (option == 't' || option == 'm' || option == 'S' || option == 'k' || option == 'H' ||
         option == 'a' || option == 'r' || option == 'C') {
         result = SetInputPercent(option);
-    } else if (option == 'b' || option == 'p' || option == 'e' || option == 'E' || option == 'd' ||
-        option == 'Y' || option == 'y') {
+    } else {
         result = SetBlackWhiteSheet(option);
-    } else if (option == 'c' || option == 'i' || option == 's' || option == 'T' || option == 'n' ||
-        option == 'f') {
+        if (result != OHOS::ERR_OK) {
+            return result;
+        }
         result = SetRunningParam(option);
-    } else if (option == 'h' || option == 'I') {
+        if (result != OHOS::ERR_OK) {
+            return result;
+        }
         result = SetRunningIndicator(option);
     }
     WuKongUtil::GetInstance()->SetOrderFlag(false);
