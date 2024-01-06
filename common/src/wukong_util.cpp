@@ -669,5 +669,14 @@ std::string WuKongUtil::runProcess(std::string cmd)
     }
     return "";
 }
+void WuKongUtil::SetIsFirstStartAppFlag(bool isFirstStartApp)
+{
+    isFirstStartApp_ = isFirstStartApp;
+}
+bool WuKongUtil::GetIsFirstStartAppFlag()
+{
+    return isFirstStartApp_;
+}
+
 }  // namespace WuKong
 }  // namespace OHOS

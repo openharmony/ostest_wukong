@@ -275,6 +275,18 @@ public:
      */
     std::string runProcess(std::string cmd);
 
+    /*
+     * @brief set IsFirstStartAppFlag
+     * @param isFirstStartApp
+     */
+    void SetIsFirstStartAppFlag(bool isFirstStartApp);
+
+    /*
+     * @brief get isFirstStartApp
+     * @return bool
+     */
+    bool GetIsFirstStartAppFlag();
+
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 
 private:
@@ -318,6 +330,7 @@ private:
     std::string curDir_;
 
     bool orderFlag_ = false;
+    bool isFirstStartApp_ = true;
     std::vector<std::string> tempAllowList_;
     std::vector<std::string> compIdBlockList_ = {};
     std::vector<std::string> compTypeBlockList_ = {"Divider"};

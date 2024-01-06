@@ -31,6 +31,27 @@ namespace {
 const uint32_t PAGE_BACK_COUNT_MAX = 3;
 const uint32_t LANUCH_APP_COUNT_MAX = 5;
 
+void PrepareApp()
+{
+	// Wait for the App to be launched successfully
+    bool isFirstStartApp = WuKongUtil::GetInstance()->GetIsFirstStartAppFlag();
+    if (isFirstStartApp) {
+        usleep(THREE_SECOND);
+        WuKongUtil::GetInstance()->SetIsFirstStartAppFlag(false);
+    }
+}
+
+void HandleAllBundleStatus(const std::shared_ptr<ComponentParam>& componentPtr)
+{
+    componentPtr->isAllFinished_ = true;
+	// confirm all bundle status.
+    std::vector<bool> bundleFinishList = componentPtr->bundleFinish_;
+    bool x = false;
+    if (std::any_of(bundleFinishList.begin(), bundleFinishList.end(), [x](int y) { return x == y; })) {
+        componentPtr->isAllFinished_ = false;
+    }
+}
+
 ErrCode LauncherApp(const std::string& bundleName)
 {
     auto appInput = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
@@ -192,6 +213,7 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
     }
     auto treemanager = TreeManager::GetInstance();
     auto delegate = SceneDelegate::GetInstance();
+    PrepareApp();
     // update component information
     ErrCode result = treemanager->UpdateComponentInfo();
     DEBUG_LOG_STR("update componentinfo result (%d)", result);
@@ -237,13 +259,7 @@ ErrCode ComponentInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
     }
     // check current bundle finished state.
     if (CheckInputFinished(componentPtr)) {
-        componentPtr->isAllFinished_ = true;
-        // confirm all bundle status.
-        std::vector<bool> bundleFinishList = componentPtr->bundleFinish_;
-        bool x = false;
-        if (std::any_of(bundleFinishList.begin(), bundleFinishList.end(), [x](int y) { return x == y; })) {
-            componentPtr->isAllFinished_ = false;
-        }
+        HandleAllBundleStatus(componentPtr);
     }
     DEBUG_LOG_STR("component order input result (%d)", result);
     return result;

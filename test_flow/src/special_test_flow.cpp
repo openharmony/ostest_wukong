@@ -226,6 +226,7 @@ ErrCode SpecialTestFlow::ProtectRightAbility()
             result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
             if (result == OHOS::ERR_OK) {
                 INFO_LOG_STR("Bundle Name: (%s) startup successful", bundleList[index].c_str());
+                WuKongUtil::GetInstance()->SetIsFirstStartAppFlag(true);
             } else {
                 INFO_LOG_STR("Bundle Name: (%s) startup failed", bundleList[index].c_str());
             }
