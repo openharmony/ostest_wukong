@@ -64,8 +64,6 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
     if (count >= componentList.size()) {
         if ((componentList.size() == 0) || (randomNumber < ONEHUNDRED && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
             isBack_ = true;
-        } else {
-            SubtractComponent(componentList, indexList);
         }
         indexList.clear();
         return OHOS::ERR_OK;
