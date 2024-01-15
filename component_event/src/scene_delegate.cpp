@@ -28,7 +28,7 @@ const float MINCOVERAGE = 0.9;
 uint8_t LISTITEM_COUNT = 0;
 uint8_t GRID_COUNT = 0;
 uint8_t NUMBER_ZERO = 0;
-uint8_t LISTITEM_COUNT_LIMIT = 100;
+uint8_t LISTITEM_COUNT_LIMIT = 10;
 }  // namespace
 SceneDelegate::SceneDelegate()
 {
