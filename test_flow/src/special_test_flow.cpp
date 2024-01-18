@@ -183,8 +183,10 @@ ErrCode SpecialTestFlow::RunStep()
     if (result != OHOS::ERR_OK) {
         WARN_LOG("This test failed");
     }
-    if (ProtectRightAbility() == OHOS::ERR_INVALID_VALUE) {
-        return OHOS::ERR_INVALID_VALUE;
+    if (!g_commandPOWERENABLE) {
+        if (ProtectRightAbility() == OHOS::ERR_INVALID_VALUE) {
+            return OHOS::ERR_INVALID_VALUE;
+        }
     }
     if (g_commandCOMPONENTENABLE) {
         if (specialTestObject_->isAllFinished_) {
