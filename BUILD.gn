@@ -27,9 +27,6 @@ accessibility_include_dirs = [
   "//base/hiviewdfx/hisysevent/interfaces",
   "//commonlibrary/c_utils/base/include",
   "//utils/system/safwk/native/include",
-  "//base/security/access_token/interfaces/innerkits/nativetoken/include",
-  "//base/security/access_token/interfaces/innerkits/token_setproc/include",
-  "//base/security/access_token/interfaces/innerkits/accesstoken/include",
   "include",
 ]
 
@@ -105,9 +102,6 @@ ohos_executable("wukong") {
     "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
     "ability_runtime:runtime",
-    "access_token:libaccesstoken_sdk",
-    "access_token:libnativetoken",
-    "access_token:libtoken_setproc",
     "accessibility:accessibility_common",
     "accessibility:accessibilityclient",
     "accessibility:accessibleability",
