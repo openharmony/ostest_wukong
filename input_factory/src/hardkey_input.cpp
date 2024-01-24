@@ -38,11 +38,11 @@ HardkeyInput::~HardkeyInput() {}
 ErrCode HardkeyInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject)
 {
     auto util = WuKongUtil::GetInstance();
-    std::string hCmdw = "power-shell wakeup";
-    std::string hCmds = "power-shell suspend";
     if (g_shouldWakeup) {
+        std::string hCmdw = "power-shell wakeup";
         util->runProcess(hCmdw);
     } else {
+        std::string hCmds = "power-shell suspend";
         util->runProcess(hCmds);
     }
     g_shouldWakeup = !g_shouldWakeup;
