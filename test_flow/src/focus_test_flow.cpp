@@ -17,7 +17,6 @@
 
 #include <string>
 
-#include "input_factory.h"
 #include "report.h"
 #include "wukong_define.h"
 #include "ability_manager_client.h"
