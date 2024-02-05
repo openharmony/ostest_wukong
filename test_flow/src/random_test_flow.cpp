@@ -447,7 +447,7 @@ ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputa
 
 ErrCode RandomTestFlow::HandleNormalOption(const int option)
 {
-    ErrCode result = OHOS::ERR_OK;
+    ErrCode result;
     if (option == 't' || option == 'm' || option == 'S' || option == 'k' || option == 'a' ||
         option == 'r' || option == 'C' || option == 'H') {
         result = SetInputPercent(option);
