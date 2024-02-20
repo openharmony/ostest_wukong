@@ -419,7 +419,7 @@ ErrCode FocusTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputac
 
 ErrCode FocusTestFlow::HandleNormalOption(const int option)
 {
-    ErrCode result = OHOS::ERR_OK;
+    ErrCode result;
     if (option == 't' || option == 'm' || option == 'S' || option == 'k' || option == 'H' ||
         option == 'a' || option == 'r' || option == 'C') {
         result = SetInputPercent(option);
