@@ -49,9 +49,10 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -E, --block ability        the ability name of blocklist\n"
     "   -Y, --blockCompId          the id list of block component\n"
     "   -y, --blockCompType        the type list of block component\n"
-    "   -I, --screenshot           get screenshot(only in random input)\n";
+    "   -I, --screenshot           get screenshot(only in random input)\n"
+    "   -B, --checkBWScreen        black and white screen detection\n";
 
-const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIi:k:p:s:t:T:H:m:S:C:r:Y:y:";
+const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIBi:k:p:s:t:T:H:m:S:C:r:Y:y:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -74,6 +75,7 @@ const struct option LONG_OPTIONS[] = {
     {"blockCompId", required_argument, nullptr, 'Y'},
     {"blockCompType", required_argument, nullptr, 'y'},
     {"screenshot", no_argument, nullptr, 'I'},
+    {"checkBWScreen", no_argument, nullptr, 'B'},
 };
 
 /**
@@ -120,6 +122,7 @@ bool g_commandALLOWABILITYENABLE = false;
 bool g_commandBLOCKABILITYENABLE = false;
 bool g_commandALLOWBUNDLEENABLE = false;
 bool g_commandSCREENSHOTENABLE = false;
+bool g_commandCHECKBWSCREEN = false;
 // default false
 bool g_commandUITEST = false;
 }  // namespace
@@ -308,6 +311,9 @@ ErrCode RandomTestFlow::SetRunningIndicator(const int option)
         g_commandHELPENABLE = true;
     } else if (option == 'I') {
         g_commandSCREENSHOTENABLE = true;
+    } else if (option == 'B') {
+        g_commandSCREENSHOTENABLE = true;
+        g_commandCHECKBWSCREEN = true;
     }
     return OHOS::ERR_OK;
 }
@@ -355,7 +361,7 @@ ErrCode RandomTestFlow::RunStep()
     }
     if (g_commandSCREENSHOTENABLE) {
         std::string screenStorePath;
-        result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath, g_commandUITEST);
+        result = WuKongUtil::GetInstance()->WukongScreenCap(screenStorePath, g_commandUITEST, g_commandCHECKBWSCREEN);
         if (result == OHOS::ERR_OK) {
             Report::GetInstance()->RecordScreenPath(screenStorePath);
         }
