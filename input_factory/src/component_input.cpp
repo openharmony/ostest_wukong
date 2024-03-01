@@ -326,8 +326,7 @@ ErrCode ComponentInput::FocusInput(bool shouldScreenCap)
         delegate->ChooseScene(true);
         auto componentInfos = treemanager->GetActiveElementInfos();
         auto wComponentInfos = treemanager->GetActiveComponentInfos();
-        DEBUG_LOG_STR("component list size (%d)", componentInfos.size());
-        DEBUG_LOG_STR("back: %d", delegate->IsBackToPrePage());
+        DEBUG_LOG_STR("component list size (%d), back : (%d)", componentInfos.size(), delegate->IsBackToPrePage());
         if (delegate->IsBackToPrePage()) {
             result = componentManager->BackToPrePage();
         } else if (componentInfos.size() > 0) {
@@ -356,6 +355,7 @@ ErrCode ComponentInput::FocusInput(bool shouldScreenCap)
                 componentInputMsg->endX_ = componentManager->GetEndX();
                 componentInputMsg->endY_ = componentManager->GetEndY();
                 componentInputMsg->content_ = componentinfo->GetContent();
+                componentInputMsg->pssTotal_ = WuKongUtil::GetInstance()->GetBundlePssTotal();
                 TreeManager::GetInstance()->SetComponentType(componentinfo->GetComponentType());
                 Report::GetInstance()->SyncInputInfo(componentInputMsg);
             }

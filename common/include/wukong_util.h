@@ -16,6 +16,7 @@
 #ifndef TEST_WUKONG_UTIL_H
 #define TEST_WUKONG_UTIL_H
 
+#include <cstdio>
 #include <dirent.h>
 #include <string>
 #include <unistd.h>
@@ -175,7 +176,7 @@ public:
      * @brief get screenshot.
      * @return Return ERR_OK on success, others on failure.
      */
-    ErrCode WukongScreenCap(std::string &screenStorePath, bool gCommandUitest);
+    ErrCode WukongScreenCap(std::string &screenStorePath, bool gCommandUitest, bool g_commandCheckBWScreen = false);
 
     /**
      * @brief get all abilities by bundleName string.
@@ -286,6 +287,18 @@ public:
      * @return bool
      */
     bool GetIsFirstStartAppFlag();
+
+    /*
+     * @brief get Bundle Pid
+     * @return string
+     */
+    std::string GetBundlePid();
+
+    /*
+     * @brief get Bundle PssTotal
+     * @return uint64_t
+     */
+    uint64_t GetBundlePssTotal();
 
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 

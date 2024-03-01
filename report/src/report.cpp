@@ -275,7 +275,8 @@ void Report::GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedM
     item += std::to_string(inputCompMsgPtr->startY_) + ",";
     item += std::to_string(inputCompMsgPtr->endX_) + ",";
     item += std::to_string(inputCompMsgPtr->endY_) + ",";
-    item += inputCompMsgPtr->content_;
+    item += inputCompMsgPtr->content_ + ",";
+    item += std::to_string(inputCompMsgPtr->pssTotal_);
     focus_input_vec_.push_back(item);
     TRACK_LOG_END();
 }

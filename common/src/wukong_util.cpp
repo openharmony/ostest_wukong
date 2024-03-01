@@ -23,6 +23,7 @@
 #include <sstream>
 #include <sys/stat.h>
 
+#include "ability_manager_client.h"
 #include "display_manager.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
@@ -35,12 +36,44 @@
 #include "common.h"
 #include "accessibility_ui_test_ability.h"
 #include "component_manager.h"
+#include "dump_usage.h"
 
 namespace OHOS {
 namespace WuKong {
 namespace {
 const std::string DEFAULT_DIR = "/data/local/tmp/wukong/report/";
-bool TakeWuKongScreenCap(const std::string &wkScreenPath)
+const uint32_t LAP_HEIGHT = 200;
+const uint32_t CHARGE_STRIDE = 11;
+const uint32_t BLANK_THR = 30;
+const uint32_t WHITE_THR = 225;
+int g_bwCount = 0;
+bool g_isBwScreen(std::shared_ptr<Media::PixelMap> pixelMap)
+{
+    auto width = static_cast<uint32_t>(pixelMap->GetWidth());
+    auto height = static_cast<uint32_t>(pixelMap->GetHeight());
+    auto data = pixelMap->GetPixels();
+    auto stride = static_cast<uint32_t>(pixelMap->GetRowBytes());
+    bool isUpper = true;
+    bool isLower = true;
+    uint32_t heightLimit = height - LAP_HEIGHT;
+    for (uint32_t i = LAP_HEIGHT; i < heightLimit && (isUpper || isLower); i += CHARGE_STRIDE) {
+        for (uint32_t j = 0; j < width; j += 1) {
+            auto pixel = *(data + (i * stride) + (j * 4));
+            if (pixel >= BLANK_THR) {
+                isLower = false;
+            }
+            if (pixel <= WHITE_THR) {
+                isUpper = false;
+            }
+            if (!isLower && !isUpper) {
+                break;
+            }
+        }
+    }
+    return isLower || isUpper;
+}
+
+bool TakeWuKongScreenCap(const std::string &wkScreenPath, const bool checkBWScreen = false)
 {
     // get PixelMap from DisplayManager API
     Rosen::DisplayManager &displayMgr = Rosen::DisplayManager::GetInstance();
@@ -54,6 +87,13 @@ bool TakeWuKongScreenCap(const std::string &wkScreenPath)
     auto height = static_cast<uint32_t>(pixelMap->GetHeight());
     auto data = pixelMap->GetPixels();
     auto stride = static_cast<uint32_t>(pixelMap->GetRowBytes());
+    if (checkBWScreen) {
+        bool result = g_isBwScreen(pixelMap);
+        if (result) {
+            g_bwCount++;
+            INFO_LOG_STR("isBWScreen is true, BWScreen count : %d", g_bwCount);
+        }
+    }
     png_structp pngStruct = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (pngStruct == nullptr) {
         DEBUG_LOG("error: png_create_write_struct nullptr!");
@@ -419,7 +459,7 @@ void WuKongUtil::GetIconPath(std::string &iconpath)
     iconpath = iconPath_;
 }
 
-ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath, bool gCommandUitest)
+ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath, bool gCommandUitest, bool g_commandCHECKBWSCREEN)
 {
     using namespace std::chrono;
     ErrCode result = ERR_OK;
@@ -450,7 +490,7 @@ ErrCode WuKongUtil::WukongScreenCap(std::string &screenStorePath, bool gCommandU
             return OHOS::ERR_INVALID_OPERATION;
         }
     }
-    bool isTakeScreen = TakeWuKongScreenCap(wkScreenPath);
+    bool isTakeScreen = TakeWuKongScreenCap(wkScreenPath, g_commandCHECKBWSCREEN);
     if (isTakeScreen == true) {
         screenStorePath = wkScreenPath;
         DEBUG_LOG("The snapshot has been created.");
@@ -676,6 +716,42 @@ void WuKongUtil::SetIsFirstStartAppFlag(bool isFirstStartApp)
 bool WuKongUtil::GetIsFirstStartAppFlag()
 {
     return isFirstStartApp_;
+}
+std::string WuKongUtil::GetBundlePid()
+{
+    auto elementName = OHOS::AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
+    std::string curBundleName = elementName.GetBundleName();
+    std::string bufCmd = "pidof " + curBundleName;
+    FILE* fp = nullptr;
+    fp = popen(bufCmd.c_str(), "r");
+    TRACK_LOG_STR("Run %s", bufCmd.c_str());
+    if (fp == nullptr) {
+        ERROR_LOG("popen function failed");
+        return "";
+    }
+    const int bufferSize = 32;
+    char pid[bufferSize] = {0};
+    if (fgets(pid, bufferSize - 1, fp) != nullptr) {
+        std::string pidStr(pid);
+        pidStr = OHOS::ReplaceStr(pidStr, "\n", " ");
+        return pidStr;
+    }
+    return "";
+}
+
+uint64_t WuKongUtil::GetBundlePssTotal()
+{
+    OHOS::HiviewDFX::DumpUsage dumpUsage;
+    std::string pidStr = GetBundlePid();
+    int pid = std::stoi(pidStr);
+    OHOS::HiviewDFX::MemInfoData::MemInfo memInfo;
+    bool success = dumpUsage.GetMemInfo(pid, memInfo);
+    if (success) {
+        uint64_t pss = dumpUsage.GetPss(pid);
+        DEBUG_LOG_STR("Get bundle PssTotal is %d", pss);
+        return pss;
+    }
+    return 0;
 }
 
 }  // namespace WuKong

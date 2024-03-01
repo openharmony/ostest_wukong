@@ -26,6 +26,7 @@
         "accessibility",
         "bundle_framework",
         "common_event_service",
+        "hidumper",
         "hisysevent",
         "hilog",
         "input",
