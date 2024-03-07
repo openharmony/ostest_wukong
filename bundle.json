@@ -45,7 +45,9 @@
         "//test/ostest/wukong:wukong"
       ],
       "inner_kits": [],
-      "test": []
+      "test": [
+        "//test/ostest/wukong/test:unittest"
+      ]
     }
   }
 }
