@@ -39,7 +39,7 @@ bool ExecCmd(const std::string &cmd, std::string &resvec)
         resvec.append(tmp);
     }
     pclose(pp);
-    retirm resvec.size() >= 0 ? true : false;
+    return resvec.size() >= 0 ? true : false;
 }
 
 class WuKongTest : public testing::Test {
