@@ -32,7 +32,7 @@ bool ExecCmd(const std::string &cmd, std::string &resvec)
         return -1;
     }
     char tmp[1024];
-    while (fgets(tmp, sizeof(tmp), pp) != NULL) {
+    while (fgets(tmp, sizeof(tmp), pp) != nullptr) {
         if (tmp[strlen(tmp) - 1] == '\n') {
             tmp[strlen(tmp) - 1] = '\0';
         }
