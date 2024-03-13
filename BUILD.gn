@@ -121,7 +121,7 @@ ohos_executable("wukong") {
   ]
   install_enable = true
 
-  subsystem_name = "wukong"
+  subsystem_name = "ostest"
   part_name = "wukong"
   output_name = "wukong"
   defines = [
