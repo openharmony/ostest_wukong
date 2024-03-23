@@ -734,8 +734,10 @@ std::string WuKongUtil::GetBundlePid()
     if (fgets(pid, bufferSize - 1, fp) != nullptr) {
         std::string pidStr(pid);
         pidStr = OHOS::ReplaceStr(pidStr, "\n", " ");
+        pclose(fp);
         return pidStr;
     }
+    pclose(fp);
     return "";
 }
 

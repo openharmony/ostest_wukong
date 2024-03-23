@@ -61,6 +61,10 @@ ErrCode RotateInput::OrderInput(const std::shared_ptr<SpcialTestObject>& special
         default:
             break;
     }
+    if (screens[0] == nullptr) {
+        ERROR_LOG("Failed to get home screen data");
+        return OHOS::ERR_INVALID_VALUE;
+    }
     screens[0]->SetOrientation(static_cast<Rosen::Orientation>(orientation));
     Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     return result;
@@ -89,6 +93,10 @@ ErrCode RotateInput::RandomInput()
         
         default:
             break;
+    }
+    if (screens[0] == nullptr) {
+        ERROR_LOG("Failed to get home screen data");
+        return OHOS::ERR_INVALID_VALUE;
     }
     screens[0]->SetOrientation(static_cast<Rosen::Orientation>(orientation));
     Report::GetInstance()->SyncInputInfo(inputedMsgObject_);

@@ -1,4 +1,5 @@
 # wukong部件
+
 ## 简介
 
 OpenHarmony稳定性测试自动化工具，通过模拟用户行为，对OpenHarmony系统及应用进行稳定性压力测试。<br>
@@ -85,10 +86,14 @@ wukong部件架构图<br>
 | -p, --screenshot    |  控件测试截图。      | 否   | - |
 
 #### wukong special 专项测试使用示例
+
 ```bash
+
 > hdc_std shell
 # wukong special -C [bundlename] -p
+
 ```
+
 专项测试示例解析：
 | 命令           | 参数值           | 说明                                           |
 | -------------- |-------------- | ---------------------------------------------- |
@@ -107,6 +112,8 @@ wukong部件架构图<br>
 | -b,--bundle[bundlename,……,bundlename]     | 设置本次测试的允许应用名单，与-p冲突。 | 否   | 默认测试当前设备所有应用(应用名称用逗号隔开)。                 |
 | -p,--prohibit[bundlename,……,bundlename]   | 设置本次测试的禁止应用名单，与-b冲突。 | 否   | 默认不禁止任何应用(应用名称用逗号隔开)。                       |
 | -d,--page[page,……,page]                   | 设置本次测试的禁止页面名单 | 否  | 系统默认禁止pages/system页面(页面名称用逗号隔开)。 |
+| -e,--allow[ability,……,ability]            | 设置本次测试的允许ability页面 | 否 | 若配置此参数，需同时增加-b参数来限定应用 |
+| -E,--block[ability,……,ability]            | 设置本次测试的禁止ability页面 | 否 | 若配置此参数，需同时增加-b参数来限定应用 |
 | -a,--appswitch  | 设置应用随机拉起测试比例。             | 否   | 默认10%。                                  |
 | -t,--touch      | 设置屏幕随机touch测试比例。            | 否   | 默认10%。                                  |
 | -S,--swap       | 设置屏幕随机swap测试比例。             | 否   | 默认3%。                                   |
@@ -121,10 +128,14 @@ wukong部件架构图<br>
 > 说明：配置相同随机种子，会生成相同随机事件序列
 
 #### wukong exec 随机测试使用示例
+
+##### 1.wukong随机测试
+
 ```bash
 > hdc_std shell
 # wukong exec -s 10 -i 1000 -a 0.28 -t 0.72 -c 100
 ```
+
 随机测试示例解析：
 | 命令           | 参数值           | 说明                                           |
 | -------------- | -------------- | ---------------------------------------------- |
@@ -135,7 +146,25 @@ wukong部件架构图<br>
 | -t  | 0.72           | 参数设置屏幕随机touch测试比例为72%。    |
 | -c  | 100           | 参数设置执行次数为100次。                |
 
+##### 2.wukong允许ability页面、禁止ability页面
+
+```bash
+> hdc_std shell
+# wukong exec -b com.ohos.settings -e com.ohos.settings.MainAbility -E com.ohos.settings.AppInfoAbility
+```
+
+随机测试示例解析：
+| 命令           | 参数值           | 说明                                           |
+| -------------- | -------------- | ---------------------------------------------- |
+| wukong exec |           | 主命令。                             |
+| -b     | com.ohos.settings | 设置本次测试的允许应用名单            |
+| -e  | com.ohos.settings.MainAbility | 设置本次测试的允许ability页面 |
+| -E  | com.ohos.settings.AppInfoAbility | 设置本次测试的禁止ability页面          |
+
+> 说明：若配置-e、-E则必须配置-b参数来指定应用
+
 ### wukong focus描述
+
 | 命令            | 功能                                 | 必选 | 备注                                     |
 | --------------- | ------------------------------------ | ---- | ---------------------------------------- |
 | -n,--numberfocus       | 设置每个控件注入的次数。               | 否   |                         |

@@ -18,6 +18,8 @@
 #include <iostream>
 #include <gtest/gtest.h>
 
+#include "wukong_util.h"
+
 using namespace testing::ext;
 using namespace std;
 
@@ -70,6 +72,19 @@ HWTEST_F(WuKongTest, RandomTestCase, TestSize.Level1)
 
     EXPECT_EQ(ret, true);
     EXPECT_EQ(flag, true);
+}
+
+/**
+ * @tc.name: WuKongFuncTest1
+ * @tc.desc: WuKongFuncTest for WuKongUtil::GetBundlePid()
+ * @tc.type: FUNC
+ */
+HWTEST_F(WuKongTest, WuKongFuncTest1, TestSize.Level1)
+{
+    std::shared_ptr<WuKongUtil> utilPtr = WuKongUtil::GetInstance();
+    std::string result = utilPtr->GetBundlePid();
+    std::cout << "Get Top Bundle Pid is " << result << std::endl;
+    EXPECT_EQ(result.size() > 0, true);
 }
 
 
