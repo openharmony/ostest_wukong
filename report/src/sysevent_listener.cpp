@@ -31,11 +31,6 @@ void SysEventListener::OnEvent(std::shared_ptr<HiviewDFX::HiSysEventRecord> sysE
     std::string domain = sysEvent->GetDomain();
     std::string eventName = sysEvent->GetEventName();
     OHOS::HiviewDFX::HiSysEvent::EventType eventType = sysEvent->GetEventType();
-    TRACK_LOG("----------Exception caught----------");
-    TRACK_LOG_STR("domain: %s", domain.c_str());
-    TRACK_LOG_STR("eventName: %s", eventName.c_str());
-    TRACK_LOG_STR("eventType: %d", eventType);
-    TRACK_LOG("------------------------------------");
     CsvUtils::OneLineData data;
     data.domain = domain;
     data.name = eventName;
