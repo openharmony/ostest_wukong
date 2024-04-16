@@ -325,8 +325,8 @@ bool SceneDelegate::IsComponentInScreen(const std::shared_ptr<ComponentTree> com
     auto rect = componentinfo->GetPosition();
     if ((rect.GetRightBottomXScreenPostion() <= width) && (rect.GetLeftTopXScreenPostion() <= width) &&
         (rect.GetRightBottomYScreenPostion() <= height) && (rect.GetLeftTopYScreenPostion() <= height) &&
-        (rect.GetRightBottomXScreenPostion() > 0) && (rect.GetLeftTopXScreenPostion() > 0) &&
-        (rect.GetRightBottomYScreenPostion() > 0) && (rect.GetLeftTopYScreenPostion() > 0)) {
+        (rect.GetRightBottomXScreenPostion() >= 0) && (rect.GetLeftTopXScreenPostion() >= 0) &&
+        (rect.GetRightBottomYScreenPostion() >= 0) && (rect.GetLeftTopYScreenPostion() >= 0)) {
         return true;
     }
     return false;

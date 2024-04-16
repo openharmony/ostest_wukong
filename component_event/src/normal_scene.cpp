@@ -20,9 +20,9 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-const int MAXINPUTNUM = 2;
+const int MAXINPUTNUM = 3;
 const int ONEHUNDRED = 100;
-const int NEWPERCENT = 70;
+const int NEWPERCENT = 75;
 const int OLDPERCENT = 20;
 }  // namespace
 NormalScene::NormalScene()
@@ -64,6 +64,8 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
     if (count >= componentList.size()) {
         if ((componentList.size() == 0) || (randomNumber < ONEHUNDRED && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
             isBack_ = true;
+        } else {
+            SubtractComponent(componentList, indexList);
         }
         indexList.clear();
         return OHOS::ERR_OK;
