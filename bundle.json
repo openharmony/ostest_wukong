@@ -29,6 +29,7 @@
         "hidumper",
         "hisysevent",
         "hilog",
+        "init",
         "input",
         "ipc",
         "image_framework",
