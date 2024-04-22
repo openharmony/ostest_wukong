@@ -113,6 +113,7 @@ ohos_executable("wukong") {
     "hisysevent:libhisysevent",
     "hisysevent:libhisyseventmanager",
     "image_framework:image_native",
+    "init:libbegetutil",
     "input:libmmi-client",
     "ipc:ipc_core",
     "samgr:samgr_proxy",

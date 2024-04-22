@@ -28,6 +28,7 @@
 #include "wukong_logger.h"
 #include "wukong_shell_command.h"
 #include "wukong_util.h"
+#include "parameters.h"
 
 using namespace OHOS::WuKong;
 
@@ -126,6 +127,10 @@ static bool IsRunning(NamedSemaphore& sem)
 
 int main(int argc, char* argv[])
 {
+    if (!OHOS::system::GetBoolParameter("const.security.developermode.state", true)) {
+        std::cout << "Not a development mode state, please check device mode." << std::endl;
+        return 0;
+    }
     std::shared_ptr<WuKongLogger> WuKonglogger = WuKongLogger::GetInstance();
     // first start logger
     WuKonglogger->SetLevel(LOG_LEVEL_INFO);
