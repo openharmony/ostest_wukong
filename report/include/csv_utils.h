@@ -58,6 +58,10 @@ public:
 
     static void WriteOneLine(std::ofstream &csvFile, const OneLineData &data)
     {
+        if (!csvFile.is_open()) {
+            ERROR_LOG("csvFile is not open!");
+            return;
+        }
         csvFile << data.domain << ',';
         csvFile << data.name << ',';
         csvFile << data.type << ',';
