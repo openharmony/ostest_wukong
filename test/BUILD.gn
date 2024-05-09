@@ -112,6 +112,6 @@ ohos_unittest("wukong_ut") {
     "window_manager:libdm",
     "window_manager:libwm",
   ]
-  subsystem_name = "wukong"
+  subsystem_name = "ostest"
   part_name = "wukong"
 }

@@ -76,7 +76,7 @@ HWTEST_F(WuKongTest, RandomTestCase, TestSize.Level1)
 
 /**
  * @tc.name: WuKongFuncTest1
- * @tc.desc: WuKongFuncTest for WuKongUtil::GetBundlePid()
+ * @tc.desc: WuKongFuncTest1 for WuKongUtil::GetBundlePid()
  * @tc.type: FUNC
  */
 HWTEST_F(WuKongTest, WuKongFuncTest1, TestSize.Level1)
