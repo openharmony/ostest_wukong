@@ -31,7 +31,7 @@ public:
      * @return Return ERR_OK on success， others on failure.
      */
     ErrCode RandomInput();
-    ErrCode GetInputInfo();
+    InputType GetInputInfo();
 private:
     std::shared_ptr<InputedMsgObject> inputedMsgObject_;
 };

@@ -50,9 +50,11 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -Y, --blockCompId          the id list of block component\n"
     "   -y, --blockCompType        the type list of block component\n"
     "   -I, --screenshot           get screenshot(only in random input)\n"
-    "   -B, --checkBWScreen        black and white screen detection\n";
+    "   -B, --checkBWScreen        black and white screen detection\n"
+    "   -U, --Uri                  set Uri pages\n"
+    "   -x, --Uri-type             set Uri-type \n";
 
-const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIBi:k:p:s:t:T:H:m:S:C:r:Y:y:";
+const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIBi:k:p:s:t:T:H:m:S:C:r:Y:y:U:x:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -76,6 +78,8 @@ const struct option LONG_OPTIONS[] = {
     {"blockCompType", required_argument, nullptr, 'y'},
     {"screenshot", no_argument, nullptr, 'I'},
     {"checkBWScreen", no_argument, nullptr, 'B'},
+    {"Uri", required_argument, nullptr, 'U'},
+    {"Uri-type", required_argument, nullptr, 'x'},
 };
 
 /**
@@ -123,6 +127,9 @@ bool g_commandBLOCKABILITYENABLE = false;
 bool g_commandALLOWBUNDLEENABLE = false;
 bool g_commandSCREENSHOTENABLE = false;
 bool g_commandCHECKBWSCREEN = false;
+bool g_commandURIENABLE = false;
+bool g_commandURITYPEENABLE = false;
+
 // default false
 bool g_commandUITEST = false;
 }  // namespace
@@ -283,6 +290,10 @@ ErrCode RandomTestFlow::SetBlackWhiteSheet(const int option)
         WuKongUtil::GetInstance()->SetCompIdBlockList(optarg);
     } else if (option == 'y') {
         WuKongUtil::GetInstance()->SetCompTypeBlockList(optarg);
+    } else if (option == 'U') {
+        WuKongUtil::GetInstance()->SetComponentUri(optarg);
+    } else if (option == 'x') {
+        WuKongUtil::GetInstance()->SetComponentUriType(optarg);
     }
     return OHOS::ERR_OK;
 }
@@ -322,7 +333,20 @@ ErrCode RandomTestFlow::InputScene(std::shared_ptr<InputAction> inputaction, boo
 {
     ErrCode result = OHOS::ERR_OK;
     if (inputFlag) {
-        result = inputaction->RandomInput();
+        if (g_commandURIENABLE && inputaction->GetInputInfo() == INPUTTYPE_APPSWITCHINPUT) {
+            if (g_commandURITYPEENABLE) {
+                std::string uri = WuKongUtil::GetInstance()->GetComponentUri();
+                std::string uriType = WuKongUtil::GetInstance()->GetComponentUriType();
+                result = inputaction->RandomInput(uri, uriType);
+            } else if (g_commandALLOWABILITYENABLE) {
+                std::string uri = WuKongUtil::GetInstance()->GetComponentUri();
+                std::vector<std::string> abilityList;
+                WuKongUtil::GetInstance()->GetAllowAbilityList(abilityList);
+                result = inputaction->RandomInput(uri, abilityList);
+            }
+        } else {
+            result = inputaction->RandomInput();
+        }
     } else {
         ComponentManager::GetInstance()->BackToPrePage();
     }
@@ -425,7 +449,7 @@ ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputa
                 return OHOS::ERR_INVALID_VALUE;
             }
         }
-    } else if (allowList.size() > 0 && g_commandALLOWABILITYENABLE == true) {
+    } else if (allowList.size() > 0 && g_commandALLOWABILITYENABLE && !g_commandURIENABLE) {
         std::vector<std::string> abilityList;
         WuKongUtil::GetInstance()->GetAllowAbilityList(abilityList);
         auto elementName = AAFwk::AbilityManagerClient::GetInstance()->GetTopAbility();
@@ -549,6 +573,8 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
         case 'E':
         case 'Y':
         case 'y':
+        case 'U':
+        case 'x':
             // error: option 'x' requires a value.
             shellcommand_.ResultReceiverAppend("error: option '-");
             shellcommand_.ResultReceiverAppend(string(1, optopt));

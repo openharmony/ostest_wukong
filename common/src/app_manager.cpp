@@ -104,6 +104,43 @@ ErrCode AppManager::StartAbilityByBundleInfo(std::string abilityName, std::strin
     return result;
 }
 
+ErrCode AppManager::StartAbilityByUriAndType(const std::string uri, const std::string typeVal)
+{
+    TRACK_LOG_STD();
+    AAFwk::Want want;
+    int result;
+    want.SetUri(uri);
+    want.SetType(typeVal);
+    result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    if (result == OHOS::ERR_OK) {
+        INFO_LOG("The specified URI page is opened successfully.");
+    } else {
+        ERROR_LOG("Failed to open the page with the specified URI.");
+    }
+    TRACK_LOG_STR("result %s", std::to_string(result).c_str());
+    return result;
+}
+
+ErrCode AppManager::StartAbilityByAbilityAndUri(const std::string uri, const std::vector<std::string> &abilityName)
+{
+    TRACK_LOG_STD();
+    AAFwk::Want want;
+    int result;
+    std::vector<std::string> allowList;
+    WuKongUtil::GetInstance()->GetAllowList(allowList);
+    AppExecFwk::ElementName element("", allowList[0], abilityName[0]);
+    want.SetElement(element);
+    want.SetUri(uri);
+    result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
+    if (result == OHOS::ERR_OK) {
+        INFO_LOG("The specified URI page is opened successfully.");
+    } else {
+        ERROR_LOG("Failed to open the page with the specified URI.");
+    }
+    TRACK_LOG_STR("result %s", std::to_string(result).c_str());
+    return result;
+}
+
 void AppManager::SetAbilityController()
 {
     if (abilityController_ == nullptr) {

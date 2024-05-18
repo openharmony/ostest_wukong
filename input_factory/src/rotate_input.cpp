@@ -103,9 +103,9 @@ ErrCode RotateInput::RandomInput()
     return result;
 }
 
-ErrCode RotateInput::GetInputInfo()
+InputType RotateInput::GetInputInfo()
 {
-    return OHOS::ERR_OK;
+    return INPUTTYPE_ROTATEINPUT;
 }
 }  // namespace WuKong
 }  // namespace OHOS

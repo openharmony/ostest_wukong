@@ -57,9 +57,9 @@ ErrCode KeyboardInput::RandomInput()
     return result;
 }
 
-ErrCode KeyboardInput::GetInputInfo()
+InputType KeyboardInput::GetInputInfo()
 {
-    return OHOS::ERR_OK;
+    return INPUTTYPE_KEYBOARDINPUT;
 }
 }  // namespace WuKong
 }  // namespace OHOS

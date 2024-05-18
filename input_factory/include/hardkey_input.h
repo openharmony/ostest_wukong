@@ -39,7 +39,7 @@ public:
      * @brief get information of inputted event.
      * @return Return ERR_OK on success， others on failure.
      */
-    ErrCode GetInputInfo();
+    InputType GetInputInfo();
 
 private:
     std::shared_ptr<InputedMsgObject> inputedMsgObject_;

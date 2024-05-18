@@ -30,9 +30,9 @@ ErrCode ElementInput::RandomInput()
     ErrCode result = OHOS::ERR_OK;
     return result;
 }
-ErrCode ElementInput::GetInputInfo()
+InputType ElementInput::GetInputInfo()
 {
-    return OHOS::ERR_OK;
+    return INPUTTYPE_ELEMENTINPUT;
 }
 }  // namespace WuKong
 }  // namespace OHOS

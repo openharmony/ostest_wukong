@@ -239,6 +239,30 @@ public:
      */
     bool GetOrderFlag();
 
+    /*
+     * @brief set ComponentUri
+     * @param optarg
+     */
+    ErrCode SetComponentUri(const std::string &optarg);
+
+    /*
+     * @brief get ComponentUri
+     * @return string
+     */
+    std::string GetComponentUri();
+
+    /*
+     * @brief set ComponentUriType
+     * @param optarg
+     */
+    ErrCode SetComponentUriType(const std::string &optarg);
+
+    /*
+     * @brief get ComponentUriType
+     * @return string
+     */
+    std::string GetComponentUriType();
+
     /**
      * @brief get all ability infos
      * @return Return ERR_OK if get sth, others not.
@@ -336,6 +360,8 @@ private:
     std::vector<std::string> unLaunchedAbilityList_;
     std::vector<std::string> allBundleList_;
     std::vector<std::string> allAbilityList_;
+    std::string uri_;
+    std::string uriType_;
     int32_t screenWidth_ = -1;
     int32_t screenHeight_ = -1;
 

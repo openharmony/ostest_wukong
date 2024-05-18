@@ -33,7 +33,7 @@ public:
     ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject);
     ErrCode RandomInput();
     ErrCode FocusInput(bool shouldScreenCap);
-    ErrCode GetInputInfo();
+    InputType GetInputInfo();
 
 private:
     int JudgeComponentType(OHOS::Accessibility::AccessibilityElementInfo& elementInfo);

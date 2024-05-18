@@ -35,7 +35,7 @@ public:
      */
     ErrCode RandomInput();
 
-    ErrCode GetInputInfo();
+    InputType GetInputInfo();
 private:
     std::shared_ptr<InputedMsgObject> inputedMsgObject_;
 };

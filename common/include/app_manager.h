@@ -30,6 +30,23 @@ public:
      * @return Returns ERR_OK on success, others on failure.
      */
     ErrCode StartAbilityByBundleInfo(std::string abilityName, std::string bundleName);
+
+    /**
+     * @brief start ability by uri name and typeVal name
+     * @param uriname uri name
+     * @param typeVal uritype name
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByUriAndType(const std::string uri, const std::string typeVal);
+
+    /**
+     * @brief start ability by uri name and ability name
+     * @param uriname uri name
+     * @param abilityName ability name
+     * @return Returns ERR_OK on success, others on failure.
+     */
+    ErrCode StartAbilityByAbilityAndUri(const std::string uri, const std::vector<std::string> &abilityName);
+
     void SetAbilityController();
 
 private:

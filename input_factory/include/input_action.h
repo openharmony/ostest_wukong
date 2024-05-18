@@ -64,6 +64,22 @@ public:
     {
         return OHOS::ERR_INVALID_VALUE;
     }
+    /**
+     * @brief input a touch event in random test for uri and uriType.
+     * @return Return ERR_OK on success， others on failure.
+     */
+    virtual ErrCode RandomInput(const std::string &uri, const std::string &uriType)
+    {
+        return OHOS::ERR_INVALID_VALUE;
+    }
+    /**
+     * @brief input a touch event in random test for uri and abilityname.
+     * @return Return ERR_OK on success， others on failure.
+     */
+    virtual ErrCode RandomInput(const std::string &uri, const std::vector<std::string> &abilityName)
+    {
+        return OHOS::ERR_INVALID_VALUE;
+    }
 
     /**
      * @brief input a touch event in focus test for a certain times.
@@ -74,9 +90,9 @@ public:
         return OHOS::ERR_INVALID_VALUE;
     }
 
-    virtual ErrCode GetInputInfo()
+    virtual InputType GetInputInfo()
     {
-        return OHOS::ERR_INVALID_VALUE;
+        return INPUTTYPE_INVALIDINPUT;
     }
 };
 }  // namespace WuKong

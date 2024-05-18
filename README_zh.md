@@ -123,7 +123,9 @@ wukong部件架构图<br>
 | -r,--rotate     | 设置随机rotate测试比例。               | 否   | 默认2%。                                   |
 | -C, --component | 设置随机控件测试比例。                 | 否   | 默认70%。                                  |
 | -I, --screenshot | 控件测试截图。                 | 否   | - |
-| -T,--time       | 设置测试总时间，与-c冲突。                       | 否   | 单位分钟，默认10分钟。                      |
+| -T,--time       | 设置测试总时间，与-c冲突。              | 否   | 单位分钟，默认10分钟。                      |
+| -U, -uri        |  设置应用拉起页面uri             | 否   | -   |
+| -x, -uriType        |  设置应用拉起页面uriType     | 否   | -   |
 
 > 说明：配置相同随机种子，会生成相同随机事件序列
 
@@ -145,6 +147,38 @@ wukong部件架构图<br>
 | -a  | 0.28          | 参数设置应用随机拉起测试比例28%。          |
 | -t  | 0.72           | 参数设置屏幕随机touch测试比例为72%。    |
 | -c  | 100           | 参数设置执行次数为100次。                |
+
+##### 2.wukong指定页面压测
+
+> 显示启动
+
+```bash
+> hdc_std shell
+# wukong exec -b bundlename -a abilityname -U uri
+```
+
+随机测试示例解析：
+| 命令            | 参数值         | 说明                                           |
+| --------------- | -------------- | ---------------------------------------------- |
+| wukong exec |      | 主命令。                             |
+| -b  | bundlename   | 参数设置指定bundlename            |
+| -a  | abilityname  | 参数设置指定abilityname          |
+| -U  | uri          | 参数设置应用拉起页面uri          |
+
+> 隐式启动
+
+```bash
+> hdc_std shell
+# wukong exec -b bundlename -U uri -x uriType
+```
+
+随机测试示例解析：
+| 命令            | 参数值         | 说明                                           |
+| --------------- | -------------- | ---------------------------------------------- |
+| wukong exec |      | 主命令。                             |
+| -b  | bundlename   | 参数设置指定bundlename            |
+| -U  | uri          | 参数设置应用拉起页面uri            |
+| -x  | uriType      | 参数设置应用拉起页面uriType          |
 
 ##### 2.wukong允许ability页面、禁止ability页面
 
