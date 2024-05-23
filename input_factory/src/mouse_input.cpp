@@ -74,9 +74,9 @@ ErrCode MouseInput::RandomInput()
     return result;
 }
 
-ErrCode MouseInput::GetInputInfo()
+InputType MouseInput::GetInputInfo()
 {
-    return OHOS::ERR_OK;
+    return INPUTTYPE_MOUSEINPUT;
 }
 
 std::string MouseInput::MouseTypeToString(int mousetype)

@@ -37,6 +37,18 @@ public:
     ErrCode RandomInput();
 
     /**
+     * @brief started up a app by uri and uritype.
+     * @return Return ERR_OK on success， others on failure.
+     */
+    ErrCode RandomInput(const std::string &uri, const std::string &uriType);
+
+    /**
+     * @brief started up a app by uri and ability.
+     * @return Return ERR_OK on success， others on failure.
+     */
+    ErrCode RandomInput(const std::string &uri, const std::vector<std::string> &abilityName);
+
+    /**
      * @brief started up a app by ability.
      * @return Return ERR_OK on success， others on failure.
      */
@@ -46,7 +58,7 @@ public:
      * @brief get information of inputted event.
      * @return Return ERR_OK on success， others on failure.
      */
-    ErrCode GetInputInfo();
+    InputType GetInputInfo();
 
     /**
      * @brief output the information: if the app has started up successfully.

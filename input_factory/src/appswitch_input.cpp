@@ -84,6 +84,20 @@ ErrCode AppswitchInput::RandomInput()
     return result;
 }
 
+ErrCode AppswitchInput::RandomInput(const std::string &uri, const std::string &uriType)
+{
+    ErrCode result = AppManager::GetInstance()->StartAbilityByUriAndType(uri, uriType);
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
+    return result;
+}
+
+ErrCode AppswitchInput::RandomInput(const std::string &uri, const std::vector<std::string> &abilityName)
+{
+    ErrCode result = AppManager::GetInstance()->StartAbilityByAbilityAndUri(uri, abilityName);
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
+    return result;
+}
+
 ErrCode AppswitchInput::FocusInput(bool shouldScreenCap)
 {
     return AppswitchInput::RandomInput();
@@ -102,9 +116,9 @@ ErrCode AppswitchInput::PrintResultOfStartAbility(const ErrCode result, uint32_t
     return OHOS::ERR_OK;
 }
 
-ErrCode AppswitchInput::GetInputInfo()
+InputType AppswitchInput::GetInputInfo()
 {
-    return OHOS::ERR_OK;
+    return INPUTTYPE_APPSWITCHINPUT;
 }
 
 uint32_t AppswitchInput::GetAbilityIndex(std::vector<std::string>& bundlelist)

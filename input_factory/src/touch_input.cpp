@@ -78,9 +78,9 @@ ErrCode TouchInput::RandomInput()
     return result;
 }
 
-ErrCode TouchInput::GetInputInfo()
+InputType TouchInput::GetInputInfo()
 {
-    return OHOS::ERR_OK;
+    return INPUTTYPE_TOUCHINPUT;
 }
 }  // namespace WuKong
 }  // namespace OHOS

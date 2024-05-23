@@ -28,7 +28,7 @@ public:
     ~ElementInput();
     ErrCode OrderInput(std::shared_ptr<SpcialTestObject>& specialTestObject);
     ErrCode RandomInput();
-    ErrCode GetInputInfo();
+    InputType GetInputInfo();
 };
 }  // namespace WuKong
 }  // namespace OHOS

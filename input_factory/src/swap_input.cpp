@@ -79,9 +79,9 @@ ErrCode SwapInput::RandomInput()
     return result;
 }
 
-ErrCode SwapInput::GetInputInfo()
+InputType SwapInput::GetInputInfo()
 {
-    return OHOS::ERR_OK;
+    return INPUTTYPE_SWAPINPUT;
 }
 }  // namespace WuKong
 }  // namespace OHOS

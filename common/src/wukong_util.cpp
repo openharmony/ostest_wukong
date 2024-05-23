@@ -374,6 +374,44 @@ ErrCode WuKongUtil::SetBlockPageList(const std::string &optarg)
     return result;
 }
 
+ErrCode WuKongUtil::SetComponentUri(const std::string &optarg)
+{
+    uri_ = optarg;
+    ErrCode result;
+    if (!uri_.empty()) {
+        result = OHOS::ERR_OK;
+        INFO_LOG_STR("Set component Uri is %s", uri_.c_str());
+    } else {
+        result = OHOS::ERR_INVALID_VALUE;
+        ERROR_LOG("Set component Uri is failed, please check -U param");
+    }
+    return result;
+}
+
+ErrCode WuKongUtil::SetComponentUriType(const std::string &optarg)
+{
+    uriType_ = optarg;
+    ErrCode result;
+    if (!uriType_.empty()) {
+        result = OHOS::ERR_OK;
+        INFO_LOG_STR("Set component Uri Type is %s", uriType_.c_str());
+    } else {
+        result = OHOS::ERR_INVALID_VALUE;
+        ERROR_LOG("Set component Uri Type is failed, please check -x param");
+    }
+    return result;
+}
+
+std::string WuKongUtil::GetComponentUri()
+{
+    return uri_;
+}
+
+std::string WuKongUtil::GetComponentUriType()
+{
+    return uriType_;
+}
+
 void WuKongUtil::DelRepeatArguments(std::vector<std::string> &argumentlist)
 {
     std::set<std::string> s(argumentlist.begin(), argumentlist.end());

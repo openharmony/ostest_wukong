@@ -395,9 +395,9 @@ uint32_t ComponentInput::ChooseRightComponentIndex(
     return index;
 }
 
-ErrCode ComponentInput::GetInputInfo()
+InputType ComponentInput::GetInputInfo()
 {
-    return OHOS::ERR_OK;
+    return INPUTTYPE_ELEMENTINPUT;
 }
 
 int ComponentInput::JudgeComponentType(OHOS::Accessibility::AccessibilityElementInfo& elementInfo)
