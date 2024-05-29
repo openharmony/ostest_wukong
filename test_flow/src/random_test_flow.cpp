@@ -16,6 +16,7 @@
 #include "random_test_flow.h"
 
 #include <string>
+#include <regex>
 
 #include "report.h"
 #include "wukong_define.h"
@@ -292,8 +293,10 @@ ErrCode RandomTestFlow::SetBlackWhiteSheet(const int option)
         WuKongUtil::GetInstance()->SetCompTypeBlockList(optarg);
     } else if (option == 'U') {
         WuKongUtil::GetInstance()->SetComponentUri(optarg);
+        g_commandURIENABLE = true;
     } else if (option == 'x') {
         WuKongUtil::GetInstance()->SetComponentUriType(optarg);
+        g_commandURITYPEENABLE = true;
     }
     return OHOS::ERR_OK;
 }
@@ -304,13 +307,19 @@ ErrCode RandomTestFlow::SetRunningParam(const int option)
     if (option == 'c' || option == 'T') {
         result = CheckArgument(option);
     } else if (option == 'i') {
-        intervalArgs_ = std::stoi(optarg);
-        TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+        std::regex pattern("[0-9]+");
+        if (std::regex_match(optarg, pattern)) {
+            intervalArgs_ = std::stoi(optarg);
+            TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+        } else {
+            ERROR_LOG("Setting -i must follow an integer");
+            result = OHOS::ERR_INVALID_VALUE;
+        }
     } else if (option == 's') {
         seedArgs_ = std::stoi(optarg);
         g_commandSEEDENABLE = true;
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 
 ErrCode RandomTestFlow::SetRunningIndicator(const int option)
