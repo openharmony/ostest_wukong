@@ -55,6 +55,10 @@
             </policy>
         </policylist>
         <filefilterlist>
+            <filefilter name="binaryFileTypePolicyFilter" desc="Filters for binary file policies">
+                <filteritem type="filepath" name="figures/wukong部件架构图.png" desc="self developed image"/>
+                <filteritem type="filepath" name="figures/wukongArchitectureDiagram.png" desc="self developed image"/>
+            </filefilter>
         </filefilterlist>
     </oatconfig>
 </configuration>
