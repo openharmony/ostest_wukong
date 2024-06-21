@@ -108,15 +108,25 @@ ComponentManager::ComponentManager()
 {
     componentMap_ = {
         {Accessibility::ACCESSIBILITY_ACTION_CLICK,
-         std::bind(&ComponentManager::ComponentTouchInput, this, std::placeholders::_1)},
+         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+            return ComponentManager::ComponentTouchInput(elementInfo);
+         }},
         {Accessibility::ACCESSIBILITY_ACTION_SCROLL_FORWARD,
-         std::bind(&ComponentManager::ComponentUpSwapInput, this, std::placeholders::_1)},
-
+         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+            return ComponentManager::ComponentUpSwapInput(elementInfo);
+         }},
         {Accessibility::ACCESSIBILITY_ACTION_SCROLL_BACKWARD,
-         std::bind(&ComponentManager::ComponentDownSwapInput, this, std::placeholders::_1)},
+         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+            return ComponentManager::ComponentDownSwapInput(elementInfo);
+         }},
         {Accessibility::ACCESSIBILITY_ACTION_SET_TEXT,
-         std::bind(&ComponentManager::ComponentMultikeyInput, this, std::placeholders::_1)},
-        {COMPONENT_LEFT_SWAP, std::bind(&ComponentManager::ComponentLeftSwapInput, this, std::placeholders::_1)},
+         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+            return ComponentManager::ComponentMultikeyInput(elementInfo);
+         }},
+        {COMPONENT_LEFT_SWAP,
+         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+            return ComponentManager::ComponentLeftSwapInput(elementInfo);
+         }},
     };
 }
 ComponentManager::~ComponentManager()

@@ -64,14 +64,14 @@ ErrCode WuKongShellCommand::CreateCommandMap()
 {
     TRACK_LOG_STD();
     commandMap_ = {
-        {"--version", std::bind(&WuKongShellCommand::GetWuKongVersion, this)},
-        {"-v", std::bind(&WuKongShellCommand::GetWuKongVersion, this)},
-        {"help", std::bind(&WuKongShellCommand::RunAsHelpCommand, this)},
-        {"stop", std::bind(&WuKongShellCommand::RunStopCommand, this)},
-        {"exec", std::bind(&WuKongShellCommand::RunTestCommand, this)},
-        {"special", std::bind(&WuKongShellCommand::RunTestCommand, this)},
-        {"focus", std::bind(&WuKongShellCommand::RunTestCommand, this)},
-        {"appinfo", std::bind(&WuKongShellCommand::ShowAllAppInfo, this)},
+        {"--version", [this] () { return WuKongShellCommand::GetWuKongVersion(); }},
+        {"-v", [this] () { return WuKongShellCommand::GetWuKongVersion(); }},
+        {"help", [this] () { return WuKongShellCommand::RunAsHelpCommand(); }},
+        {"stop", [this] () { return WuKongShellCommand::RunStopCommand(); }},
+        {"exec", [this] () { return WuKongShellCommand::RunTestCommand(); }},
+        {"special", [this] () { return WuKongShellCommand::RunTestCommand(); }},
+        {"focus", [this] () { return WuKongShellCommand::RunTestCommand(); }},
+        {"appinfo", [this] () { return WuKongShellCommand::ShowAllAppInfo(); }},
     };
     TRACK_LOG_END();
     return OHOS::ERR_OK;

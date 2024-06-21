@@ -409,7 +409,7 @@ void SpecialTestFlow::RegisterTimer()
 {
     if (timer_ == nullptr) {
         timer_ = std::make_shared<Utils::Timer>("wukong");
-        timerId_ = timer_->Register(std::bind(&SpecialTestFlow::TestTimeout, this), totalTime_ * ONE_MINUTE, true);
+        timerId_ = timer_->Register([this] () { SpecialTestFlow::TestTimeout(); }, totalTime_ * ONE_MINUTE, true);
         timer_->Setup();
     }
 }
