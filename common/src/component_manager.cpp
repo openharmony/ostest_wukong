@@ -108,25 +108,25 @@ ComponentManager::ComponentManager()
 {
     componentMap_ = {
         {Accessibility::ACCESSIBILITY_ACTION_CLICK,
-         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+        [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
             return ComponentManager::ComponentTouchInput(elementInfo);
-         }},
+        }},
         {Accessibility::ACCESSIBILITY_ACTION_SCROLL_FORWARD,
-         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+        [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
             return ComponentManager::ComponentUpSwapInput(elementInfo);
-         }},
+        }},
         {Accessibility::ACCESSIBILITY_ACTION_SCROLL_BACKWARD,
-         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+        [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
             return ComponentManager::ComponentDownSwapInput(elementInfo);
-         }},
+        }},
         {Accessibility::ACCESSIBILITY_ACTION_SET_TEXT,
-         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+        [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
             return ComponentManager::ComponentMultikeyInput(elementInfo);
-         }},
+        }},
         {COMPONENT_LEFT_SWAP,
-         [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
+        [this] (Accessibility::AccessibilityElementInfo& elementInfo) -> ErrCode {
             return ComponentManager::ComponentLeftSwapInput(elementInfo);
-         }},
+        }},
     };
 }
 ComponentManager::~ComponentManager()
