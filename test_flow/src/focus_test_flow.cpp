@@ -300,7 +300,7 @@ ErrCode FocusTestFlow::SetRunningParam(const int option)
     } else if (option == 'f') {
         TreeManager::GetInstance()->SetFocusTypeList(optarg);
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 
 ErrCode FocusTestFlow::SetRunningIndicator(const int option)
@@ -445,10 +445,15 @@ ErrCode FocusTestFlow::CheckArgument(const int option)
         case 'c': {
             // check if the '-c' and 'T' is exist at the same time
             if (g_commandTIMEENABLE == false) {
-                g_commandCOUNTENABLE = true;
-                countArgs_ = std::stoi(optarg);
-                TEST_RUN_LOG(("Count: " + std::to_string(countArgs_)).c_str());
-                totalCount_ = countArgs_;
+                try {
+                    g_commandCOUNTENABLE = true;
+                    countArgs_ = std::stoi(optarg);
+                    TEST_RUN_LOG(("Count: " + std::to_string(countArgs_)).c_str());
+                    totalCount_ = countArgs_;
+                } catch (const std::invalid_argument &e) {
+                    ERROR_LOG("Setting -c must follow an interger");
+                    result = OHOS::ERR_INVALID_VALUE;
+                }
             } else {
                 DEBUG_LOG(PARAM_COUNT_TIME_ERROR);
                 shellcommand_.ResultReceiverAppend(std::string(PARAM_COUNT_TIME_ERROR) + "\n");
@@ -459,9 +464,14 @@ ErrCode FocusTestFlow::CheckArgument(const int option)
         case 'T': {
             // check if the '-c' and 'T' is exist at the same time
             if (g_commandCOUNTENABLE == false) {
-                totalTime_ = std::stof(optarg);
-                TEST_RUN_LOG(("Time: " + std::to_string(totalTime_)).c_str());
-                g_commandTIMEENABLE = true;
+                try {
+                    totalTime_ = std::stof(optarg);
+                    TEST_RUN_LOG(("Time: " + std::to_string(totalTime_)).c_str());
+                    g_commandTIMEENABLE = true;
+                } catch (const std::invalid_argument &e) {
+                    ERROR_LOG("Setting -T must follow an interger");
+                    result = OHOS::ERR_INVALID_VALUE;
+                }
             } else {
                 DEBUG_LOG(PARAM_TIME_COUNT_ERROR);
                 shellcommand_.ResultReceiverAppend(std::string(PARAM_TIME_COUNT_ERROR) + "\n");
