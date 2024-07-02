@@ -317,40 +317,11 @@ ErrCode SpecialTestFlow::CheckArgument(const int option)
     ErrCode result = OHOS::ERR_OK;
     switch (option) {
         case 'c': {
-            // check if the '-c' and 'T' is exist at the same time
-            if (g_commandTIMEENABLE == false) {
-                try {
-                    g_commandCOUNTENABLE = true;
-                    countArgs_ = std::stoi(optarg);
-                    TEST_RUN_LOG(("Count: " + std::to_string(countArgs_)).c_str());
-                    totalCount_ = countArgs_;
-                } catch (const std::invalid_argument &e) {
-                    ERROR_LOG("Setting -c must follow an interger");
-                    result = OHOS::ERR_INVALID_VALUE;
-                }
-            } else {
-                DEBUG_LOG(PARAM_COUNT_TIME_ERROR);
-                shellcommand_.ResultReceiverAppend(std::string(PARAM_COUNT_TIME_ERROR) + "\n");
-                result = OHOS::ERR_INVALID_VALUE;
-            }
+            result = CheckArgumentOptionOfc();
             break;
         }
         case 'T': {
-            // check if the '-c' and 'T' is exist at the same time
-            if (g_commandCOUNTENABLE == false) {
-                try {
-                    totalTime_ = std::stof(optarg);
-                    TEST_RUN_LOG(("Time: " + std::to_string(totalTime_)).c_str());
-                    g_commandTIMEENABLE = true;
-                } catch (const std::invalid_argument &e) {
-                    ERROR_LOG("Setting -T must follow an interger");
-                    result = OHOS::ERR_INVALID_VALUE;
-                }
-            } else {
-                DEBUG_LOG(PARAM_TIME_COUNT_ERROR);
-                shellcommand_.ResultReceiverAppend(std::string(PARAM_TIME_COUNT_ERROR) + "\n");
-                result = OHOS::ERR_INVALID_VALUE;
-            }
+            result = CheckArgumentOptionOfT();
             break;
         }
         default: {
@@ -461,5 +432,47 @@ ErrCode SpecialTestFlow::LauncherApp()
     }
     return result;
 }
+
+ErrCode SpecialTestFlow::CheckArgumentOptionOfc()
+{
+    // check if the '-c' and 'T' is exist at the same time
+    if (g_commandTIMEENABLE == false) {
+        std::stringstream ss(optarg);
+        if (ss >> countArgs_) {
+            g_commandCOUNTENABLE = true;
+            TEST_RUN_LOG(("Count: " + std::to_string(countArgs_)).c_str());
+            totalCount_ = countArgs_;
+            return OHOS::ERR_OK;
+        } else {
+            ERROR_LOG("Setting -c must follow an interger");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+    } else {
+        DEBUG_LOG(PARAM_COUNT_TIME_ERROR);
+        shellcommand_.ResultReceiverAppend(std::string(PARAM_COUNT_TIME_ERROR) + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+}
+
+ErrCode SpecialTestFlow::CheckArgumentOptionOfT()
+{
+    // check if the '-c' and 'T' is exist at the same time
+    if (g_commandCOUNTENABLE == false) {
+        std::stringstream ss(optarg);
+        if (ss >> totalTime_) {
+            TEST_RUN_LOG(("Time: " + std::to_string(totalTime_)).c_str());
+            g_commandTIMEENABLE = true;
+            return OHOS::ERR_OK;
+        } else {
+            ERROR_LOG("Setting -T must follow a float");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+    } else {
+        DEBUG_LOG(PARAM_TIME_COUNT_ERROR);
+        shellcommand_.ResultReceiverAppend(std::string(PARAM_TIME_COUNT_ERROR) + "\n");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+}
+
 }  // namespace WuKong
 }  // namespace OHOS
