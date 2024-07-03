@@ -48,6 +48,8 @@ private:
     ErrCode HandleNormalOption(const int option) override;
     ErrCode CheckArgumentOptionOfe();
     ErrCode CheckArgumentOptionOfE();
+    ErrCode CheckArgumentOptionOfc();
+    ErrCode CheckArgumentOptionOfT();
 
     /**
      * @brief check if the '-c' and 'T' is exist at the same time
