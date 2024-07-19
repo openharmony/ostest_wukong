@@ -18,7 +18,10 @@ config("module_private_config") {
 
 group("unittest") {
   testonly = true
-  deps = [ ":wukong_ut" ]
+  deps = []
+  if (!use_libfuzzer) {
+    deps += [ ":wukong_ut" ]
+  }
 }
 
 ohos_unittest("wukong_ut") {
