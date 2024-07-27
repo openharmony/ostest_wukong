@@ -43,6 +43,10 @@ ErrCode MultimodeManager::SingleKeyCodeInput(int keycode, int downtime)
     std::string keycodeType = OHOS::MMI::KeyEvent::KeyCodeToString(keycode);
     INFO_LOG_STR("keycodeType: %s", keycodeType.c_str());
     auto keyKeyboardEvent = OHOS::MMI::KeyEvent::Create();
+    if (!keyKeyboardEvent) {
+        WARN_LOG("keyKeyboardEvent is nullptr");
+        return OHOS::ERR_NO_INIT;
+    }
     MMI::KeyEvent::KeyItem item;
     item.SetKeyCode(keycode);
     item.SetPressed(true);
@@ -101,6 +105,10 @@ ErrCode MultimodeManager::PointerInput(int x, int y, int pointertype, int action
 {
     ErrCode result = OHOS::ERR_OK;
     auto pointerEvent = MMI::PointerEvent::Create();
+    if (!pointerEvent) {
+        WARN_LOG("pointerEvent is nullptr");
+        return OHOS::ERR_NO_INIT;
+    }
     MMI::PointerEvent::PointerItem item;
 
     item.SetPointerId(0);
