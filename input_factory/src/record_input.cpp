@@ -30,6 +30,7 @@ namespace OHOS {
 namespace WuKong {
 namespace {
 const int INTERVALTIME = 1000;
+const int OPERATIONINTERVAL = 400;
 const int NUMTWO = 2;
 std::string g_defaultDir = "/data/local/tmp/wukong/record";
 std::ofstream g_outFile;
@@ -104,34 +105,35 @@ bool InitEventRecordFile(std::ofstream &outFile, const std::string &recordName)
 ErrCode ReadEventLine(std::ifstream &inFile)
 {
     ErrCode result = OHOS::ERR_OK;
-    char buffer[50];
     int xPosi = -1;
     int yPosi = -1;
     int interval = -1;
     bool jumpFlag = true;
-    while (!inFile.eof()) {
-        inFile >> buffer;
-        if (jumpFlag) {
-            jumpFlag = !jumpFlag;
-            continue;
+    if (inFile.is_open()) {
+        std::string line;
+        while (std::getline(inFile, line)) {
+            if (jumpFlag) {
+                jumpFlag = !jumpFlag;
+                continue;
+            }
+            std::string delim = ",";
+            auto caseInfo = split(line, delim);
+            xPosi = std::stoi(caseInfo[0]);
+            yPosi = std::stoi(caseInfo[1]);
+            interval = std::stoi(caseInfo[NUMTWO]);
+            INFO_LOG_STR("Position: (%d,%d)  interval: %d", xPosi, yPosi, interval);
+            auto recordTouchInput = MultimodeManager::GetInstance();
+            result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
+                                                    MMI::PointerEvent::POINTER_ACTION_DOWN);
+            if (result != OHOS::ERR_OK) {
+                ERROR_LOG("input failed");
+                return result;
+            }
+            result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
+                                                    MMI::PointerEvent::POINTER_ACTION_UP);
+            usleep(interval * INTERVALTIME);
         }
-        jumpFlag = !jumpFlag;
-        std::string delim = ",";
-        auto caseInfo = split(buffer, delim);
-        xPosi = std::stoi(caseInfo[0]);
-        yPosi = std::stoi(caseInfo[1]);
-        interval = std::stoi(caseInfo[NUMTWO]);
-        INFO_LOG_STR("Position: (%d,%d)  interval: %d", xPosi, yPosi, interval);
-        auto recordTouchInput = MultimodeManager::GetInstance();
-        result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
-                                                MMI::PointerEvent::POINTER_ACTION_DOWN);
-        if (result != OHOS::ERR_OK) {
-            ERROR_LOG("input failed");
-            return result;
-        }
-        result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
-                                                MMI::PointerEvent::POINTER_ACTION_UP);
-        usleep(interval * INTERVALTIME);
+        inFile.close();
     }
     return result;
 }
@@ -156,6 +158,9 @@ public:
             data.interval = INTERVALTIME;
         } else {
             data.interval = currentTime - g_timeTemp;
+            if (data.interval < OPERATIONINTERVAL) {
+                return;
+            }
             g_timeTemp = currentTime;
         }
         data.xPosi = item.GetDisplayX();
@@ -215,7 +220,6 @@ ErrCode RecordInput::OrderInput(const std::shared_ptr<SpcialTestObject> &special
             WARN_LOG("this input failed");
             return result;
         }
-        specialTestObject->isAllFinished_ = true;
     }
     return result;
 }
