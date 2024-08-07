@@ -179,6 +179,10 @@ ErrCode SpecialTestFlow::RunStep()
     }
     InputType inputTypeId = DistrbuteInputType();
     std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(inputTypeId);
+    if (!inputaction) {
+        WARN_LOG("This test failed, the inputaction is nullptr.");
+        return OHOS::ERR_INVALID_VALUE;
+    }
     result = inputaction->OrderInput(specialTestObject_);
     if (result != OHOS::ERR_OK) {
         WARN_LOG("This test failed");
@@ -194,9 +198,6 @@ ErrCode SpecialTestFlow::RunStep()
         }
     }
     if (g_commandRECORDABLE) {
-        isFinished_ = true;
-    }
-    if (g_commandREPLAYABLE) {
         isFinished_ = true;
     }
     usleep(intervalArgs_ * oneSecond_);
