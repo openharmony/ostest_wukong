@@ -427,6 +427,9 @@ ErrCode SpecialTestFlow::CheckPosition(std::vector<std::string> argumentlist)
 ErrCode SpecialTestFlow::LauncherApp()
 {
     std::shared_ptr<InputAction> inputaction = InputFactory::GetInputAction(INPUTTYPE_APPSWITCHINPUT);
+    if (!inputaction) {
+        return OHOS::ERR_INVALID_VALUE;
+    }
     ErrCode result = inputaction->OrderInput(specialTestObject_);
     if (result != OHOS::ERR_OK) {
         ERROR_LOG("launcher app failed");
