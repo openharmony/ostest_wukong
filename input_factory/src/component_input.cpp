@@ -307,7 +307,6 @@ ErrCode ComponentInput::RandomInput()
             DEBUG_LOG("componentInputBranch2 end");
         } else {
             DEBUG_LOG("componentInputBranch3");
-            ERROR_LOG("component list is null");
             result = OHOS::ERR_NO_INIT;
         }
     }

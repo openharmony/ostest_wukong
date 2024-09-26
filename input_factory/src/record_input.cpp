@@ -105,11 +105,11 @@ bool InitEventRecordFile(std::ofstream &outFile, const std::string &recordName)
 ErrCode ReadEventLine(std::ifstream &inFile)
 {
     ErrCode result = OHOS::ERR_OK;
-    int xPosi = -1;
-    int yPosi = -1;
-    int interval = -1;
-    bool jumpFlag = true;
     if (inFile.is_open()) {
+        int xPosi = -1;
+        int yPosi = -1;
+        int interval = -1;
+        bool jumpFlag = true;
         std::string line;
         while (std::getline(inFile, line)) {
             if (jumpFlag) {
