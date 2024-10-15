@@ -65,6 +65,7 @@ public:
      */
     void Print(LOG_LEVEL level, const char *format, ...);
 
+    static std::shared_ptr<WuKongLogger> GetInstance();
     LOG_LEVEL GetLogLevel()
     {
         return outputLevel_;
@@ -104,6 +105,8 @@ private:
     PrinterThread logPrinter_;
     std::mutex mtxThreadWait_;
     std::condition_variable cvWaitPrint_;
+    static std::mutex wukongMutex_;
+    static std::shared_ptr<WuKongLogger> wukongInstance_;
 };
 }  // namespace WuKong
 }  // namespace OHOS
