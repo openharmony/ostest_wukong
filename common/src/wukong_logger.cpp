@@ -48,7 +48,8 @@ std::mutex LOCK_PRINT_BUFFER;
 WuKongLogger::WuKongLogger() : logPrinter_()
 { /* init buf */
 }
-
+std::mutex WuKongLogger::wukongMutex_;
+std::shared_ptr<WuKongLogger> WuKongLogger::wukongInstance_ = nullptr;
 /**
  * @brief: release logfile fd
  */
@@ -62,6 +63,18 @@ WuKongLogger::~WuKongLogger()
     if (printerRunning_ && logPrinter_.IsRunning()) {
         Stop();
     }
+    std::cout << "WuKongLogger::~WuKongLogger" << std::endl;
+}
+
+std::shared_ptr<WuKongLogger> WuKongLogger::GetInstance()
+{
+    if (wukongInstance_ == nullptr) {
+        std::lock_guard<std::mutex> lock(wukongMutex_);
+        if (wukongInstance_ == nullptr) {
+            wukongInstance_ = DelayedSingleton::GetInstance();
+        }
+    }
+    return wukongInstance_;
 }
 
 bool WuKongLogger::Start()
