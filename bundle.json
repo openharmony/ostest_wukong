@@ -26,6 +26,7 @@
         "accessibility",
         "bundle_framework",
         "common_event_service",
+        "graphic_2d",
         "hidumper",
         "hisysevent",
         "hilog",
