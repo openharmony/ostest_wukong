@@ -17,6 +17,7 @@
 
 #include "accessibility_ui_test_ability.h"
 #include "multimode_manager.h"
+#include "count_down_latch.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -84,6 +85,10 @@ void ComponentEventMonitor::OnAbilityDisconnected()
 
 void ComponentEventMonitor::OnAccessibilityEvent(const Accessibility::AccessibilityEventInfo& eventInfo)
 {
+    auto cm = ComponentManager::GetInstance();
+    if (!cm->GetConnectStatus()) {
+        return;
+    }
     TRACK_LOG_STR("OnAccessibilityEvent Start %u", eventInfo.GetEventType());
     TRACK_LOG_STR("current bundle: %s", eventInfo.GetBundleName().c_str());
     if (eventInfo.GetBundleName() == permissionBundleName) {
@@ -138,35 +143,33 @@ bool ComponentManager::Connect()
     if (connected_ == true) {
         return true;
     }
-    std::mutex mtx;
-    std::unique_lock<std::mutex> uLock(mtx);
     std::shared_ptr<ComponentEventMonitor> g_monitorInstance_ = std::make_shared<ComponentEventMonitor>();
-    std::condition_variable condition;
-    auto onConnectCallback = [&condition]() {
+    CountDownLatch latch(1);
+    auto onConnectCallback = [&latch]() {
         std::cout << "Success connect to AAMS" << std::endl;
-        condition.notify_all();
+        latch.countDown();
     };
 
     g_monitorInstance_->SetOnAbilityConnectCallback(onConnectCallback);
     auto ability = Accessibility::AccessibilityUITestAbility::GetInstance();
     if (ability->RegisterAbilityListener(g_monitorInstance_) != Accessibility::RET_OK) {
-        std::cout << "Failed to register ComponentEventMonitor" << std::endl;
+        ERROR_LOG("Failed to register ComponentEventMonitor");
         return false;
     }
-    std::cout << "Start connect to AAMS" << std::endl;
+    INFO_LOG("Start connect to AAMS");
     if (ability->Connect() != Accessibility::RET_OK) {
-        std::cout << "Failed to connect to AAMS" << std::endl;
+        ERROR_LOG("Failed to connect to AAMS");
         return false;
     }
-    const auto timeout = std::chrono::milliseconds(1000);
-    if (condition.wait_for(uLock, timeout) == std::cv_status::timeout) {
-        std::cout << "Wait connection to AAMS timed out" << std::endl;
+    const auto timeout = std::chrono::milliseconds(2000);
+    if (!latch.await(timeout)) {
+        Disconnect();
+        ERROR_LOG("Wait connection to AAMS timed out");
         return false;
     }
     connected_ = true;
     return true;
 }
-
 void ComponentManager::Disconnect()
 {
     auto auita = Accessibility::AccessibilityUITestAbility::GetInstance();

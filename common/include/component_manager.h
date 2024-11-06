@@ -63,6 +63,11 @@ public:
      */
     ErrCode BackToPrePage();
 
+    bool GetConnectStatus()
+    {
+        return connected_;
+    }
+
     /**
      * @brief get locate info.
      * @return Return startX_.
