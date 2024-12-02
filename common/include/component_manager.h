@@ -63,8 +63,6 @@ public:
      */
     ErrCode BackToPrePage();
 
-    ErrCode BackToHome();
-
     bool GetConnectStatus()
     {
         return connected_;
