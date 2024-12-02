@@ -256,14 +256,6 @@ ErrCode ComponentManager::BackToPrePage()
     return result;
 }
 
-ErrCode ComponentManager::BackToHome()
-{
-    ErrCode result = ERR_OK;
-    int backKeyCode = OHOS::MMI::KeyEvent::KEYCODE_HOME;
-    result = MultimodeManager::GetInstance()->SingleKeyCodeInput(backKeyCode, DOWNTIME);
-    return result;
-}
-
 ErrCode ComponentManager::ComponentUpSwapInput(Accessibility::AccessibilityElementInfo& elementInfo)
 {
     // Calculate swap position
