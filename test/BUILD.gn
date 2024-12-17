@@ -84,7 +84,6 @@ ohos_unittest("wukong_ut") {
     "//foundation/bundlemanager/bundle_framework/common/log/include",
     "//foundation/multimodalinput/input/interfaces",
     "//base/hiviewdfx/hisysevent/interfaces",
-    "//commonlibrary/c_utils/base/include",
     "//utils/system/safwk/native/include",
     "include",
   ]
