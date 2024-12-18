@@ -16,6 +16,7 @@
 #include "app_manager.h"
 
 #include "ability_manager_client.h"
+#include "component_manager.h"
 #include "element_name.h"
 #include "wukong_define.h"
 #include "wukong_util.h"
@@ -92,6 +93,7 @@ ErrCode AppManager::StartAbilityByBundleInfo(std::string abilityName, std::strin
     } else {
         AppExecFwk::ElementName element("", bundleName, abilityName);
         want.SetElement(element);
+        ComponentManager::GetInstance()->BackToHome();
         result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
         if (result == OHOS::ERR_OK) {
             output = STRING_START_ABILITY_OK;
@@ -111,6 +113,7 @@ ErrCode AppManager::StartAbilityByUriAndType(const std::string uri, const std::s
     int result;
     want.SetUri(uri);
     want.SetType(typeVal);
+    ComponentManager::GetInstance()->BackToHome();
     result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (result == OHOS::ERR_OK) {
         INFO_LOG("The specified URI page is opened successfully.");
@@ -131,6 +134,7 @@ ErrCode AppManager::StartAbilityByAbilityAndUri(const std::string uri, const std
     AppExecFwk::ElementName element("", allowList[0], abilityName[0]);
     want.SetElement(element);
     want.SetUri(uri);
+    ComponentManager::GetInstance()->BackToHome();
     result = OHOS::AAFwk::AbilityManagerClient::GetInstance()->StartAbility(want);
     if (result == OHOS::ERR_OK) {
         INFO_LOG("The specified URI page is opened successfully.");
