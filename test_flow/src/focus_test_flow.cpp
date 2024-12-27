@@ -313,7 +313,7 @@ ErrCode FocusTestFlow::SetRunningIndicator(const int option)
     } else if (option == 'I') {
         g_commandSCREENSHOTENABLE = true;
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 
 ErrCode FocusTestFlow::InputScene(std::shared_ptr<InputAction> inputaction, bool inputFlag)

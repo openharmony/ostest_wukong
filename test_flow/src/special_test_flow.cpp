@@ -384,7 +384,7 @@ ErrCode SpecialTestFlow::SetRunningIndicator(const int option)
     } else if (option == 'u') {
         g_commandUITEST = true;
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 
 void SpecialTestFlow::RegisterTimer()

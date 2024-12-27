@@ -335,7 +335,7 @@ ErrCode RandomTestFlow::SetRunningIndicator(const int option)
         g_commandSCREENSHOTENABLE = true;
         g_commandCHECKBWSCREEN = true;
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 
 ErrCode RandomTestFlow::InputScene(std::shared_ptr<InputAction> inputaction, bool inputFlag)
