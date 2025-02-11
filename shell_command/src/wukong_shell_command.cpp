@@ -25,6 +25,7 @@
 #include "component_manager.h"
 #include "iservice_registry.h"
 #include "launcher_service.h"
+#include "report.h"
 #include "random_test_flow.h"
 #include "special_test_flow.h"
 #include "focus_test_flow.h"
@@ -135,6 +136,7 @@ ErrCode WuKongShellCommand::RunTestCommand()
     // connect to accessibility
     if (!cm->Connect()) {
         ERROR_LOG("ComponentManager Connect failed");
+        OHOS::WuKong::Report::GetInstance()->Finish();
         return OHOS::ERR_INVALID_OPERATION;
     }
     DEBUG_LOG("connected successfully");
