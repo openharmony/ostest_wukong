@@ -25,7 +25,7 @@ group("unittest") {
 }
 
 ohos_unittest("wukong_ut") {
-  module_out_path = "ostest/wukong"
+  module_out_path = "wukong/wukong"
   sources = [
     "../common/src/app_manager.cpp",
     "../common/src/component_manager.cpp",
