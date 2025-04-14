@@ -58,7 +58,7 @@ public:
  * @tc.desc: Test wukong basic function
  * @tc.type: FUNC
  */
-HWTEST_F(WuKongTest, RandomTestCase, TestSize.Level1)
+HWTEST_F(WuKongTest, RandomTestCase, TestSize.Level0)
 {
     std::string cmd = "wukong exec -T 1";
     std::string result = "";
