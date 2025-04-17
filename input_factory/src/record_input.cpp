@@ -127,6 +127,7 @@ ErrCode ReadEventLine(std::ifstream &inFile)
                                                     MMI::PointerEvent::POINTER_ACTION_DOWN);
             if (result != OHOS::ERR_OK) {
                 ERROR_LOG("input failed");
+                inFile.close();
                 return result;
             }
             result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
