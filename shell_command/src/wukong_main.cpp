@@ -29,6 +29,8 @@
 #include "wukong_shell_command.h"
 #include "wukong_util.h"
 #include "parameters.h"
+#include "hisysevent.h"
+#include "directory_ex.h"
 
 using namespace OHOS::WuKong;
 
@@ -131,6 +133,9 @@ int main(int argc, char* argv[])
         std::cout << "Not a development mode state, please check device mode." << std::endl;
         return 0;
     }
+    const uint64_t dataPathSize = OHOS::GetFolderSize(DATA_PATH);
+    const uint64_t wukongPathSize = OHOS::GetFolderSize(WUKONG_PATH);
+    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FILEMANAGEMENT, "USER_DATA_SIZE", OHOS::HiviewDFX::HiSysEvent::EventType::STATISTIC, "COMPONENT_NAME", "wukong","PARTITION_NAME",DATA_PATH,"REMAIN_PARTITION_SIZE",dataPathSize,"FILE_OR_FOLDER_PATH",WUKONG_PATH,"FILE_OR_FOLDER_SIZE",wukongPathSize);
     std::shared_ptr<WuKongLogger> WuKonglogger = WuKongLogger::GetInstance();
     // first start logger
     WuKonglogger->SetLevel(LOG_LEVEL_INFO);

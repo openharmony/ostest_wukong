@@ -33,6 +33,9 @@ const uint32_t THREE_SECOND = 3000000;
 #define SEMPHORE_RUN_NAME "wukong_sem_run"
 #define SEMPHORE_STOP_NAME "wukong_sem_stop"
 
+#define DATA_PATH     "/data"
+#define WUKONG_PATH   "/data/local/tmp/wukong/"
+
 #define TRACK_LOG_STD() WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s START", __LINE__, __func__)
 #define TRACK_LOG_END() WuKongLogger::GetInstance()->Print(LOG_LEVEL_TRACK, "TRK : (%5d) %s END", __LINE__, __func__)
 #define TRACK_LOG_STR(format, ...) \
