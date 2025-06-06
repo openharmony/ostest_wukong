@@ -156,7 +156,9 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
 
     // push log to buffer queue.
     mtxQueue_.lock();
-    bufferQueue_.push(logInfo);
+    if (bufferQueue_.size() < LOG_MAX_NUM) {
+        bufferQueue_.push(logInfo);
+    }
     mtxQueue_.unlock();
 
     // notify print log to printer thread.
@@ -202,6 +204,9 @@ bool WuKongLogger::PrinterThread::Run()
             break;
         }
         while (!self->bufferQueue_.empty()) {
+            if (tmpBuffer.size() > LOG_MAX_NUM) {
+                break;
+            }
             tmpBuffer.push(self->bufferQueue_.front());
             self->bufferQueue_.pop();
         }
