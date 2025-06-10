@@ -25,6 +25,7 @@ namespace WuKong {
 const uint32_t INVALIDVALUE = 0xFFFFFFFF;
 const uint32_t WAIT_TIME = 1000000;
 const uint32_t THREE_SECOND = 3000000;
+const uint32_t LOG_MAX_NUM = 500;
 #define COMPONENT_LEFT_SWAP 0X10000000
 
 #define PARAM_COUNT_TIME_ERROR "has set '-T', can not set '-T' and '-c' at the same time"
