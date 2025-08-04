@@ -21,11 +21,6 @@ config("wukong_common_config") {
 }
 
 accessibility_include_dirs = [
-  "//base/accessibility/interfaces",
-  "//foundation/bundlemanager/bundle_framework/common/log/include",
-  "//foundation/multimodalinput/input/interfaces",
-  "//base/hiviewdfx/hisysevent/interfaces",
-  "//utils/system/safwk/native/include",
   "include",
 ]
 
@@ -93,7 +88,7 @@ ohos_executable("wukong") {
 
   include_dirs += accessibility_include_dirs
 
-  deps = [ "//third_party/libpng:libpng" ]
+  deps = []
 
   external_deps = [
     "ability_base:want",
@@ -107,6 +102,7 @@ ohos_executable("wukong") {
     "accessibility:accessibleability",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
     "graphic_2d:librender_service_base",
     "hidumper:lib_dump_usage",
@@ -120,6 +116,7 @@ ohos_executable("wukong") {
     "samgr:samgr_proxy",
     "window_manager:libdm",
     "window_manager:libwm",
+    "libpng:libpng",
   ]
   install_enable = true
 
