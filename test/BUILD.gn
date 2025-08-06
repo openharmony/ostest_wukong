@@ -79,17 +79,9 @@ ohos_unittest("wukong_ut") {
     "../report/include",
     "../shell_command/include",
     "../test_flow/include",
-    "//third_party/googletest/googletest/include/gtest",
-    "//base/accessibility/interfaces",
-    "//foundation/bundlemanager/bundle_framework/common/log/include",
-    "//foundation/multimodalinput/input/interfaces",
-    "//base/hiviewdfx/hisysevent/interfaces",
-    "//utils/system/safwk/native/include",
     "include",
   ]
   deps = [
-    "//third_party/googletest:gtest",
-    "//third_party/libpng:libpng",
   ]
   external_deps = [
     "ability_base:want",
@@ -103,6 +95,7 @@ ohos_unittest("wukong_ut") {
     "accessibility:accessibleability",
     "bundle_framework:appexecfwk_base",
     "bundle_framework:appexecfwk_core",
+    "bundle_framework:libappexecfwk_common",
     "c_utils:utils",
     "graphic_2d:librender_service_base",
     "hidumper:lib_dump_usage",
@@ -115,6 +108,8 @@ ohos_unittest("wukong_ut") {
     "samgr:samgr_proxy",
     "window_manager:libdm",
     "window_manager:libwm",
+    "googletest:gtest",
+    "libpng:libpng",
   ]
   subsystem_name = "ostest"
   part_name = "wukong"
