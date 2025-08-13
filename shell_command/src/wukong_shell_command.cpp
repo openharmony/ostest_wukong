@@ -68,7 +68,6 @@ ErrCode WuKongShellCommand::CreateCommandMap()
         {"--version", [this] () { return WuKongShellCommand::GetWuKongVersion(); }},
         {"-v", [this] () { return WuKongShellCommand::GetWuKongVersion(); }},
         {"help", [this] () { return WuKongShellCommand::RunAsHelpCommand(); }},
-        {"stop", [this] () { return WuKongShellCommand::RunStopCommand(); }},
         {"exec", [this] () { return WuKongShellCommand::RunTestCommand(); }},
         {"special", [this] () { return WuKongShellCommand::RunTestCommand(); }},
         {"focus", [this] () { return WuKongShellCommand::RunTestCommand(); }},
