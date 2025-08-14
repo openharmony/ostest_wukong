@@ -139,7 +139,6 @@ int main(int argc, char* argv[])
     std::shared_ptr<WuKongLogger> WuKonglogger = WuKongLogger::GetInstance();
     // first start logger
     WuKonglogger->SetLevel(LOG_LEVEL_INFO);
-    bool isStop = false;
     for (int index = argc - 1; index >= 1; index--) {
         std::string arg = argv[index];
         if (arg == "--track") {
@@ -150,9 +149,6 @@ int main(int argc, char* argv[])
             argv[index][0] = '\0';
             WuKonglogger->SetLevel(LOG_LEVEL_DEBUG);
         }
-        if (arg == "stop") {
-            isStop = true;
-        }
     }
     if (!WuKonglogger->Start()) {
         return 1;
@@ -162,18 +158,14 @@ int main(int argc, char* argv[])
     NamedSemaphore semStop(SEMPHORE_STOP_NAME, 1);
     InitSemaphore(semStop, 1);
     WuKongShellCommand cmd(argc, argv);
-    if (isStop) {
-        std::cout << cmd.ExecCommand();
+    if (IsRunning(semRun)) {
+        ERROR_LOG("error: wukong has running, allow one program run.");
     } else {
-        if (IsRunning(semRun)) {
-            ERROR_LOG("error: wukong has running, allow one program run.");
-        } else {
-            semRun.Open();
-            semRun.Wait();
-            std::cout << cmd.ExecCommand();
-            semRun.Post();
-            semRun.Close();
-        }
+        semRun.Open();
+        semRun.Wait();
+        std::cout << cmd.ExecCommand();
+        semRun.Post();
+        semRun.Close();
     }
     FreeSingtion();
     WuKonglogger->Stop();
