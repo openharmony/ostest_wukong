@@ -76,14 +76,15 @@ HWTEST_F(WuKongTest, RandomTestCase, TestSize.Level0)
 
 /**
  * @tc.name: WuKongFuncTest1
- * @tc.desc: WuKongFuncTest1 for WuKongUtil::GetBundlePid()
+ * @tc.desc: Test wukong appinfo
  * @tc.type: FUNC
  */
 HWTEST_F(WuKongTest, WuKongFuncTest1, TestSize.Level1)
 {
-    std::shared_ptr<WuKongUtil> utilPtr = WuKongUtil::GetInstance();
-    std::string result = utilPtr->GetBundlePid();
-    std::cout << "Get Top Bundle Pid is " << result << std::endl;
+    std::string cmd = "wukong appinfo";
+    std::string result = "";
+    auto ret = ExecCmd(cmd, result);
+    EXPECT_EQ(ret, true);
     EXPECT_EQ(result.size() > 0, true);
 }
 
