@@ -95,6 +95,8 @@ SpecialTestFlow::~SpecialTestFlow()
 
 ErrCode SpecialTestFlow::EnvInit()
 {
+    //init report
+    Report::GetInstance();
     ErrCode result = OHOS::ERR_OK;
     const std::string paramError = "param is incorrect";
     if (g_commandSWAPENABLE == true) {
