@@ -20,6 +20,7 @@
 
 #include "report.h"
 #include "wukong_define.h"
+#include "wukong_util.h"
 #include "ability_manager_client.h"
 #include "component_manager.h"
 #include "accessibility_ui_test_ability.h"
@@ -53,9 +54,21 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -I, --screenshot           get screenshot(only in random input)\n"
     "   -B, --checkBWScreen        black and white screen detection\n"
     "   -U, --Uri                  set Uri pages\n"
-    "   -x, --Uri-type             set Uri-type \n";
+    "   -x, --Uri-type             set Uri-type \n"
+    "   -K, --knuckle              set percent of knuckle event \n"
+    "   -f, --finger               set percent of knuckle event using single or double fingers, eg: -f 1,0.5,2,0.5 \n"
+    "   -P, --pinch                set percent of pinch event \n"
+    "   -D, --direction            set percent of swipe event to each direction, eg: -D u,0.25,l,0.25,d,0.25,r,0.25 \n"
+    "   -o, --pause                pause swiping for a while \n"
+    "   -w, --crown                set percent of watch crown event \n"
+    "   -g, --gestures             set percent of watch gestures event \n"
+    "   -l, --idle                 set percent of watch idle event \n"
+    "   -j, --keypress             set percent of watch key press event \n"
+    "   -F, --float                set percent of float and split event \n"
+    "   -q, --collapse             set percent of collapse event for foldable products \n"
+    "   -W, --browser              set percent of browser operation event \n";
 
-const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIBi:k:p:s:t:T:H:m:S:C:r:Y:y:U:x:";
+const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIBoi:k:p:s:t:T:H:m:S:C:r:Y:y:U:x:K:P:f:D:w:g:l:j:F:q:W:";
 const struct option LONG_OPTIONS[] = {
     {"help", no_argument, nullptr, 'h'},             // help
     {"seed", required_argument, nullptr, 's'},       // test seed
@@ -81,6 +94,18 @@ const struct option LONG_OPTIONS[] = {
     {"checkBWScreen", no_argument, nullptr, 'B'},
     {"Uri", required_argument, nullptr, 'U'},
     {"Uri-type", required_argument, nullptr, 'x'},
+    {"knuckle", required_argument, nullptr, 'K'},
+    {"finger", required_argument, nullptr, 'f'},
+    {"pinch", required_argument, nullptr, 'P'},
+    {"direction", required_argument, nullptr, 'D'},
+    {"pause", no_argument, nullptr, 'o'},
+    {"crown", required_argument, nullptr, 'w'},
+    {"gestures", required_argument, nullptr, 'g'},
+    {"idle", required_argument, nullptr, 'l'},
+    {"keypress", required_argument, nullptr, 'j'},
+    {"float", required_argument, nullptr, 'F'},
+    {"collapse", required_argument, nullptr, 'q'},
+    {"browser", required_argument, nullptr, 'W'}
 };
 
 /**
@@ -94,7 +119,16 @@ const vector<int> DEFAULT_INPUT_PERCENT = {
     70,  // INPUTTYPE_ELEMENTINPUT,    input element event
     10,  // INPUTTYPE_APPSWITCHINPUT,  input appswitch event
     2,   // INPUTTYPE_HARDKEYINPUT,    input hardkey event
-    2    // INPUTTYPE_ROTATE,          input rotate event
+    2,   // INPUTTYPE_ROTATE,          input rotate event
+    0,   // knuckle
+    0,   // pinch
+    0,   // watch crown
+    0,   // watch gestures
+    0,   // watch idle
+    0,   // watch key press
+    0,   // float
+    0,   // collapse
+    0    // browser
 };
 
 const map<int, InputType> OPTION_INPUT_PERCENT = {
@@ -105,7 +139,16 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
     {'m', INPUTTYPE_MOUSEINPUT},      // input mouse event
     {'t', INPUTTYPE_TOUCHINPUT},      // input touch event
     {'H', INPUTTYPE_HARDKEYINPUT},    // input hardkey event
-    {'r', INPUTTYPE_ROTATEINPUT}      // input rotate event
+    {'r', INPUTTYPE_ROTATEINPUT},      // input rotate event
+    {'K', INPUTTYPE_KNUCKLEINPUT},
+    {'P', INPUTTYPE_PINCHINPUT},
+    {'w', INPUTTYPE_CROWNINPUT},
+    {'g', INPUTTYPE_GESTURESINPUT},
+    {'l', INPUTTYPE_IDLEINPUT},
+    {'j', INPUTTYPE_KEYPRESSINPUT},
+    {'F', INPUTTYPE_FLOATSPLITINPUT},
+    {'q', INPUTTYPE_COLLAPSEINPUT},
+    {'W', INPUTTYPE_BROWSERINPUT},
 };
 
 /**
@@ -130,9 +173,18 @@ bool g_commandSCREENSHOTENABLE = false;
 bool g_commandCHECKBWSCREEN = false;
 bool g_commandURIENABLE = false;
 bool g_commandURITYPEENABLE = false;
+bool g_commandKnuckleENABLE = false;
+bool g_commandSwapENABLE = false;
+bool g_commandPauseENABLE = false;
 
 // default false
 bool g_commandUITEST = false;
+
+// 需要带百分比参数的命令参数合集
+const std::string NEED_PERCENT_OPTIONS = "amkrtwgljCHKPSFqW";
+// 需要后面跟配置的命令参数合集
+const std::string NEED_ARG_OPTIONS = "abcdefgijklmprstwxyCDEHSTUYFqW";
+const std::string ONLY_WATCH_SUPPORT_ARGS = "wglj";
 }  // namespace
 using namespace std;
 
@@ -241,6 +293,15 @@ ErrCode RandomTestFlow::SetInputPercent(const int option)
     }
 
     inputType = it->second;
+
+    if (inputType == INPUTTYPE_KNUCKLEINPUT) {
+        g_commandKnuckleENABLE = true;
+    }
+
+    if (inputType == INPUTTYPE_SWAPINPUT) {
+        g_commandSwapENABLE = true;
+    }
+
     float percent = 0.0;
     try {
         percent = std::stof(optarg);
@@ -304,7 +365,7 @@ ErrCode RandomTestFlow::SetBlackWhiteSheet(const int option)
 ErrCode RandomTestFlow::SetRunningParam(const int option)
 {
     ErrCode result = OHOS::ERR_OK;
-    if (option == 'c' || option == 'T') {
+    if (option == 'c' || option == 'T' || option == 'f' || option == 'D') {
         result = CheckArgument(option);
     } else if (option == 'i') {
         std::regex pattern("[0-9]+");
@@ -334,6 +395,12 @@ ErrCode RandomTestFlow::SetRunningIndicator(const int option)
     } else if (option == 'B') {
         g_commandSCREENSHOTENABLE = true;
         g_commandCHECKBWSCREEN = true;
+    } else if (option == 'o') {
+        if (!g_commandSwapENABLE) {
+            ERROR_LOG("invalid param: when -o is configured, -S must be configured.");
+            return OHOS::ERR_INVALID_VALUE;
+        }
+        g_commandPauseENABLE = true;
     }
     return result;
 }
@@ -420,20 +487,36 @@ ErrCode RandomTestFlow::RunStep()
         inputFlag = CheckBlockAbility();
     }
     // input event, get event index form event list by random algorithm.
-    int eventindex = rand() % ONE_HUNDRED_PERCENT;
-    InputType eventTypeId = (InputType)(eventList_.at(eventindex));
+    InputType eventTypeId = (InputType)(eventList_.at(rand() % ONE_HUNDRED_PERCENT));
     inputaction = InputFactory::GetInputAction(eventTypeId);
     if (inputaction == nullptr) {
         ERROR_LOG("inputaction is nullptr");
         return OHOS::ERR_INVALID_VALUE;
     }
-    
+
+    setActionParam(inputaction);
     if (ProtectRightAbility(inputaction, eventTypeId) == OHOS::ERR_INVALID_VALUE) {
         return OHOS::ERR_INVALID_VALUE;
     }
     result = InputScene(inputaction, inputFlag);
     usleep(intervalArgs_ * oneSecond_);
     return result;
+}
+
+void RandomTestFlow::setActionParam(std::shared_ptr<InputAction> inputaction)
+{
+    inputaction->arg_interval = intervalArgs_;
+    if (fingerArgMap_.size() > 0) {
+        inputaction->fingersMap_ = fingerArgMap_;
+        inputaction->fingerVector_ = fingerVector_;
+        inputaction->enableFingerArg = true;
+    }
+
+    inputaction->enablePause = g_commandPauseENABLE;
+    if (directionMap_.size() > 0) {
+        inputaction->directionMap_ = directionMap_;
+        inputaction->directionVector_ = directionVector_;
+    }
 }
 
 ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputaction, InputType &eventTypeId)
@@ -486,9 +569,15 @@ ErrCode RandomTestFlow::ProtectRightAbility(std::shared_ptr<InputAction> &inputa
 
 ErrCode RandomTestFlow::HandleNormalOption(const int option)
 {
-    ErrCode result;
-    if (option == 't' || option == 'm' || option == 'S' || option == 'k' || option == 'a' ||
-        option == 'r' || option == 'C' || option == 'H') {
+    ErrCode result = OHOS::ERR_OK;
+    if (NEED_PERCENT_OPTIONS.find(option) != std::string::npos) {
+        if (ONLY_WATCH_SUPPORT_ARGS.find(option) != std::string::npos &&
+            WuKongUtil::GetInstance()->GetDeviceType() != "wearable") {
+            char c = static_cast<char>(option);
+            std::string str(1, c);
+            ERROR_LOG_STR("Setting %s is only supported by wearable devices.", str.c_str());
+            return OHOS::ERR_INVALID_VALUE;
+        }
         result = SetInputPercent(option);
     } else {
         result = SetBlackWhiteSheet(option);
@@ -526,6 +615,14 @@ ErrCode RandomTestFlow::CheckArgument(const int option)
             result = CheckArgumentOptionOfE();
             break;
         }
+        case 'f': {
+            result = CheckArgumentOptionOfF();
+            break;
+        }
+        case 'D': {
+            result = CheckArgumentOptionOfD();
+            break;
+        }
         default: {
             result = OHOS::ERR_INVALID_VALUE;
             break;
@@ -543,46 +640,21 @@ const struct option *RandomTestFlow::GetOptionArguments(std::string &shortOpts)
 ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
 {
     ErrCode result = OHOS::ERR_OK;
-    switch (optopt) {
-        case 'a':
-        case 'b':
-        case 'c':
-        case 'd':
-        case 'e':
-        case 'i':
-        case 's':
-        case 't':
-        case 'r':
-        case 'S':
-        case 'p':
-        case 'k':
-        case 'H':
-        case 'T':
-        case 'm':
-        case 'C':
-        case 'E':
-        case 'Y':
-        case 'y':
-        case 'U':
-        case 'x':
-            // error: option 'x' requires a value.
-            shellcommand_.ResultReceiverAppend("error: option '-");
-            shellcommand_.ResultReceiverAppend(string(1, optopt));
-            shellcommand_.ResultReceiverAppend("' requires a value.\n");
-            result = OHOS::ERR_INVALID_VALUE;
-            break;
-        case 'h': {
-            result = OHOS::ERR_INVALID_VALUE;
-            break;
-        }
-        default: {
-            // 'wukong exec' with an unknown option: wukong exec -x
-            shellcommand_.ResultReceiverAppend(
-                "'wukong exec' with an unknown option, please reference help information:\n");
-            result = OHOS::ERR_INVALID_VALUE;
-            break;
-        }
+    if (NEED_ARG_OPTIONS.find(optopt) != std::string::npos) {
+        // error: option 'x' requires a value.
+        shellcommand_.ResultReceiverAppend("error: option '-");
+        shellcommand_.ResultReceiverAppend(string(1, optopt));
+        shellcommand_.ResultReceiverAppend("' requires a value.\n");
+        result = OHOS::ERR_INVALID_VALUE;
+    } else if (optopt == 'h') {
+        result = OHOS::ERR_INVALID_VALUE;
+    } else {
+        // 'wukong exec' with an unknown option: wukong exec -x
+        shellcommand_.ResultReceiverAppend(
+            "'wukong exec' with an unknown option, please reference help information:\n");
+        result = OHOS::ERR_INVALID_VALUE;
     }
+
     shellcommand_.ResultReceiverAppend(RANDOM_TEST_HELP_MSG);
     return result;
 }
@@ -682,6 +754,48 @@ ErrCode RandomTestFlow::CheckArgumentOptionOfT()
         shellcommand_.ResultReceiverAppend(std::string(PARAM_TIME_COUNT_ERROR) + "\n");
         return OHOS::ERR_INVALID_VALUE;
     }
+}
+
+ErrCode RandomTestFlow::CheckArgumentOptionOfF()
+{
+    if (!g_commandKnuckleENABLE && !g_commandSwapENABLE) {
+        ERROR_LOG("invalid param: when -f is configured, -K or -S must be configured.");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    auto optargMap = WuKongUtil::GetInstance()->ConvertStringToMap<int>(optarg);
+    if (optargMap.size() == 0) {
+        ERROR_LOG("Convert param -f to map failed!");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    std::vector<int> fingerVector;
+    WuKongUtil::GetInstance()->ParseMapToVector(optargMap, fingerVector);
+    this->fingerArgMap_ = optargMap;
+    this->fingerVector_ = fingerVector;
+
+    return OHOS::ERR_OK;
+}
+
+ErrCode RandomTestFlow::CheckArgumentOptionOfD()
+{
+    if (!g_commandSwapENABLE) {
+        ERROR_LOG("invalid param: when -D is configured, -S must be configured.");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    auto directionMap = WuKongUtil::GetInstance()->ConvertStringToMap<char>(optarg);
+    if (directionMap.size() == 0) {
+        ERROR_LOG("Convert param -D to map failed!");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    std::vector<char> directionVector;
+    WuKongUtil::GetInstance()->ParseMapToVector(directionMap, directionVector);
+    this->directionMap_ = directionMap;
+    this->directionVector_ = directionVector;
+
+    return OHOS::ERR_OK;
 }
 
 bool RandomTestFlow::CheckBlockAbility()

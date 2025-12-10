@@ -32,6 +32,7 @@ public:
      */
     ErrCode RandomInput();
     InputType GetInputInfo();
+    ErrCode CombinationKeySimulate();
 private:
     std::shared_ptr<InputedMsgObject> inputedMsgObject_;
 };

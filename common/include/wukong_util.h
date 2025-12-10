@@ -21,14 +21,33 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <climits>
+#include <fstream>
+#include <iostream>
+#include <memory.h>
+#include <sstream>
+#include <sys/stat.h>
+#include <openssl/rand.h>
+#include <map>
+#include <algorithm>
+#include <stdexcept>
+#include <cmath>
+#include <sys/time.h>
+#include <random>
 
 #include "bundle_mgr_proxy.h"
 #include "errors.h"
 #include "semaphore_ex.h"
 #include "singleton.h"
+#include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
+enum SWIPE_DIRECTION { UP = 'u', DOWN = 'd', LEFT = 'l', RIGHT = 'r' };
+enum MOUSE_ACTION_ENUM { CLICK = 'c', DOUBLE_CLICK = 'b', DRAG = 'g', MOVE = 'm' };
+const int DIRECTION_LEN = 4;
+const uint32_t CHARGE_STRIDE = 11;
+const int STEP = 2;
 class WuKongUtil : public DelayedSingleton<WuKongUtil> {
 public:
     /**
@@ -324,6 +343,107 @@ public:
      */
     uint64_t GetBundlePssTotal();
 
+    std::string GetDeviceType();
+    std::string ExecuteCmd(std::string cmd);
+    unsigned int Generate(unsigned int upperBound);
+    int RangeGenerate(int lowerBound, int upperBound);
+    bool NextBool();
+    std::string GetPositionStr(int32_t x, int32_t y);
+    void SetSwipeEnablePause(bool enablePause);
+    bool GetSwipeEnablePause();
+    int64_t GetSysClockTime();
+    int64_t GetSysClockTimeMs();
+
+    template <typename K>
+    std::map<K, float> ConvertStringToMap(const std::string &input)
+    {
+        std::istringstream iss(input);
+        std::string token;
+        std::vector<std::string> tokens;
+        float sum = 0.0f;
+        std::map<K, float> optargMap;
+
+        // 按逗号分割字符串
+        while (std::getline(iss, token, ',')) {
+            tokens.push_back(token);
+        }
+
+        if (tokens.size() % 2 != 0) {
+            std::cout << "Invalid input string format." << std::endl;
+            return {};
+        }
+
+        // 配对键值
+        for (size_t i = 0; i < tokens.size(); i += STEP) {
+            if (i + 1 >= tokens.size()) {
+                return {};
+            }
+
+            try {
+                // 根据K的类型选择不同的转换方式
+                K key;
+                if constexpr (std::is_same_v<K, char>) {
+                    // 如果K是char类型，取字符串的第一个字符
+                    if (tokens[i].size() != 1) {
+                        std::cout << "Invalid char key format." << std::endl;
+                        return {};
+                    }
+                    key = tokens[i][0];
+                } else {
+                    // 如果K是int类型，将字符串转换为整数
+                    key = std::stoi(tokens[i]);
+                }
+                float value = std::stof(tokens[i + 1]);
+                optargMap[key] = value;
+                sum += value;
+            } catch (const std::invalid_argument &e) {
+                return {};
+            } catch (const std::out_of_range &e) {
+                return {};
+            }
+        }
+
+        // 检查百分比总和是否为1
+        if (!(std::abs(sum - 1.0f) < 1e-6f)) {
+            return {};
+        }
+
+        return optargMap;
+    }
+
+    template <typename K>
+    void ParseMapToVector(std::map<K, float> &srcMap, std::vector<K> &dstVector)
+    {
+        int totalPortions = 100;
+        dstVector.clear();
+        dstVector.resize(totalPortions);
+        int currentIndex = 0;
+        for (const auto &pair : srcMap) {
+            int portions = static_cast<int>(totalPortions * pair.second);
+            for (int i = 0; i < portions; ++i) {
+                dstVector[currentIndex++] = pair.first;
+            }
+        }
+    }
+
+    template <typename T, std::size_t COUNT>
+    T GetRandomEnumValue(const T (&enums)[COUNT])
+    {
+        // 创建随机数生成器
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(0, COUNT - 1);
+
+        return enums[dis(gen)];
+    }
+
+    std::string GetFoldScreenType();
+
+    bool StartWith(const std::string &str, const std::string &prefix)
+    {
+        return str.size() >= prefix.size() && str.substr(0, prefix.size()) == prefix;
+    }
+
     DECLARE_DELAYED_SINGLETON(WuKongUtil);
 
 private:
@@ -370,9 +490,12 @@ private:
 
     bool orderFlag_ = false;
     bool isFirstStartApp_ = true;
+    bool swipeEnablePause = false;
     std::vector<std::string> tempAllowList_;
     std::vector<std::string> compIdBlockList_ = {};
     std::vector<std::string> compTypeBlockList_ = {"Divider"};
+    std::string deviceType_ = "";
+    std::string foldScreenType = "";
 };
 
 class WukongSemaphore {
