@@ -368,7 +368,7 @@ public:
             tokens.push_back(token);
         }
 
-        if (tokens.size() % 2 != 0) {
+        if (tokens.size() % STEP != 0) {
             std::cout << "Invalid input string format." << std::endl;
             return {};
         }
@@ -381,24 +381,11 @@ public:
 
             try {
                 // 根据K的类型选择不同的转换方式
-                K key;
-                if constexpr (std::is_same_v<K, char>) {
-                    // 如果K是char类型，取字符串的第一个字符
-                    if (tokens[i].size() != 1) {
-                        std::cout << "Invalid char key format." << std::endl;
-                        return {};
-                    }
-                    key = tokens[i][0];
-                } else {
-                    // 如果K是int类型，将字符串转换为整数
-                    key = std::stoi(tokens[i]);
-                }
+                K key = ParseKey<K>(tokens[i]);
                 float value = std::stof(tokens[i + 1]);
                 optargMap[key] = value;
                 sum += value;
-            } catch (const std::invalid_argument &e) {
-                return {};
-            } catch (const std::out_of_range &e) {
+            } catch (const std::exception &e) {
                 return {};
             }
         }
@@ -409,6 +396,21 @@ public:
         }
 
         return optargMap;
+    }
+
+    template <typename K>
+    K ParseKey(const std::string &token)
+    {
+        if constexpr (std::is_same_v<K, char>) {
+            // 如果K是char类型，取字符串的第一个字符
+            if (token.size() != 1) {
+                throw std::invalid_argument("Invalid char key format.");
+            }
+            return token[0];
+        } else {
+            // 如果K是int类型，将字符串转换为整数
+            return std::stoi(token);
+        }
     }
 
     template <typename K>
