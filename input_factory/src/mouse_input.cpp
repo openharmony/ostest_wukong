@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <regex>
 
 #include "mouse_input.h"
 #include "multimode_manager.h"
@@ -21,10 +22,18 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-const int ONEHUNDRED = 100;
-const int MOUSE_RIGHT_PERCENT = 20;
-const int MOUSE_MID_PERCENT = 10;
+enum MOUSE_BUTTON_ID {
+    BUTTON_LEFT,
+    BUTTON_RIGHT,
+    BUTTON_MIDDLE,
+    BUTTON_SIDE,
+    BUTTON_EXTEND,
+    BUTTON_FORWARD,
+    BUTTON_BACK,
+    BUTTON_TASK
+};
 }  // namespace
+
 MouseInput::MouseInput() : InputAction()
 {
     std::shared_ptr<MultimodeInputMsg> multimodeInputMsg = std::make_shared<MultimodeInputMsg>();
@@ -33,45 +42,79 @@ MouseInput::MouseInput() : InputAction()
 }
 
 MouseInput::~MouseInput()
-{
-}
+{}
 
 ErrCode MouseInput::RandomInput()
 {
+    std::string deviceType = WuKongUtil::GetInstance()->GetDeviceType();
+    if (deviceType != "2in1" && deviceType != "PC") {
+        INFO_LOG("just PC support this action.");
+        return OHOS::ERR_OK;
+    }
+
     int32_t screenWidth = -1;
     int32_t screenHeight = -1;
-    int mouseType;
-    // get the size of screen
     ErrCode result = WuKongUtil::GetInstance()->GetScreenSize(screenWidth, screenHeight);
     if (result != OHOS::ERR_OK) {
         return result;
     }
-    // generate random point on the screen
-    int xClickPosition = rand() % screenWidth;
-    int yClickPosition = rand() % screenHeight;
-    // distrbute type accord to percentage
-    int randomInt = rand() % ONEHUNDRED;
-    if (randomInt < MOUSE_MID_PERCENT) {
-        mouseType = MMI::PointerEvent::MOUSE_BUTTON_MIDDLE;
-    } else if (randomInt < (MOUSE_RIGHT_PERCENT + MOUSE_MID_PERCENT)) {
-        mouseType = MMI::PointerEvent::MOUSE_BUTTON_RIGHT;
-    } else {
-        mouseType = MMI::PointerEvent::MOUSE_BUTTON_LEFT;
-    }
-    INFO_LOG_STR("Mouse: (%d, %d) Mouse Type: (%s)", xClickPosition, yClickPosition,
-                 MouseTypeToString(mouseType).c_str());
-    auto multiinput = MultimodeManager::GetInstance();
-    result =
-        multiinput->PointerInput(xClickPosition, yClickPosition, mouseType, MMI::PointerEvent::POINTER_ACTION_DOWN);
-    if (result != OHOS::ERR_OK) {
-        return result;
-    }
-    result = multiinput->PointerInput(xClickPosition, yClickPosition, mouseType, MMI::PointerEvent::POINTER_ACTION_UP);
-    if (result != OHOS::ERR_OK) {
-        return result;
-    }
+
+    result = MouseAction(screenWidth, screenHeight);
+
     Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     return result;
+}
+
+ErrCode MouseInput::MouseAction(int screenWidth, int screenHeight)
+{
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_int_distribution<int> width_dist(0, screenWidth - 1);
+    std::uniform_int_distribution<int> height_dist(0, screenHeight - 1);
+
+    int xClickPosition = width_dist(rng);
+    int yClickPosition = height_dist(rng);
+
+    // 随机鼠标按键
+    std::uniform_int_distribution<int> button_dist(BUTTON_LEFT, BUTTON_TASK);
+    MOUSE_BUTTON_ID selectedButton = static_cast<MOUSE_BUTTON_ID>(button_dist(rng));
+    int buttonId = static_cast<int>(selectedButton);
+
+    // 随机鼠标动作
+    MOUSE_ACTION_ENUM randomMouseAction =
+        WuKongUtil::GetInstance()->GetRandomEnumValue<MOUSE_ACTION_ENUM, DIRECTION_LEN>(
+            {CLICK, DOUBLE_CLICK, DRAG, MOVE});
+    char mouseAction = static_cast<char>(randomMouseAction);
+    if (MOUSE_ACTION_STR.find(mouseAction) == std::string::npos) {
+        ERROR_LOG("invalid mouse action.");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    // 随机选择方向
+    char direction = static_cast<char>(
+        WuKongUtil::GetInstance()->GetRandomEnumValue<SWIPE_DIRECTION, DIRECTION_LEN>({UP, DOWN, LEFT, RIGHT}));
+    if (DIRECTION.find(direction) == std::string::npos) {
+        ERROR_LOG("invalid direction.");
+        return OHOS::ERR_INVALID_VALUE;
+    }
+
+    // 随机滚轮方向
+    std::uniform_int_distribution<int> forwardOrBack_dist(1, ONE_HALF);
+    int forwardOrBack = forwardOrBack_dist(rng);
+    int number = forwardOrBack == 1 ? ONE_HALF : 0 - ONE_HALF;
+    int xDstPosition = (direction == 'u' || direction == 'd')
+                           ? xClickPosition
+                           : (direction == 'l' ? xClickPosition - ONE_HALF * DEFAULT_SWIPE_MOVE_LENGTH
+                                               : xClickPosition + ONE_HALF * DEFAULT_SWIPE_MOVE_LENGTH);
+    int yDstPosition = (direction == 'l' || direction == 'r')
+                           ? yClickPosition
+                           : (direction == 'u' ? yClickPosition - ONE_HALF * DEFAULT_SWIPE_MOVE_LENGTH
+                                               : yClickPosition + ONE_HALF * DEFAULT_SWIPE_MOVE_LENGTH);
+    std::string srcPosition = WuKongUtil::GetInstance()->GetPositionStr(xClickPosition, yClickPosition);
+    std::string dstPosition = WuKongUtil::GetInstance()->GetPositionStr(xDstPosition, yDstPosition);
+
+    return MultimodeManager::GetInstance()->MouseActionSimulate(
+        buttonId, mouseAction, srcPosition, dstPosition, number);
 }
 
 InputType MouseInput::GetInputInfo()
@@ -79,22 +122,5 @@ InputType MouseInput::GetInputInfo()
     return INPUTTYPE_MOUSEINPUT;
 }
 
-std::string MouseInput::MouseTypeToString(int mousetype)
-{
-    switch (mousetype) {
-        case MMI::PointerEvent::MOUSE_BUTTON_MIDDLE:
-            return "MOUSE_MIDDLE";
-            break;
-        case MMI::PointerEvent::MOUSE_BUTTON_RIGHT:
-            return "MOUSE_RIGHT";
-            break;
-        case MMI::PointerEvent::MOUSE_BUTTON_LEFT:
-            return "MOUSE_LEFT";
-            break;
-        default:
-            return "BUTTON_NONE";
-            break;
-    }
-}
 }  // namespace WuKong
 }  // namespace OHOS

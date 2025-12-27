@@ -32,14 +32,9 @@ public:
      */
     ErrCode RandomInput();
     InputType GetInputInfo();
+    ErrCode MouseAction(int screenWidth, int screenHeight);
 
 private:
-    /**
-     * @brief convert mouse button type to string
-     * @param mousetype mouse button type.
-     * @return Return the string of mouse type.
-     */
-    std::string MouseTypeToString(int mousetype);
     std::shared_ptr<InputedMsgObject> inputedMsgObject_;
 };
 }  // namespace WuKong

@@ -50,6 +50,8 @@ private:
     ErrCode CheckArgumentOptionOfE();
     ErrCode CheckArgumentOptionOfc();
     ErrCode CheckArgumentOptionOfT();
+    ErrCode CheckArgumentOptionOfF();
+    ErrCode CheckArgumentOptionOfD();
     /**
      * @brief check if the '-c' and 'T' is exist at the same time
      * @brief check if the '-e' and '-E' is legal
@@ -118,6 +120,8 @@ private:
 
     bool SetBlockPage(std::vector<std::string> systemPaths);
 
+    void setActionParam(std::shared_ptr<InputAction> inputaction);
+
     int countArgs_ = 10;
 
     // the interval time of test
@@ -136,6 +140,10 @@ private:
     uint32_t timerId_ = 0;
     std::vector<int> inputPercent_;
     std::vector<int> eventList_;
+    std::map<int, float> fingerArgMap_;
+    std::vector<int> fingerVector_;
+    std::map<char, float> directionMap_;
+    std::vector<char> directionVector_;
 };
 }  // namespace WuKong
 }  // namespace OHOS
