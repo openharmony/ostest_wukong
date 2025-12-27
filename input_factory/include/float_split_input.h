@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef TEST_WUKONG_SWAP_INPUT_H
-#define TEST_WUKONG_SWAP_INPUT_H
+#ifndef TEST_WUKONG_FLOAT_SPLIT_INPUT_H
+#define TEST_WUKONG_FLOAT_SPLIT_INPUT_H
 
 #include <string>
 
@@ -22,25 +22,20 @@
 #include "input_msg_object.h"
 namespace OHOS {
 namespace WuKong {
-class SwapInput : public InputAction {
+class FloatAndSplitInput : public InputAction {
 public:
-    SwapInput();
-    ~SwapInput();
-
-    ErrCode OrderInput(const std::shared_ptr<SpcialTestObject>& specialTestObject);
+    FloatAndSplitInput();
+    ~FloatAndSplitInput();
 
     /**
-     * @brief input a power event in random test.
+     * @brief input a touch event in random test.
      * @return Return ERR_OK on success， others on failure.
      */
     ErrCode RandomInput();
     InputType GetInputInfo();
-    ErrCode SingleFingerSwipe(int screenWidth, int screenHeight);
-    ErrCode SwipeAction(int fingerNumber, int screenWidth, int screenHeight, bool enablePause, char &direction);
-    
 private:
     std::shared_ptr<InputedMsgObject> inputedMsgObject_;
 };
 }  // namespace WuKong
 }  // namespace OHOS
-#endif  // TEST_WUKONG_SWAP_INPUT_H
+#endif  // TEST_WUKONG_FLOAT_SPLIT_INPUT_H

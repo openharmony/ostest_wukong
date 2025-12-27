@@ -20,11 +20,30 @@
 #include <string>
 
 #include "input_manager.h"
+#include "pointer_event.h"
 #include "singleton.h"
 #include "wukong_define.h"
 
 namespace OHOS {
 namespace WuKong {
+
+const int DEFAULT_DRAG_TOTAL_TIME_MS = 1000;
+const int DEFAULT_KNUCKLE_INTERVAL_TIME_MS = 200;
+static const int ONE_HALF = 2;
+const int DEFAULT_SWIPE_MOVE_LENGTH = 200;
+const int SWIPE_PAUSE_TIME = 20;
+const int PORT = 4607;
+
+const std::string THREE_FOLDED = "hidumper -s " + std::to_string(PORT) + " -a -secondary,f";
+const std::string THREE_HALF_FOLDED = "hidumper -s " + std::to_string(PORT) + " -a -secondary,m";
+const std::string THREE_EXPANDED = "hidumper -s " + std::to_string(PORT) + " -a -secondary,g";
+const std::string DOUBLE_FOLDED = "hidumper -s " + std::to_string(PORT) + " -a -supertrans,3";
+const std::string DOUBLE_HALF_FOLDED = "hidumper -s " + std::to_string(PORT) + " -a -supertrans,2";
+const std::string DOUBLE_EXPANDED = "hidumper -s " + std::to_string(PORT) + " -a -supertrans,1";
+const std::string COMMON_FOLDED = "hidumper -s " + std::to_string(PORT) + " -a -p";
+const std::string COMMON_HALF_FOLDED = "hidumper -s " + std::to_string(PORT) + " -a -z";
+const std::string COMMON_EXPANDED = "hidumper -s " + std::to_string(PORT) + " -a -y";
+
 class MultimodeManager : public DelayedSingleton<MultimodeManager> {
 public:
     MultimodeManager();
@@ -70,10 +89,35 @@ public:
      * @return Return ERR_OK on success， others on failure.
      */
     ErrCode IntervalSwap(int xSrcPosition, int ySrcPosition, int xDstPosition, int yDstPosition);
+    ErrCode KnuckleSimulate(int xPosition, int yPosition, int interval = DEFAULT_KNUCKLE_INTERVAL_TIME_MS);
+    ErrCode DoubleKnuckleSimulate(int px1, int py1, int px2, int py2, int interval = DEFAULT_KNUCKLE_INTERVAL_TIME_MS);
+    ErrCode PinchSimulate(
+        std::string position1, std::string position2, bool isIntoCenter, int totalTimeMs = DEFAULT_DRAG_TOTAL_TIME_MS);
+    ErrCode SwipeForFingersSimulate(int srcPx, int srcPy, int fingerNum, bool enablePause, char &direction);
+    ErrCode TouchPadSwipeActionEvent(int startX, int startY, int endX, int endY, int fingerCount);
+    std::shared_ptr<MMI::PointerEvent> CreateEvent(int id, int type, int pointerId, int sourceType, int fingerCount);
+    ErrCode MouseActionSimulate(
+        int buttonId, char mouseAction, std::string position1, std::string position2, int number);
+    ErrCode WatchSwipeSimulate(
+        std::string position1, std::string position2, int timeMs = DEFAULT_KNUCKLE_INTERVAL_TIME_MS);
+    ErrCode DoublePowerKeySimulate();
+    ErrCode PowerKeySimulate();
+    ErrCode LongPressKeySimulate(int keyCode, int pressTime);
+    ErrCode WatchCrownRotateSimulate(int x, int y, int rotateCount);
+    ErrCode LongTouchSimulate(int x, int y, int totalTimeMs = DEFAULT_DRAG_TOTAL_TIME_MS);
+    ErrCode TouchSimulate(int x, int y, int totalTimeMs = SWIPE_PAUSE_TIME * ONE_HALF);
+    ErrCode PowerSuspendSimulate();
+    ErrCode PowerWakeupSimulate();
+    ErrCode FloatOrSplitSimulate(std::string srcPosition, std::string dstPosition, int keepTime);
+    ErrCode TouchMoveSimulate(std::string srcPosition, std::string dstPosition, int keepTime = 0,
+        int smoothTime = DEFAULT_DRAG_TOTAL_TIME_MS);
+    ErrCode KeyCombinationSimulate(std::vector<int> keyCodes);
+    ErrCode CollapseSimulate(std::string &currentStatus, std::string &dstStatus, std::string &foldScreenType);
 
 private:
     // keycodelist
     std::vector<int> keycodelist_;
+    int uitestSocketFd = -1;
 };
 }  // namespace WuKong
 }  // namespace OHOS

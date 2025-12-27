@@ -18,6 +18,7 @@
 
 #include <string>
 #include <unistd.h>
+#include <map>
 
 #include "app_manager.h"
 #include "input_manager.h"
@@ -35,17 +36,46 @@ enum InputType {
     INPUTTYPE_ELEMENTINPUT,    // input element event
     INPUTTYPE_APPSWITCHINPUT,  // input appswitch event
     INPUTTYPE_HARDKEYINPUT,    // input power event
-    INPUTTYPE_ROTATEINPUT,    // input rotate event
-    INPUTTYPE_INVALIDINPUT,    // input invaild event
-    INPUTTYPE_RECORDINPUT,     // input record event
-    INPUTTYPE_REPPLAYINPUT    // input replay event
+    INPUTTYPE_ROTATEINPUT,     // input rotate event
+    INPUTTYPE_KNUCKLEINPUT,
+    INPUTTYPE_PINCHINPUT,
+    INPUTTYPE_CROWNINPUT,
+    INPUTTYPE_IDLEINPUT,
+    INPUTTYPE_GESTURESINPUT,
+    INPUTTYPE_KEYPRESSINPUT,
+    INPUTTYPE_FLOATSPLITINPUT,
+    INPUTTYPE_COLLAPSEINPUT,
+    INPUTTYPE_BROWSERINPUT,
+    INPUTTYPE_INVALIDINPUT,  // input invaild event
+    INPUTTYPE_RECORDINPUT,   // input record event
+    INPUTTYPE_REPPLAYINPUT   // input replay event
 };
+
+enum FingerNumber { F_ONE = 1, F_TWO, F_THREE, F_FOUR };
+const std::string DIRECTION = "udlr";
+const std::string MOUSE_ACTION_STR = "bcgm";
+const int PERCENT_ONE_HUNDRED = 100;
+enum CollapseStatus { C_EXPANDED = 1, C_HALF_FOLDED, C_FOLDED, C_UNKNOWN };
+// 创建一个映射，将枚举值映射到字符串
+const std::map<int, std::string> StatusToDesc = {
+    {CollapseStatus::C_EXPANDED, "EXPANDED"},
+    {CollapseStatus::C_HALF_FOLDED, "HALF_FOLD"},
+    {CollapseStatus::C_FOLDED, "FOLD"},
+    {CollapseStatus::C_UNKNOWN, "UNKNOWN"}};
 
 /**
  * @brief Input base class, provide the "Random, Next, Report" function for input action.
  */
 class InputAction {
 public:
+    int arg_interval;
+    bool enableFingerArg = false;
+    std::map<int, float> fingersMap_;
+    std::vector<int> fingerVector_;
+    bool enablePause = false;
+    std::map<char, float> directionMap_;
+    std::vector<char> directionVector_;
+
     InputAction()
     {
     }

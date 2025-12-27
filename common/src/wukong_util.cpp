@@ -22,7 +22,17 @@
 #include <memory.h>
 #include <sstream>
 #include <sys/stat.h>
+#include <openssl/rand.h>
+#include <string>
+#include <map>
+#include <algorithm>
+#include <vector>
+#include <stdexcept>
+#include <cmath>
+#include <sys/time.h>
+#include <regex>
 
+#include "parameters.h"
 #include "ability_manager_client.h"
 #include "display_manager.h"
 #include "if_system_ability_manager.h"
@@ -47,6 +57,8 @@ const uint32_t CHARGE_STRIDE = 11;
 const uint32_t BLANK_THR = 30;
 const uint32_t WHITE_THR = 225;
 int g_bwCount = 0;
+constexpr int32_t TIME_CONVERSION_UNIT { 1000 };
+
 bool g_isBwScreen(std::shared_ptr<Media::PixelMap> pixelMap)
 {
     auto width = static_cast<uint32_t>(pixelMap->GetWidth());
@@ -792,6 +804,109 @@ uint64_t WuKongUtil::GetBundlePssTotal()
         return pss;
     }
     return 0;
+}
+
+std::string WuKongUtil::GetDeviceType()
+{
+    if (this->deviceType_ != "") {
+        return this->deviceType_;
+    }
+    std::string cmd = "param get const.product.devicetype";
+    std::string deviceType = ExecuteCmd(cmd);
+    deviceType = std::regex_replace(deviceType, std::regex("\\s+"), "");
+    return deviceType;
+}
+
+std::string WuKongUtil::ExecuteCmd(std::string cmd)
+{
+    FILE *fp = nullptr;
+    fp = popen(cmd.c_str(), "r");
+    TRACK_LOG_STR("Run %s", cmd.c_str());
+    if (fp == nullptr) {
+        ERROR_LOG("popen function failed.");
+        return "";
+    }
+
+    const int bufferSize = 32;
+    char result[bufferSize] = {0};
+    if (fgets(result, bufferSize - 1, fp) != nullptr) {
+        std::string cmdResult(result);
+        cmdResult = OHOS::ReplaceStr(result, "\n", " ");
+        pclose(fp);
+        return cmdResult;
+    }
+
+    pclose(fp);
+    return "";
+}
+
+unsigned int WuKongUtil::Generate(unsigned int upperBound)
+{
+    if (upperBound == 0) {
+        return 0;
+    }
+    unsigned int randomNum = 0;
+    unsigned char result[sizeof(unsigned int)];
+    RAND_priv_bytes(result, sizeof(result));
+    if (memcpy_s(&randomNum, sizeof(randomNum), result, sizeof(randomNum)) != EOK) {
+        ERROR_LOG("memcpy_s error when generate upper bound.");
+    }
+
+    return randomNum % upperBound;
+}
+
+int WuKongUtil::RangeGenerate(int lowerBound, int upperBound)
+{
+    unsigned int range = std::abs(static_cast<long>(lowerBound) - static_cast<long>(upperBound));
+    auto randomIndex = Generate(range);
+    return std::min(lowerBound, upperBound) + randomIndex;
+}
+
+bool WuKongUtil::NextBool()
+{
+    const static unsigned int PRECISION = 2;
+    auto randomIndex = Generate(PRECISION);
+    return randomIndex == 1;
+}
+
+std::string WuKongUtil::GetPositionStr(int32_t x, int32_t y)
+{
+    return std::to_string(x) + " " + std::to_string(y);
+}
+
+void WuKongUtil::SetSwipeEnablePause(bool enablePause)
+{
+    swipeEnablePause = enablePause;
+}
+
+bool WuKongUtil::GetSwipeEnablePause()
+{
+    return swipeEnablePause;
+}
+
+int64_t WuKongUtil::GetSysClockTime()
+{
+    struct timespec ts = { 0, 0 };
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
+        ERROR_LOG("clock_gettime failed.");
+        return 0;
+    }
+    return (ts.tv_sec * TIME_CONVERSION_UNIT * TIME_CONVERSION_UNIT) + (ts.tv_nsec / TIME_CONVERSION_UNIT);
+}
+
+int64_t WuKongUtil::GetSysClockTimeMs()
+{
+    return GetSysClockTime() / TIME_CONVERSION_UNIT;
+}
+
+std::string WuKongUtil::GetFoldScreenType()
+{
+    if (this->foldScreenType != "") {
+        return foldScreenType;
+    }
+
+    foldScreenType = system::GetParameter("const.window.foldscreen.type", "0,0,0,0");
+    return foldScreenType;
 }
 
 }  // namespace WuKong

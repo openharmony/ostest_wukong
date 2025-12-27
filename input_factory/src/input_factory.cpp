@@ -24,58 +24,54 @@
 #include "touch_input.h"
 #include "record_input.h"
 #include "rotate_input.h"
+#include "knuckle_input.h"
+#include "pinch_input.h"
+#include "watch_crown_input.h"
+#include "watch_gestures_input.h"
+#include "watch_idle_input.h"
+#include "watch_keypress_input.h"
+#include "float_split_input.h"
+#include "collapse_input.h"
+#include "browser_input.h"
 
 namespace OHOS {
 namespace WuKong {
+
+template <typename T>
+std::shared_ptr<InputAction> CreateInputAction()
+{
+    return std::make_shared<T>();
+}
+
 std::shared_ptr<InputAction> InputFactory::GetInputAction(InputType type)
 {
-    std::shared_ptr<InputAction> input_action = nullptr;
-    switch (type) {
-        case INPUTTYPE_TOUCHINPUT: {
-            input_action = std::make_shared<TouchInput>();
-            break;
-        }
-        case INPUTTYPE_SWAPINPUT: {
-            input_action = std::make_shared<SwapInput>();
-            break;
-        }
-        case INPUTTYPE_MOUSEINPUT: {
-            input_action = std::make_shared<MouseInput>();
-            break;
-        }
-        case INPUTTYPE_KEYBOARDINPUT: {
-            input_action = std::make_shared<KeyboardInput>();
-            break;
-        }
-        case INPUTTYPE_APPSWITCHINPUT: {
-            input_action = std::make_shared<AppswitchInput>();
-            break;
-        }
-        case INPUTTYPE_ELEMENTINPUT: {
-            input_action = std::make_shared<ComponentInput>();
-            break;
-        }
-        case INPUTTYPE_HARDKEYINPUT: {
-            input_action = std::make_shared<HardkeyInput>();
-            break;
-        }
-        case INPUTTYPE_RECORDINPUT: {
-            input_action = std::make_shared<RecordInput>();
-            break;
-        }
-        case INPUTTYPE_REPPLAYINPUT: {
-            input_action = std::make_shared<RecordInput>();
-            break;
-        }
-        case INPUTTYPE_ROTATEINPUT: {
-            input_action = std::make_shared<RotateInput>();
-            break;
-        }
-        default: {
-            break;
-        }
+    static const std::unordered_map<InputType, std::function<std::shared_ptr<InputAction>()>> inputActionMap = {
+        {INPUTTYPE_TOUCHINPUT, CreateInputAction<TouchInput>},
+        {INPUTTYPE_SWAPINPUT, CreateInputAction<SwapInput>},
+        {INPUTTYPE_MOUSEINPUT, CreateInputAction<MouseInput>},
+        {INPUTTYPE_KEYBOARDINPUT, CreateInputAction<KeyboardInput>},
+        {INPUTTYPE_APPSWITCHINPUT, CreateInputAction<AppswitchInput>},
+        {INPUTTYPE_ELEMENTINPUT, CreateInputAction<ComponentInput>},
+        {INPUTTYPE_HARDKEYINPUT, CreateInputAction<HardkeyInput>},
+        {INPUTTYPE_RECORDINPUT, CreateInputAction<RecordInput>},
+        {INPUTTYPE_REPPLAYINPUT, CreateInputAction<RecordInput>},
+        {INPUTTYPE_ROTATEINPUT, CreateInputAction<RotateInput>},
+        {INPUTTYPE_KNUCKLEINPUT, CreateInputAction<KnuckleInput>},
+        {INPUTTYPE_PINCHINPUT, CreateInputAction<PinchInput>},
+        {INPUTTYPE_CROWNINPUT, CreateInputAction<WatchCrownInput>},
+        {INPUTTYPE_IDLEINPUT, CreateInputAction<WatchIdleInput>},
+        {INPUTTYPE_GESTURESINPUT, CreateInputAction<WatchGesturesInput>},
+        {INPUTTYPE_KEYPRESSINPUT, CreateInputAction<WatchKeyPressInput>},
+        {INPUTTYPE_FLOATSPLITINPUT, CreateInputAction<FloatAndSplitInput>},
+        {INPUTTYPE_COLLAPSEINPUT, CreateInputAction<CollapseInput>},
+        {INPUTTYPE_BROWSERINPUT, CreateInputAction<BrowserInput>}};
+
+    auto it = inputActionMap.find(type);
+    if (it != inputActionMap.end()) {
+        return it->second();
     }
-    return input_action;
+
+    return nullptr;
 }
 }  // namespace WuKong
 }  // namespace OHOS
