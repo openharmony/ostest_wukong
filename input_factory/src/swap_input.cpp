@@ -117,6 +117,7 @@ ErrCode SwapInput::SwipeAction(int fingerNumber, int screenWidth, int screenHeig
             break;
         default:
             ERROR_LOG_STR("current support finger range: [1-4], invalid finger: %d", fingerNumber);
+            result = OHOS::ERR_INVALID_VALUE;
             break;
     }
 
