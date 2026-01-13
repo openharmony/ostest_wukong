@@ -296,7 +296,7 @@ ErrCode MultimodeManager::TouchPadSwipeActionEvent(int startX, int startY, int e
         std::this_thread::sleep_for(std::chrono::microseconds(SWIPE_PAUSE_TIME));
         // 三指支持停顿，在结束之前，多停留一会
         if (fingerCount == OHOS::WuKong::FingerNumber::F_THREE && WuKongUtil::GetInstance()->GetSwipeEnablePause()) {
-            std::this_thread::sleep_for(std::chrono::microseconds(SLEEP_TIME * DEFAULT_PRESSURE));
+            std::this_thread::sleep_for(std::chrono::microseconds(DEFAULT_DRAG_TOTAL_TIME_MS));
         }
 
         MMI::InputManager::GetInstance()->SimulateInputEvent(pointerEvent);

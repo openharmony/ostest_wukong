@@ -27,8 +27,8 @@ group("unittest") {
 }
 
 ohos_unittest("wukong_ut") {
-  configs = [ ":module_private_config" ]
   module_out_path = "wukong/wukong"
+  configs = [ ":module_private_config" ]
   sources = [
     "../common/src/app_manager.cpp",
     "../common/src/component_manager.cpp",

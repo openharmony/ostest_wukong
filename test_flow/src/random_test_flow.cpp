@@ -56,16 +56,15 @@ const std::string RANDOM_TEST_HELP_MSG =
     "   -U, --Uri                  set Uri pages\n"
     "   -x, --Uri-type             set Uri-type \n"
     "   -K, --knuckle              set percent of knuckle event \n"
-    "   -f, --finger               set percent of knuckle event using single or double fingers, eg: -f 1,0.5,2,0.5 \n"
+    "   -f, --finger               set the number of fingers and proportions for swipe and knuckle gesture \n"
     "   -P, --pinch                set percent of pinch event \n"
-    "   -D, --direction            set percent of swipe event to each direction, eg: -D u,0.25,l,0.25,d,0.25,r,0.25 \n"
-    "   -o, --pause                pause swiping for a while \n"
+    "   -D, --direction            set the swipe directions and proportions \n"
+    "   -o, --pause                pause swiping for 1 second \n"
     "   -w, --crown                set percent of watch crown event \n"
     "   -g, --gestures             set percent of watch gestures event \n"
     "   -l, --idle                 set percent of watch idle event \n"
     "   -j, --keypress             set percent of watch key press event \n"
     "   -F, --float                set percent of float and split event \n"
-    "   -q, --collapse             set percent of collapse event for foldable products \n"
     "   -W, --browser              set percent of browser operation event \n";
 
 const std::string SHORT_OPTIONS = "a:b:c:d:e:E:hIBoi:k:p:s:t:T:H:m:S:C:r:Y:y:U:x:K:P:f:D:w:g:l:j:F:q:W:";
