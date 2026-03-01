@@ -113,8 +113,21 @@ Specific test example parsing：
 | -H,--hardkey    | Set the random hardkey test scale. | No | The default 2%. |
 | -r,--rotate     | Set the random rotate test scale.  | No | The default 2%. |
 | -C, --component | Set the Random Control Test Scale. | No | The default 70%. |
-| -I, --screenshot  | Screenshot of control testing. | No | -|
+| -I, --screenshot| Screenshot of control testing. | No | -|
 | -T,--time       | Set the total test time, conflicts with -c. | No | Unit minutes, the default is 10 minutes. |
+| -U, -uri        | Sets the URI of the page where an app is launched. | No | - |
+| -x, -uriType    | Sets the URI type of the page where an app is launched. | No | - |
+| -K, -knuckle    | Set the knuckle knock test ratio. | No | Default is 0. |
+| -f, -finger     | Set the number of fingers for tests such as swipe and knuckle knock. | No | Supports configuring 1-4 fingers, format: -f 1,0.5,2,0.5 |
+| -P, -pinch      | Set the pinch test ratio. | No | Default is 0. |
+| -D, -direction  | Set the swipe direction. | No | Supports configuring four methods: up (u), down (d), left (l), right (r), format: -D u,0.25,d,0.25,l,0.25,r,0.25 |
+| -o, -pause      | Set whether pausing is supported during the swipe process. | No | - |
+| -w, -crown      | Set the watch crown operation test ratio. | No | Only supported on watches, default is 0. |
+| -g, -gestures   | Set the gesture operation test ratio. | No | Only supported on watches, default is 0. |
+| -l, -idle       | Set the idle operation test ratio. | No | Only supported on watches, default is 0. |
+| -j, -keypress   | Set the key press operation test ratio. | No | Only supported on watches, default is 0. |
+| -F, -float      | Set the split-screen and floating window test ratio for apps. | No | Default is 0. |
+| -W, -browser    | Set the browser operation test ratio. | No | Default is 0. |
 
 > Instructions: Configuring the same random seed results in the same sequence of random events
 

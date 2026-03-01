@@ -14,6 +14,8 @@ import("//build/test.gni")
 
 config("module_private_config") {
   visibility = [ ":*" ]
+  cflags = [ "-D__OHOS__" ]
+  cflags_cc = [ "-fexceptions" ]
 }
 
 group("unittest") {
@@ -26,6 +28,7 @@ group("unittest") {
 
 ohos_unittest("wukong_ut") {
   module_out_path = "wukong/wukong"
+  configs = [ ":module_private_config" ]
   sources = [
     "../common/src/app_manager.cpp",
     "../common/src/component_manager.cpp",
