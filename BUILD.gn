@@ -16,7 +16,7 @@ import("//build/ohos.gni")
 ability_runtime_root = "//foundation/ability/ability_runtime"
 
 config("wukong_common_config") {
-  cflags = [ "-D__OHOS__" ]
+  cflags = [ "-D__OHOS__", "-Os", "-fno-rtti", "-fdata-sections", "-ffunction-sections", "-flto" ]   
   cflags_cc = [ "-fexceptions" ]
 }
 
