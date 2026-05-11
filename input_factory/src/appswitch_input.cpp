@@ -57,6 +57,7 @@ ErrCode AppswitchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& spec
     ErrCode result = AppManager::GetInstance()->StartAbilityByBundleInfo(abilityList[index], bundleList[index]);
     // print the result of start event
     PrintResultOfStartAbility(result, index);
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     usleep(WAIT_TIME);
     return result;
 }

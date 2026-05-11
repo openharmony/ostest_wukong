@@ -48,6 +48,7 @@ ErrCode TouchInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specialT
     }
     result = multiinput->PointerInput(touchX, touchY, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
                                       MMI::PointerEvent::POINTER_ACTION_UP);
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     INFO_LOG_STR("Touch: (%d, %d)", touchX, touchY);
     return result;
 }

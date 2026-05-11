@@ -57,6 +57,7 @@ ErrCode SwapInput::OrderInput(const std::shared_ptr<SpcialTestObject> &specialTe
         yDstPosition = swapPtr->startY_;
     }
     result = MultimodeManager::GetInstance()->IntervalSwap(xSrcPosition, ySrcPosition, xDstPosition, yDstPosition);
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     return result;
 }
 
