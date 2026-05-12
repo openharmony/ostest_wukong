@@ -60,31 +60,24 @@ public:
         DEBUG_LOG_STR("inputType{%d}", inputType_);
         switch (inputType_) {
             case INPUTTYPE_TOUCHINPUT:
-                /* code */
                 inputString = "touch";
                 break;
             case INPUTTYPE_SWAPINPUT:
-                /* code */
                 inputString = "swap";
                 break;
             case INPUTTYPE_MOUSEINPUT:
-                /* code */
                 inputString = "mouse";
                 break;
             case INPUTTYPE_KEYBOARDINPUT:
-                /* code */
                 inputString = "keyboard";
                 break;
             case INPUTTYPE_APPSWITCHINPUT:
-                /* code */
                 inputString = "appswitch";
                 break;
             case INPUTTYPE_HARDKEYINPUT:
-                /* code */
                 inputString = "hardkey";
                 break;
             case INPUTTYPE_ROTATEINPUT:
-                /* code */
                 inputString = "rotate";
                 break;
             default:

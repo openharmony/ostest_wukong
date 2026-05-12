@@ -155,11 +155,6 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
  */
 std::vector<std::string> systemPaths;
 
-const int ONE_HUNDRED_PERCENT = 100;
-// one minute (ms)
-const int ONE_MINUTE = 60000;
-// rotate
-const int ROTATE = 114;
 bool g_commandSEEDENABLE = false;
 bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;

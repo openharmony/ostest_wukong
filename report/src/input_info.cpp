@@ -23,32 +23,52 @@ std::string InputInfo::InputTypeToString()
     std::string inputString = "";
     switch (inputType_) {
         case INPUTTYPE_TOUCHINPUT:
-            /* code */
             inputString = "touch";
             break;
         case INPUTTYPE_SWAPINPUT:
-            /* code */
             inputString = "swap";
             break;
         case INPUTTYPE_MOUSEINPUT:
-            /* code */
             inputString = "mouse";
             break;
         case INPUTTYPE_KEYBOARDINPUT:
-            /* code */
             inputString = "keyboard";
             break;
         case INPUTTYPE_APPSWITCHINPUT:
-            /* code */
             inputString = "appswitch";
             break;
         case INPUTTYPE_HARDKEYINPUT:
-            /* code */
             inputString = "hardkey";
             break;
         case INPUTTYPE_ROTATEINPUT:
-            /* code */
             inputString = "rotate";
+            break;
+        case INPUTTYPE_KNUCKLEINPUT:
+            inputString = "knuckle";
+            break;
+        case INPUTTYPE_PINCHINPUT:
+            inputString = "pinch";
+            break;
+        case INPUTTYPE_CROWNINPUT:
+            inputString = "watch_crown";
+            break;
+        case INPUTTYPE_IDLEINPUT:
+            inputString = "watch_idle";
+            break;
+        case INPUTTYPE_GESTURESINPUT:
+            inputString = "watch_gestures";
+            break;
+        case INPUTTYPE_KEYPRESSINPUT:
+            inputString = "watch_keypress";
+            break;
+        case INPUTTYPE_FLOATSPLITINPUT:
+            inputString = "floatOrsplit";
+            break;
+        case INPUTTYPE_COLLAPSEINPUT:
+            inputString = "collapse";
+            break;
+        case INPUTTYPE_BROWSERINPUT:
+            inputString = "browser";
             break;
         default:
             break;

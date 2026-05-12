@@ -24,7 +24,6 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-const int TWOSECONDS = 2000000;
 const int MAXRECURSION = 5000;
 class ComponentManagerMonitor : public ComponentManagerListener {
     void OnStatusUpdated(ComponentStatus status) override

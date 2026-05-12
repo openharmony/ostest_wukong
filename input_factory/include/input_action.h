@@ -54,7 +54,6 @@ enum InputType {
 enum FingerNumber { F_ONE = 1, F_TWO, F_THREE, F_FOUR };
 const std::string DIRECTION = "udlr";
 const std::string MOUSE_ACTION_STR = "bcgm";
-const int PERCENT_ONE_HUNDRED = 100;
 enum CollapseStatus { C_EXPANDED = 1, C_HALF_FOLDED, C_FOLDED, C_UNKNOWN };
 // 创建一个映射，将枚举值映射到字符串
 const std::map<int, std::string> StatusToDesc = {

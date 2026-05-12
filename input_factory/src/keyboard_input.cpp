@@ -25,7 +25,6 @@ namespace OHOS {
 namespace WuKong {
 namespace {
 const int SINGLE_CODE_PER = 30;
-const int ONE_HUNDRED_PERCENT = 100;
 const int DOWN_TIME = 100;
 
 struct KeyCombination {

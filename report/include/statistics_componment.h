@@ -20,6 +20,7 @@
 
 #include "statistics.h"
 #include "wukong_define.h"
+#include "wukong_util.h"
 
 namespace OHOS {
 namespace WuKong {

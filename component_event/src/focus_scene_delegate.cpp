@@ -21,10 +21,6 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-const float SAMEPERCENT = 0.8;
-const int ONELAYER = 1;
-const int ZEROLAYER = 0;
-const float MINCOVERAGE = 0.9;
 uint8_t LISTITEM_COUNT = 0;
 uint8_t GRID_COUNT = 0;
 uint8_t NUMBER_ZERO = 0;

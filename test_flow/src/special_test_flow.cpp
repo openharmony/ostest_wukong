@@ -62,7 +62,6 @@ const struct option LONG_OPTIONS[] = {
     {"replay", required_argument, nullptr, 'R'},     // replay user operation
     {"uitest", no_argument, nullptr, 'u'}            // uitest dumpLayout
 };
-const int ONE_MINUTE = 60000;
 bool g_commandSWAPENABLE = false;
 bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
@@ -76,7 +75,6 @@ bool g_commandRECORDABLE = false;
 bool g_commandREPLAYABLE = false;
 bool g_commandUITEST = false;
 
-const int NUMBER_TWO = 2;
 }  // namespace
 using namespace std;
 

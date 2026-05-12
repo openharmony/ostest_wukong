@@ -78,7 +78,7 @@ ErrCode SwapInput::RandomInput()
         // 带-f,-D,-o参数的，根据配置的比例，随便选取滑动指数和方向、是否停顿
         INFO_LOG("SwapInput::RandomInput(), start with param -f.");
         srand(time(0));
-        int index = rand() % PERCENT_ONE_HUNDRED + 1;
+        int index = rand() % ONE_HUNDRED_PERCENT + 1;
         int finger = fingerVector_[index];
         // 如果没有指定方向，则从4个方向里随机取一个
         SWIPE_DIRECTION randomDirection =

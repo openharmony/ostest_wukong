@@ -139,7 +139,7 @@ void Report::EnvInit()
     }
     while (dirp != nullptr) {
         struct dirent *dp;
-        if ((dp = readdir(dirp)) == NULL) {
+        if ((dp = readdir(dirp)) == nullptr) {
             break;
         }       
         std::string currentStringName(dp->d_name);
@@ -476,7 +476,7 @@ void Report::HilogFileRecord()
         ERROR_LOG_STR("dir{%s} opendir error", hilogDirs_.c_str());
         return;
     }
-    while ((dp = readdir(dirpHilog)) != NULL) {
+    while ((dp = readdir(dirpHilog)) != nullptr) {
         std::string targetFile(dp->d_name);
         if ((strcmp(dp->d_name, ".") != 0) && (strcmp(dp->d_name, "..") != 0)) {
             std::vector<std::string>::iterator iterDir = find(hilogFiles_.begin(), hilogFiles_.end(), targetFile);

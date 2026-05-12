@@ -21,7 +21,6 @@ namespace OHOS {
 namespace WuKong {
 namespace {
 const int MAXINPUTNUM = 3;
-const int ONEHUNDRED = 100;
 const int NEWPERCENT = 75;
 const int OLDPERCENT = 20;
 }  // namespace
@@ -35,7 +34,7 @@ NormalScene::~NormalScene()
 ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<ComponentTree>> &componentList)
 {
     ErrCode result = OHOS::ERR_OK;
-    int randomNumber = rand() % ONEHUNDRED;
+    int randomNumber = rand() % ONE_HUNDRED_PERCENT;
     uint32_t count = 0;
     DEBUG_LOG_STR("randomNumber: %d", randomNumber);
     std::vector<uint32_t> indexList;
@@ -62,7 +61,7 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
         }
     }
     if (count >= componentList.size()) {
-        if ((componentList.size() == 0) || (randomNumber < ONEHUNDRED && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
+        if ((componentList.size() == 0) || (randomNumber < ONE_HUNDRED_PERCENT && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
             isBack_ = true;
         } else {
             SubtractComponent(componentList, indexList);
@@ -73,7 +72,7 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
     TRACK_LOG_STR("componentList size: %d", componentList.size());
     TRACK_LOG_STR("indexList size: %d", indexList.size());
     SubtractComponent(componentList, indexList);
-    if ((componentList.size() == 0) || (randomNumber < ONEHUNDRED && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
+    if ((componentList.size() == 0) || (randomNumber < ONE_HUNDRED_PERCENT && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
         isBack_ = true;
     }
     indexList.clear();

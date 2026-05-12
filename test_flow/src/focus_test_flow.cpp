@@ -107,11 +107,6 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
     {'r', INPUTTYPE_ROTATEINPUT}      // input rotate event
 };
 
-const int ONE_HUNDRED_PERCENT = 100;
-// one minute (ms)
-const int ONE_MINUTE = 60000;
-// rotate
-const int ROTATE = 114;
 bool g_commandSEEDENABLE = false;
 bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
@@ -339,8 +334,8 @@ bool FocusTestFlow::SetBlockPage()
     bool inputFlag = true;
     char const *systemPath = "pages/system";
     char const *passwordPath = "pages/biometricsandpassword";
-    if (strstr(path.c_str(), systemPath) != NULL ||
-        strstr(path.c_str(), passwordPath) != NULL) {
+    if (strstr(path.c_str(), systemPath) != nullptr ||
+        strstr(path.c_str(), passwordPath) != nullptr) {
         inputFlag = false;
     }
     TRACK_LOG_STR("Componentpage path: (%s)", path.c_str());
