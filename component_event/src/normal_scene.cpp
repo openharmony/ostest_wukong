@@ -61,7 +61,8 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
         }
     }
     if (count >= componentList.size()) {
-        if ((componentList.size() == 0) || (randomNumber < ONE_HUNDRED_PERCENT && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
+        if ((componentList.size() == 0) ||
+            (randomNumber < ONE_HUNDRED_PERCENT && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
             isBack_ = true;
         } else {
             SubtractComponent(componentList, indexList);
@@ -72,7 +73,8 @@ ErrCode NormalScene::SetInputComponentList(std::vector<std::shared_ptr<Component
     TRACK_LOG_STR("componentList size: %d", componentList.size());
     TRACK_LOG_STR("indexList size: %d", indexList.size());
     SubtractComponent(componentList, indexList);
-    if ((componentList.size() == 0) || (randomNumber < ONE_HUNDRED_PERCENT && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
+    if ((componentList.size() == 0) ||
+        (randomNumber < ONE_HUNDRED_PERCENT && randomNumber >= (NEWPERCENT + OLDPERCENT))) {
         isBack_ = true;
     }
     indexList.clear();
