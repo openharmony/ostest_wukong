@@ -635,7 +635,6 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
 {
     ErrCode result = OHOS::ERR_OK;
     if (NEED_ARG_OPTIONS.find(optopt) != std::string::npos) {
-        // error: option 'x' requires a value.
         shellcommand_.ResultReceiverAppend("error: option '-");
         shellcommand_.ResultReceiverAppend(string(1, optopt));
         shellcommand_.ResultReceiverAppend("' requires a value.\n");
@@ -711,7 +710,6 @@ ErrCode RandomTestFlow::CheckArgumentOptionOfE()
 
 ErrCode RandomTestFlow::CheckArgumentOptionOfc()
 {
-    // check if the '-c' and 'T' is exist at the same time
     if (g_commandTIMEENABLE == false) {
         std::stringstream ss(optarg);
         if (ss >> countArgs_) {
@@ -732,7 +730,6 @@ ErrCode RandomTestFlow::CheckArgumentOptionOfc()
 
 ErrCode RandomTestFlow::CheckArgumentOptionOfT()
 {
-    // check if the '-c' and 'T' is exist at the same time
     if (g_commandCOUNTENABLE == false) {
         std::stringstream ss(optarg);
         if (ss >> totalTime_) {
