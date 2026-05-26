@@ -46,7 +46,6 @@ namespace WuKong {
 enum SWIPE_DIRECTION { UP = 'u', DOWN = 'd', LEFT = 'l', RIGHT = 'r' };
 enum MOUSE_ACTION_ENUM { CLICK = 'c', DOUBLE_CLICK = 'b', DRAG = 'g', MOVE = 'm' };
 const int DIRECTION_LEN = 4;
-const uint32_t CHARGE_STRIDE = 11;
 const int STEP = 2;
 class WuKongUtil : public DelayedSingleton<WuKongUtil> {
 public:

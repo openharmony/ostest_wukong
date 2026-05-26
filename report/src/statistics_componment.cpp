@@ -23,11 +23,6 @@
 
 namespace OHOS {
 namespace WuKong {
-namespace {
-const uint32_t DECIMAL_LENGTH = 2;
-const float PERCENTAGE = 100.0;
-}  // namespace
-
 void StatisticsComponment::StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
                                             std::map<std::string, std::shared_ptr<Table>> &destTables)
 {

@@ -51,7 +51,7 @@ ErrCode KnuckleInput::RandomInput()
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist1(1, ONE_HALF);
-    std::uniform_int_distribution<> dist2(0, PERCENT_ONE_HUNDRED - 1);
+    std::uniform_int_distribution<> dist2(0, ONE_HUNDRED_PERCENT - 1);
 
     // 默认不带-f参数，随机生成单指或者多指事件
     if (!this->enableFingerArg) {

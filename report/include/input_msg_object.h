@@ -56,41 +56,27 @@ public:
     }
     std::string GetInputType()
     {
-        std::string inputString = "";
+        static const std::map<InputType, std::string> inputTypeMap = {
+            {INPUTTYPE_TOUCHINPUT, "touch"},
+            {INPUTTYPE_SWAPINPUT, "swap"},
+            {INPUTTYPE_MOUSEINPUT, "mouse"},
+            {INPUTTYPE_KEYBOARDINPUT, "keyboard"},
+            {INPUTTYPE_APPSWITCHINPUT, "appswitch"},
+            {INPUTTYPE_HARDKEYINPUT, "hardkey"},
+            {INPUTTYPE_ROTATEINPUT, "rotate"},
+            {INPUTTYPE_KNUCKLEINPUT, "knuckle"},
+            {INPUTTYPE_PINCHINPUT, "pinch"},
+            {INPUTTYPE_CROWNINPUT, "watch_crown"},
+            {INPUTTYPE_IDLEINPUT, "watch_idle"},
+            {INPUTTYPE_GESTURESINPUT, "watch_gestures"},
+            {INPUTTYPE_KEYPRESSINPUT, "watch_keypress"},
+            {INPUTTYPE_FLOATSPLITINPUT, "floatOrsplit"},
+            {INPUTTYPE_COLLAPSEINPUT, "collapse"},
+            {INPUTTYPE_BROWSERINPUT, "browser"}
+        };
         DEBUG_LOG_STR("inputType{%d}", inputType_);
-        switch (inputType_) {
-            case INPUTTYPE_TOUCHINPUT:
-                /* code */
-                inputString = "touch";
-                break;
-            case INPUTTYPE_SWAPINPUT:
-                /* code */
-                inputString = "swap";
-                break;
-            case INPUTTYPE_MOUSEINPUT:
-                /* code */
-                inputString = "mouse";
-                break;
-            case INPUTTYPE_KEYBOARDINPUT:
-                /* code */
-                inputString = "keyboard";
-                break;
-            case INPUTTYPE_APPSWITCHINPUT:
-                /* code */
-                inputString = "appswitch";
-                break;
-            case INPUTTYPE_HARDKEYINPUT:
-                /* code */
-                inputString = "hardkey";
-                break;
-            case INPUTTYPE_ROTATEINPUT:
-                /* code */
-                inputString = "rotate";
-                break;
-            default:
-                break;
-        }
-        return inputString;
+        auto it = inputTypeMap.find(inputType_);
+        return (it != inputTypeMap.end()) ? it->second : "";
     }
     virtual ~MultimodeInputMsg() = default;
     InputType inputType_ = INPUTTYPE_INVALIDINPUT;

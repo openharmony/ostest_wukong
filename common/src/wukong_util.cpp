@@ -53,7 +53,6 @@ namespace WuKong {
 namespace {
 const std::string DEFAULT_DIR = "/data/local/tmp/wukong/report/";
 const uint32_t LAP_HEIGHT = 200;
-const uint32_t CHARGE_STRIDE = 11;
 const uint32_t BLANK_THR = 30;
 const uint32_t WHITE_THR = 225;
 int g_bwCount = 0;
@@ -708,7 +707,7 @@ bool WuKongUtil::DeleteFile(std::string targetDir)
     if (realPathSource != nullptr) {
         struct dirent *dp;
         dirdp = opendir(targetDir.c_str());
-        while ((dp = readdir(dirdp)) != NULL) {
+        while ((dp = readdir(dirdp)) != nullptr) {
             std::string currentFileName(dp->d_name);
             std::string sourceFile = targetDir + currentFileName;
             char *realFileSource = realpath(sourceFile.c_str(), filepathSource);

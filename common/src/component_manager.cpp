@@ -26,7 +26,6 @@ const std::string permissionBundleName = "com.ohos.permissionmanager";
 const int DIV = 2;
 const int DOWNTIME = 10;
 const int ONESECOND = 1000000;
-const int TWOSECONDS = 2000000;
 const int OFFSET = 10;
 }  // namespace
 

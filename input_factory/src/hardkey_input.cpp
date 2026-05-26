@@ -46,6 +46,7 @@ ErrCode HardkeyInput::OrderInput(const std::shared_ptr<SpcialTestObject>& specia
         util->runProcess(hCmds);
     }
     g_shouldWakeup = !g_shouldWakeup;
+    Report::GetInstance()->SyncInputInfo(inputedMsgObject_);
     return OHOS::ERR_OK;
 }
 

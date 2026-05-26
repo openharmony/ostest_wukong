@@ -34,8 +34,6 @@
 
 using namespace OHOS::WuKong;
 
-static const unsigned int NUMBER_TWO = 2;
-
 static bool FreeSingtion()
 {
     AppManager::DestroyInstance();
@@ -91,7 +89,6 @@ static bool IsRunning(NamedSemaphore& sem)
 {
     bool result = false;
     sem.Open();
-    // the wukong pidof buffer size.
     const int bufferSize = 32;
     int value = sem.GetValue();
     TRACK_LOG_STR("Semaphore Is Open: (%d)", value);
@@ -127,7 +124,7 @@ static bool IsRunning(NamedSemaphore& sem)
     return result;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     if (!OHOS::system::GetBoolParameter("const.security.developermode.state", true)) {
         std::cout << "Not a development mode state, please check device mode." << std::endl;
@@ -135,7 +132,10 @@ int main(int argc, char* argv[])
     }
     const uint64_t dataPathSize = OHOS::GetFolderSize(DATA_PATH);
     const uint64_t wukongPathSize = OHOS::GetFolderSize(WUKONG_PATH);
-    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FILEMANAGEMENT, "USER_DATA_SIZE", OHOS::HiviewDFX::HiSysEvent::EventType::STATISTIC, "COMPONENT_NAME", "wukong","PARTITION_NAME",DATA_PATH,"REMAIN_PARTITION_SIZE",dataPathSize,"FILE_OR_FOLDER_PATH",WUKONG_PATH,"FILE_OR_FOLDER_SIZE",wukongPathSize);
+    HiSysEventWrite(OHOS::HiviewDFX::HiSysEvent::Domain::FILEMANAGEMENT,
+        "USER_DATA_SIZE", OHOS::HiviewDFX::HiSysEvent::EventType::STATISTIC, "COMPONENT_NAME",
+        "wukong", "PARTITION_NAME", DATA_PATH, "REMAIN_PARTITION_SIZE", dataPathSize,
+        "FILE_OR_FOLDER_PATH", WUKONG_PATH, "FILE_OR_FOLDER_SIZE", wukongPathSize);
     std::shared_ptr<WuKongLogger> WuKonglogger = WuKongLogger::GetInstance();
     // first start logger
     WuKonglogger->SetLevel(LOG_LEVEL_INFO);

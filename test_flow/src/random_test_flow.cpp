@@ -155,11 +155,6 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
  */
 std::vector<std::string> systemPaths;
 
-const int ONE_HUNDRED_PERCENT = 100;
-// one minute (ms)
-const int ONE_MINUTE = 60000;
-// rotate
-const int ROTATE = 114;
 bool g_commandSEEDENABLE = false;
 bool g_commandHELPENABLE = false;
 bool g_commandTIMEENABLE = false;
@@ -640,7 +635,6 @@ ErrCode RandomTestFlow::HandleUnknownOption(const char optopt)
 {
     ErrCode result = OHOS::ERR_OK;
     if (NEED_ARG_OPTIONS.find(optopt) != std::string::npos) {
-        // error: option 'x' requires a value.
         shellcommand_.ResultReceiverAppend("error: option '-");
         shellcommand_.ResultReceiverAppend(string(1, optopt));
         shellcommand_.ResultReceiverAppend("' requires a value.\n");
@@ -716,7 +710,6 @@ ErrCode RandomTestFlow::CheckArgumentOptionOfE()
 
 ErrCode RandomTestFlow::CheckArgumentOptionOfc()
 {
-    // check if the '-c' and 'T' is exist at the same time
     if (g_commandTIMEENABLE == false) {
         std::stringstream ss(optarg);
         if (ss >> countArgs_) {
@@ -737,7 +730,6 @@ ErrCode RandomTestFlow::CheckArgumentOptionOfc()
 
 ErrCode RandomTestFlow::CheckArgumentOptionOfT()
 {
-    // check if the '-c' and 'T' is exist at the same time
     if (g_commandCOUNTENABLE == false) {
         std::stringstream ss(optarg);
         if (ss >> totalTime_) {

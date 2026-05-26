@@ -31,7 +31,6 @@ namespace WuKong {
 namespace {
 const int INTERVALTIME = 1000;
 const int OPERATIONINTERVAL = 400;
-const int NUMTWO = 2;
 std::string g_defaultDir = "/data/local/tmp/wukong/record";
 std::ofstream g_outFile;
 int64_t g_timeTemp = -1;
@@ -120,7 +119,7 @@ ErrCode ReadEventLine(std::ifstream &inFile)
             auto caseInfo = split(line, delim);
             xPosi = std::stoi(caseInfo[0]);
             yPosi = std::stoi(caseInfo[1]);
-            interval = std::stoi(caseInfo[NUMTWO]);
+            interval = std::stoi(caseInfo[NUMBER_TWO]);
             INFO_LOG_STR("Position: (%d,%d)  interval: %d", xPosi, yPosi, interval);
             auto recordTouchInput = MultimodeManager::GetInstance();
             result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,

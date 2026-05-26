@@ -18,7 +18,6 @@
 
 #include "errors.h"
 #include "wukong_logger.h"
-#include "wukong_util.h"
 
 namespace OHOS {
 namespace WuKong {
@@ -26,6 +25,19 @@ const uint32_t INVALIDVALUE = 0xFFFFFFFF;
 const uint32_t WAIT_TIME = 1000000;
 const uint32_t THREE_SECOND = 3000000;
 const uint32_t LOG_MAX_NUM = 500;
+
+const int ONE_MINUTE = 60000;
+const int ONE_HUNDRED_PERCENT = 100;
+const int ROTATE = 114;
+const uint32_t DECIMAL_LENGTH = 2;
+const float PERCENTAGE = 100.0f;
+const float SAMEPERCENT = 0.8f;
+const int ONELAYER = 1;
+const int ZEROLAYER = 0;
+const float MINCOVERAGE = 0.9f;
+const int TWOSECONDS = 2000000;
+const int NUMBER_TWO = 2;
+const int CHARGE_STRIDE = 11;
 #define COMPONENT_LEFT_SWAP 0X10000000
 
 #define PARAM_COUNT_TIME_ERROR "has set '-T', can not set '-T' and '-c' at the same time"
