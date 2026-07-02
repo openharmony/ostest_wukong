@@ -128,7 +128,7 @@ ohos_executable("wukong") {
     "libpng:libpng",
   ]
   install_enable = true
-
+  branch_protector_ret = "pac_ret"
   subsystem_name = "ostest"
   part_name = "wukong"
   output_name = "wukong"
