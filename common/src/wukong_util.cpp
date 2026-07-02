@@ -794,6 +794,9 @@ uint64_t WuKongUtil::GetBundlePssTotal()
 {
     OHOS::HiviewDFX::DumpUsage dumpUsage;
     std::string pidStr = GetBundlePid();
+    if (pidStr.empty() || !std::all_of(pidStr.begin(), pidStr.end(), ::isdigit)) {
+        return 0;
+    }
     int pid = std::stoi(pidStr);
     OHOS::HiviewDFX::MemInfoData::MemInfo memInfo;
     bool success = dumpUsage.GetMemInfo(pid, memInfo);
