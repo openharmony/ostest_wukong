@@ -28,6 +28,25 @@ C++ 工程，命名空间 `OHOS::WuKong`，入口：`shell_command/src/wukong_ma
 - 修改报表格式 → `report/src/format*.cpp` + `report/src/statistics*.cpp`
 - 修改构建依赖 → 根目录 `BUILD.gn` + `bundle.json`
 
+### 术语路由
+
+遇到以下术语时，先读对应源码再动手修改：
+
+| 术语 | 先读 |
+|------|------|
+| `InputType` 枚举 | `common/include/wukong_define.h` |
+| `TestFlowFactory` 分发逻辑 | `test_flow/src/test_flow_factory.cpp` |
+| `WuKongTree` 层级结构 | `component_event/include/wuKong_tree.h` → `AbilityTree`/`PageTree`/`ComponentTree` 链 |
+| `SEMAPHORE_RUN_NAME` 信号量 | `common/include/wukong_define.h` + `shell_command/src/wukong_main.cpp` |
+| `FreeSingtion()` 单例销毁 | `shell_command/src/wukong_main.cpp` |
+| `SceneDelegate` 场景委派 | `component_event/include/scene_delegate.h` + `src/scene_delegate.cpp` |
+| `Statistics` 统计基类 | `report/include/statistics.h` |
+| 日志宏 `DEBUG_LOG`/`TRACK_LOG`/`ERROR_LOG` | `common/include/wuKong_logger.h` |
+
+> 本文件是 `test/ostest/wukong` 全树的唯一 Agent 指引文件，仓库中无嵌套的 AGENTS.md/CLAUDE.md 等子级指引。
+
+> 编辑任何文件前，agent 应先声明：(1) 当前任务类别（如新增注入事件、修改测试流等）；(2) 已读取的相关源码文件；(3) 从 §3 约束章节发现的限制。
+
 ## 3. 约束与边界
 
 ### 架构不变量
@@ -52,6 +71,23 @@ C++ 工程，命名空间 `OHOS::WuKong`，入口：`shell_command/src/wukong_ma
 - 不要引入新的第三方生产依赖。
 - 不要移除 `-fno-rtti` 或 `-flto` 编译选项（会影响产物大小与性能）。
 
+### 先询问再操作
+
+- 修改信号量命名或单实例机制 → 需确认设备并发场景影响
+- 修改开发者模式检查逻辑 → 需确认安全影响
+- 新增日志级别或修改 WuKongLogger 默认级别 → 需确认对 DFX 采集的影响
+
+### 兼容性约束
+
+- `wukong` CLI 子命令名、参数名和退出码属用户可见接口，新增或变更需确认向下兼容。
+- 报表输出格式（CSV/JSON/HTML/Terminal）变更需确认下游解析工具兼容性。
+
+### 常见失败模式
+
+- 新增 `InputType` 枚举值但未在 `InputFactory::GetInputAction` 注册 → 运行时 crash（nullptr 解引用）。
+- 新增 `TestFlow` 子类但未在 `TestFlowFactory::GetTestFlow` 注册 → 命令无法分发，返回 nullptr。
+- 修改单例 Manager 的 `GetInstance()` 时机 → 可能导致初始化顺序问题。
+
 ## 4. 编译构建
 
 所有命令需在 OpenHarmony 源码树根目录执行。
@@ -67,12 +103,12 @@ C++ 工程，命名空间 `OHOS::WuKong`，入口：`shell_command/src/wukong_ma
 - GN 目标路径：`//test/ostest/wukong:wukong`（可执行文件）、`//test/ostest/wukong/test:unittest`（单元测试）
 - 单元测试源码：`test/unittest/wukong_test.cpp`，使用 googletest
 - 编译产物路径：`out/rk3568/ostest/wukong/`
+- 本项目暂无独立 lint/静态分析命令，依赖编译器告警（`-Os -fno-rtti -flto` 等选项启用后编译器会捕获类型与链接期问题）
 
 ## 5. C++ 规范
 
 - 编译选项：`-D__OHOS__ -Os -fno-rtti -fdata-sections -ffunction-sections -flto`；C++ 异常启用 `-fexceptions`
 - 模块结构统一：`模块/include/*.h` + `模块/src/*.cpp`
-- 所有源文件必须携带 Apache 2.0 版权头（`Copyright Huawei Device Co., Ltd.`）
 - 命名空间：`OHOS::WuKong`
 - 日志宏：`DEBUG_LOG`、`TRACK_LOG`、`ERROR_LOG`（由 `WuKongLogger` 控制，默认 INFO 级别；`--debug` 切 DEBUG，`--track` 切 TRACK）
 
@@ -92,3 +128,6 @@ hdc_std shell mv /wukong /bin/
 1. 编译无错误无新增告警
 2. 单元测试通过（`wukong_ut`）
 3. 不包含无关格式化、重构或顺手改动
+4. 如无法在 OpenHarmony 源码树中编译，须在回复中声明"未执行编译验证"，并列出预期可验证的命令
+5. 新增注入事件后，确认 `InputType` 枚举已扩展且 `InputFactory::GetInputAction` 分发新类型
+6. 新增测试流后，确认 `TestFlowFactory::GetTestFlow` 能按命令字符串分发新流
