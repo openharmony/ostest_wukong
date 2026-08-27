@@ -14,6 +14,7 @@
  */
 
 #include "record_input.h"
+#include "parse_record_line.h"
 
 #include <ctime>
 #include <dirent.h>
@@ -115,11 +116,15 @@ ErrCode ReadEventLine(std::ifstream &inFile)
                 jumpFlag = !jumpFlag;
                 continue;
             }
-            std::string delim = ",";
-            auto caseInfo = split(line, delim);
-            xPosi = std::stoi(caseInfo[0]);
-            yPosi = std::stoi(caseInfo[1]);
-            interval = std::stoi(caseInfo[NUMBER_TWO]);
+            RecordPoint point;
+            if (!ParseRecordLine(line, point)) {
+                ERROR_LOG("invalid record line");
+                inFile.close();
+                return OHOS::ERR_INVALID_VALUE;
+            }
+            xPosi = point.xPosi;
+            yPosi = point.yPosi;
+            interval = point.interval;
             INFO_LOG_STR("Position: (%d,%d)  interval: %d", xPosi, yPosi, interval);
             auto recordTouchInput = MultimodeManager::GetInstance();
             result = recordTouchInput->PointerInput(xPosi, yPosi, MMI::PointerEvent::SOURCE_TYPE_TOUCHSCREEN,
