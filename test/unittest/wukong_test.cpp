@@ -47,7 +47,10 @@ bool ExecCmd(const std::string &cmd, std::string &resvec)
 class WuKongTest : public testing::Test {
 public:
     static void SetUpTestCase() {}
-    static void TearDownTestCase() {}
+    static void TearDownTestCase()
+    {
+        WuKongUtil::DestroyInstance();
+    }
 
     void SetUp()
     {

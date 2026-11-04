@@ -61,7 +61,7 @@ ErrCode RotateInput::OrderInput(const std::shared_ptr<SpcialTestObject>& special
         default:
             break;
     }
-    if (screens[0] == nullptr) {
+    if (screens.size() == 0) {
         ERROR_LOG("Failed to get home screen data");
         return OHOS::ERR_INVALID_VALUE;
     }

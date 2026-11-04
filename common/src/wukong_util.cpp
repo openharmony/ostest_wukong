@@ -614,11 +614,13 @@ void WuKongUtil::SetAllAppInfo(std::vector<std::string> &bundleList, std::vector
 
 void WuKongUtil::SetTempAllowList(std::vector<std::string> tempAllowList)
 {
+    std::lock_guard<std::mutex> lock(tempAllowListMutex_);
     tempAllowList_ = tempAllowList;
 }
 
 std::vector<std::string> WuKongUtil::GetTempAllowList()
 {
+    std::lock_guard<std::mutex> lock(tempAllowListMutex_);
     return tempAllowList_;
 }
 
@@ -854,6 +856,10 @@ bool WuKongUtil::DeleteFile(std::string targetDir)
     if (realPathSource != nullptr) {
         struct dirent *dp;
         dirdp = opendir(targetDir.c_str());
+        if (dirdp == nullptr) {
+            ERROR_LOG_STR("DeleteFile: opendir failed for %s", targetDir.c_str());
+            return false;
+        }
         while ((dp = readdir(dirdp)) != nullptr) {
             std::string currentFileName(dp->d_name);
             std::string sourceFile = targetDir + currentFileName;
@@ -925,7 +931,7 @@ std::string WuKongUtil::GetBundlePid()
         ERROR_LOG("popen function failed");
         return "";
     }
-    const int bufferSize = 32;
+    const int bufferSize = 256;
     char pid[bufferSize] = {0};
     if (fgets(pid, bufferSize - 1, fp) != nullptr) {
         std::string pidStr(pid);
@@ -944,7 +950,13 @@ uint64_t WuKongUtil::GetBundlePssTotal()
     if (pidStr.empty() || !std::all_of(pidStr.begin(), pidStr.end(), ::isdigit)) {
         return 0;
     }
-    int pid = std::stoi(pidStr);
+    int pid = 0;
+    try {
+        pid = std::stoi(pidStr);
+    } catch (const std::exception &e) {
+        ERROR_LOG_STR("stoi failed for pid: %s", e.what());
+        return 0;
+    }
     OHOS::HiviewDFX::MemInfoData::MemInfo memInfo;
     bool success = dumpUsage.GetMemInfo(pid, memInfo);
     if (success) {
@@ -976,7 +988,7 @@ std::string WuKongUtil::ExecuteCmd(std::string cmd)
         return "";
     }
 
-    const int bufferSize = 32;
+    const int bufferSize = 256;
     char result[bufferSize] = {0};
     if (fgets(result, bufferSize - 1, fp) != nullptr) {
         std::string cmdResult(result);

@@ -39,7 +39,7 @@ CollapseInput::~CollapseInput()
 ErrCode CollapseInput::RandomInput()
 {
     ErrCode result = OHOS::ERR_OK;
-    std::string command = "hidumper -s 4607 -a '-a' | grep FoldStatus | cut -d''";
+    std::string command = "hidumper -s 4607 -a '-a' | grep FoldStatus | awk '{print $2}'";
     // 先获取当前状态
     std::string currentStatus = WuKongUtil::GetInstance()->ExecuteCmd(command);
     if (currentStatus == StatusToDesc.at(CollapseStatus::C_UNKNOWN)) {

@@ -400,7 +400,9 @@ ErrCode MultimodeManager::WatchCrownRotateSimulate(int x, int y, int rotateCount
     INFO_LOG_STR("socket connection result: %d, socketId: %d.", linkrst, uitestSocketFd);
     if (linkrst < 0) {
         ERROR_LOG("socket connection failed...");
-        return OHOS::ERR_OK;
+        close(uitestSocketFd);
+        uitestSocketFd = -1;
+        return OHOS::ERR_NO_INIT;
     }
 
     std::string coordinate = "{\"x\":" + std::to_string(x) + ",\"y\":" + std::to_string(y) + "}";
@@ -417,15 +419,15 @@ ErrCode MultimodeManager::WatchCrownRotateSimulate(int x, int y, int rotateCount
                            "\"request_id\":\"2025102811540000\","
                            "\"call\":\"xdevice\""
                            "}";
-    char sendBuf[sendData.size()];
-    sendData.copy(sendBuf, sendData.size());
-    int sendNum = send(uitestSocketFd, sendBuf, sizeof(sendBuf), 0);
-    INFO_LOG_STR("socket message to server: %s length: %lu result: %d.", sendBuf, sizeof(sendBuf), sendNum);
+    std::vector<char> sendBuf(sendData.begin(), sendData.end());
+    int sendNum = send(uitestSocketFd, sendBuf.data(), sendBuf.size(), 0);
+    INFO_LOG_STR("socket message to server: %s length: %lu result: %d.", sendData.c_str(), sendBuf.size(), sendNum);
     std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_DRAG_TOTAL_TIME_MS));
-    char recvBuf[200];
-    int recvNum = recv(uitestSocketFd, recvBuf, sizeof(recvBuf), 0);
-    INFO_LOG_STR("socket message from server: %s length: %lu result: %d." recvBuf, sizeof(recvBuf), recvNum);
+    char recvBuf[200] = {0};
+    int recvNum = recv(uitestSocketFd, recvBuf, sizeof(recvBuf) - 1, 0);
+    INFO_LOG_STR("socket message from server: %s length: %lu result: %d.", recvBuf, sizeof(recvBuf), recvNum);
     close(uitestSocketFd);
+    uitestSocketFd = -1;
     return OHOS::ERR_OK;
 }
 

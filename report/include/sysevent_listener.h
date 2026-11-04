@@ -16,12 +16,20 @@
 #ifndef TEST_WUKONG_SYSEVENT_LISTENER_H
 #define TEST_WUKONG_SYSEVENT_LISTENER_H
 
+#include <functional>
+#include <memory>
+#include <mutex>
+
 #include "hisysevent_listener.h"
 namespace OHOS {
 namespace WuKong {
 class SysEventListener : public OHOS::HiviewDFX::HiSysEventListener {
 public:
-    explicit SysEventListener(std::ofstream& targetCsvFile) : csvFile(targetCsvFile)
+    using OnEnterCb = std::function<void()>;
+    using OnExitCb = std::function<void()>;
+    explicit SysEventListener(std::shared_ptr<std::ofstream> csvFile, std::shared_ptr<std::mutex> csvMutex,
+                              OnEnterCb onEnter = nullptr, OnExitCb onExit = nullptr)
+        : csvFile_(csvFile), csvMutex_(csvMutex), onEnter_(onEnter), onExit_(onExit)
     {
     }
     void OnEvent(std::shared_ptr<HiviewDFX::HiSysEventRecord> sysEvent) override;
@@ -31,7 +39,10 @@ public:
     }
 
 private:
-    std::ofstream& csvFile;
+    std::shared_ptr<std::ofstream> csvFile_;
+    std::shared_ptr<std::mutex> csvMutex_;
+    OnEnterCb onEnter_;
+    OnExitCb onExit_;
     std::string currentTestDir_;
 };
 }  // namespace WuKong

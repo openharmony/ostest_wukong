@@ -16,7 +16,11 @@
 #ifndef TEST_WUKONG_EXCEPTION_MANAGER_H
 #define TEST_WUKONG_EXCEPTION_MANAGER_H
 
+#include <atomic>
+#include <condition_variable>
 #include <fstream>
+#include <memory>
+#include <mutex>
 
 #include "errors.h"
 #include "singleton.h"
@@ -51,10 +55,14 @@ public:
 private:
     std::shared_ptr<SysEventListener> toolListener;
     std::string currentCsvFilePath;
-    std::ofstream csvFile;
-    bool enableCppCrashCatching;
-    bool enableJsCrashCatching;
-    bool enableAppFreezeCatching;
+    std::shared_ptr<std::ofstream> csvFile = std::make_shared<std::ofstream>();
+    std::shared_ptr<std::mutex> csvMutex = std::make_shared<std::mutex>();
+    std::atomic<int> inFlightCallbacks_{0};
+    std::condition_variable cbCv_;
+    std::mutex cbMtx_;
+    bool enableCppCrashCatching = false;
+    bool enableJsCrashCatching = false;
+    bool enableAppFreezeCatching = false;
 };
 }  // namespace WuKong
 }  // namespace OHOS

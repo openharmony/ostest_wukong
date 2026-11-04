@@ -117,6 +117,16 @@ ErrCode ReadEventLine(std::ifstream &inFile)
             }
             std::string delim = ",";
             auto caseInfo = split(line, delim);
+            if (caseInfo.size() <= NUMBER_TWO) {
+                ERROR_LOG_STR("invalid line in record file: %s", line.c_str());
+                continue;
+            }
+            std::regex intPattern("[0-9]+");
+            if (!std::regex_match(caseInfo[0], intPattern) || !std::regex_match(caseInfo[1], intPattern) ||
+                !std::regex_match(caseInfo[NUMBER_TWO], intPattern)) {
+                ERROR_LOG_STR("invalid integer in record line: %s", line.c_str());
+                continue;
+            }
             xPosi = std::stoi(caseInfo[0]);
             yPosi = std::stoi(caseInfo[1]);
             interval = std::stoi(caseInfo[NUMBER_TWO]);

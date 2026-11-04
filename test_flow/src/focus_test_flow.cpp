@@ -16,6 +16,7 @@
 #include "focus_test_flow.h"
 
 #include <string>
+#include <regex>
 
 #include "report.h"
 #include "wukong_define.h"
@@ -276,7 +277,7 @@ ErrCode FocusTestFlow::SetBlackWhiteSheet(const int option)
     } else if (option == 'y') {
         WuKongUtil::GetInstance()->SetCompTypeBlockList(optarg);
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 
 ErrCode FocusTestFlow::SetRunningParam(const int option)
@@ -285,11 +286,23 @@ ErrCode FocusTestFlow::SetRunningParam(const int option)
     if (option == 'c' || option == 'T') {
         result = CheckArgument(option);
     } else if (option == 'i') {
-        intervalArgs_ = std::stoi(optarg);
-        TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+        std::regex pattern("[0-9]+");
+        if (std::regex_match(optarg, pattern)) {
+            intervalArgs_ = std::stoi(optarg);
+            TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+        } else {
+            ERROR_LOG("Setting -i must follow an integer");
+            result = OHOS::ERR_INVALID_VALUE;
+        }
     } else if (option == 's') {
-        seedArgs_ = std::stoi(optarg);
-        g_commandSEEDENABLE = true;
+        std::regex pattern("[0-9]+");
+        if (std::regex_match(optarg, pattern)) {
+            seedArgs_ = std::stoi(optarg);
+            g_commandSEEDENABLE = true;
+        } else {
+            ERROR_LOG("Setting -s must follow an integer");
+            result = OHOS::ERR_INVALID_VALUE;
+        }
     } else if (option == 'n') {
         TreeManager::GetInstance()->SetFocusNum(optarg);
     } else if (option == 'f') {

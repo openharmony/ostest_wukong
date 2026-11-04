@@ -28,6 +28,14 @@ void SysEventListener::OnEvent(std::shared_ptr<HiviewDFX::HiSysEventRecord> sysE
     if (sysEvent == nullptr) {
         return;
     }
+    auto csvFile = csvFile_;
+    auto csvMutex = csvMutex_;
+    if (csvFile == nullptr || csvMutex == nullptr) {
+        return;
+    }
+    if (onEnter_) {
+        onEnter_();
+    }
     std::string domain = sysEvent->GetDomain();
     std::string eventName = sysEvent->GetEventName();
     OHOS::HiviewDFX::HiSysEvent::EventType eventType = sysEvent->GetEventType();
@@ -55,7 +63,15 @@ void SysEventListener::OnEvent(std::shared_ptr<HiviewDFX::HiSysEventRecord> sysE
     data.pid = static_cast<uint64_t>(sysEvent->GetPid());
     data.tid = static_cast<uint64_t>(sysEvent->GetTid());
     data.uid = static_cast<uint64_t>(sysEvent->GetUid());
-    CsvUtils::WriteOneLine(csvFile, data);
+    {
+        std::lock_guard<std::mutex> lock(*csvMutex);
+        if (csvFile->is_open()) {
+            CsvUtils::WriteOneLine(*csvFile, data);
+        }
+    }
+    if (onExit_) {
+        onExit_();
+    }
 }
 void SysEventListener::OnServiceDied()
 {

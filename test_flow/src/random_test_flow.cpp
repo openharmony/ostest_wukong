@@ -361,7 +361,7 @@ ErrCode RandomTestFlow::SetBlackWhiteSheet(const int option)
         WuKongUtil::GetInstance()->SetComponentUriType(optarg);
         g_commandURITYPEENABLE = true;
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 
 ErrCode RandomTestFlow::SetRunningParam(const int option)
@@ -379,8 +379,14 @@ ErrCode RandomTestFlow::SetRunningParam(const int option)
             result = OHOS::ERR_INVALID_VALUE;
         }
     } else if (option == 's') {
-        seedArgs_ = std::stoi(optarg);
-        g_commandSEEDENABLE = true;
+        std::regex seedPattern("[0-9]+");
+        if (std::regex_match(optarg, seedPattern)) {
+            seedArgs_ = std::stoi(optarg);
+            g_commandSEEDENABLE = true;
+        } else {
+            ERROR_LOG("Setting -s must follow an integer");
+            result = OHOS::ERR_INVALID_VALUE;
+        }
     }
     return result;
 }

@@ -72,14 +72,23 @@ bool InitCsvFile(std::ofstream &csvFile, std::string &filePath)
 }  // namespace
 bool ExceptionManager::StartCatching()
 {
-    if (!InitCsvFile(csvFile, currentCsvFilePath)) {
+    if (!InitCsvFile(*csvFile, currentCsvFilePath)) {
         return false;
     }
     std::vector<ListenerRule> sysRules;
     std::string domain = "";
     std::string eventName = "";
     sysRules.emplace_back(domain, eventName);
-    toolListener = std::make_shared<SysEventListener>(csvFile);
+    auto onEnter = [this] {
+        std::lock_guard<std::mutex> lk(cbMtx_);
+        inFlightCallbacks_.fetch_add(1, std::memory_order_relaxed);
+    };
+    auto onExit = [this] {
+        std::lock_guard<std::mutex> lk(cbMtx_);
+        inFlightCallbacks_.fetch_sub(1, std::memory_order_relaxed);
+        cbCv_.notify_one();
+    };
+    toolListener = std::make_shared<SysEventListener>(csvFile, csvMutex, onEnter, onExit);
     if (toolListener == nullptr) {
         ERROR_LOG("toolListener is nullptr and please check the csvFile is ok");
         return false;
@@ -91,9 +100,14 @@ void ExceptionManager::StopCatching()
 {
     int32_t result = HiSysEventManager::RemoveListener(toolListener);
     DEBUG_LOG_STR("remove listener result: %d", result);
-    if (csvFile.is_open()) {
-        csvFile.flush();
-        csvFile.close();
+    {
+        std::unique_lock<std::mutex> lk(cbMtx_);
+        cbCv_.wait(lk, [this] { return inFlightCallbacks_.load(std::memory_order_relaxed) <= 0; });
+    }
+    std::lock_guard<std::mutex> lock(*csvMutex);
+    if (csvFile->is_open()) {
+        csvFile->flush();
+        csvFile->close();
     }
     TEST_RUN_LOG("catching stopped");
 }
