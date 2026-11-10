@@ -65,7 +65,7 @@ void SysEventListener::OnEvent(std::shared_ptr<HiviewDFX::HiSysEventRecord> sysE
     data.uid = static_cast<uint64_t>(sysEvent->GetUid());
     {
         std::lock_guard<std::mutex> lock(*csvMutex);
-        if (csvFile->is_open()) {
+        if (csvFile->is_open() && csvFile->good() && csvFile->rdbuf() != nullptr) {
             CsvUtils::WriteOneLine(*csvFile, data);
         }
     }

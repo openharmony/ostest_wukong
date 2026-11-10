@@ -109,6 +109,7 @@ void ExceptionManager::StopCatching()
         csvFile->flush();
         csvFile->close();
     }
+    toolListener.reset();
     TEST_RUN_LOG("catching stopped");
 }
 }  // namespace WuKong
