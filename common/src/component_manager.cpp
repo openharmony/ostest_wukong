@@ -139,7 +139,7 @@ ComponentManager::~ComponentManager()
 
 bool ComponentManager::Connect()
 {
-    if (connected_ == true) {
+    if (connected_.load()) {
         return true;
     }
     std::shared_ptr<ComponentEventMonitor> g_monitorInstance_ = std::make_shared<ComponentEventMonitor>();
@@ -150,6 +150,11 @@ bool ComponentManager::Connect()
     };
 
     g_monitorInstance_->SetOnAbilityConnectCallback(onConnectCallback);
+    auto onDisConnectCallback = [this]() {
+        connected_.store(false);
+        INFO_LOG("AAMS disconnected");
+    };
+    g_monitorInstance_->SetOnAbilityDisConnectCallback(onDisConnectCallback);
     auto ability = Accessibility::AccessibilityUITestAbility::GetInstance();
     if (ability->RegisterAbilityListener(g_monitorInstance_) != Accessibility::RET_OK) {
         ERROR_LOG("Failed to register ComponentEventMonitor");
@@ -166,7 +171,7 @@ bool ComponentManager::Connect()
         ERROR_LOG("Wait connection to AAMS timed out");
         return false;
     }
-    connected_ = true;
+    connected_.store(true);
     return true;
 }
 void ComponentManager::Disconnect()
@@ -175,11 +180,12 @@ void ComponentManager::Disconnect()
     if (auita != nullptr) {
         auita->Disconnect();
     }
-    connected_ = false;
+    connected_.store(false);
 }
 uint32_t ComponentManager::AddRegisterListener(std::shared_ptr<ComponentManagerListener> listener)
 {
     TRACK_LOG_STD();
+    std::lock_guard<std::mutex> lock(listenerMutex_);
     listenerList_.push_back(listener);
     TRACK_LOG_STR("Add linstener count (%d)", listenerList_.size());
     return listenerList_.size() - 1;
@@ -187,6 +193,7 @@ uint32_t ComponentManager::AddRegisterListener(std::shared_ptr<ComponentManagerL
 
 void ComponentManager::DeleteRegisterListener(const uint32_t handle)
 {
+    std::lock_guard<std::mutex> lock(listenerMutex_);
     if (listenerList_.size() > handle) {
         listenerList_.erase(listenerList_.begin() + handle);
     }
@@ -194,6 +201,7 @@ void ComponentManager::DeleteRegisterListener(const uint32_t handle)
 
 std::vector<std::shared_ptr<ComponentManagerListener>> ComponentManager::GetListenerList()
 {
+    std::lock_guard<std::mutex> lock(listenerMutex_);
     return listenerList_;
 }
 

@@ -131,6 +131,10 @@ ErrCode AppManager::StartAbilityByAbilityAndUri(const std::string uri, const std
     int result;
     std::vector<std::string> allowList;
     WuKongUtil::GetInstance()->GetAllowList(allowList);
+    if (allowList.empty() || abilityName.empty()) {
+        ERROR_LOG("allow list or ability name is empty");
+        return OHOS::ERR_INVALID_VALUE;
+    }
     AppExecFwk::ElementName element("", allowList[0], abilityName[0]);
     want.SetElement(element);
     want.SetUri(uri);

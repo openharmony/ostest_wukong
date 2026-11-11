@@ -16,9 +16,11 @@
 #include "report.h"
 
 #include <algorithm>
+#include <atomic>
 #include <dirent.h>
 #include <fstream>
 #include <iostream>
+#include <poll.h>
 #include <sstream>
 #include <sys/inotify.h>
 #include <sys/stat.h>
@@ -43,55 +45,79 @@ namespace WuKong {
 namespace {
 const uint32_t SEGMENT_STATISTICS_LENGTH = 10;
 std::string crashDir = "/data/log/faultlog/faultlogger/";
-void ListenCrashDir()
+std::atomic<bool> g_crashListenerRunning{false};
+int g_crashListenFd = -1;
+
+int InitCrashInotify()
 {
-    int fd;
-    int wd;
-    ssize_t readLenght;
-    char buf[BUFSIZ];
-    char* bufPtr = nullptr;
-    struct inotify_event *event;
-    fd = inotify_init();
+    int fd = inotify_init1(IN_NONBLOCK);
     INFO_LOG("init notify");
     if (fd < 0) {
-        return;
+        return -1;
     }
-    wd = inotify_add_watch(fd, "/data/log/faultlog/faultlogger/", IN_CLOSE_WRITE);
+    g_crashListenFd = fd;
+    int wd = inotify_add_watch(fd, "/data/log/faultlog/faultlogger/", IN_CLOSE_WRITE);
     INFO_LOG("add_watch");
     if (wd < 0) {
         ERROR_LOG("inotify_add_watch /data/log/faultlog/faultlogger/ failed");
-        return;
+        close(fd);
+        g_crashListenFd = -1;
+        return -1;
     }
-    buf[sizeof(buf) - 1] = 0;
-    std::string destDir = Report::GetInstance()->GetReportExceptionDir();
-    while ((readLenght = read(fd, buf, sizeof(buf) - 1)) > 0) {
-        uint32_t len = static_cast<uint32_t>(readLenght);
-        uint32_t nread = 0;
-        while (len > 0) {
-            bufPtr = &buf[nread];
-            void* middleType =  static_cast<void *>(bufPtr);
-            event = static_cast<struct inotify_event *>(middleType);
-            if ((event->mask & IN_CLOSE_WRITE) && (event->len > 0)) {
-                DEBUG_LOG_STR("event->mask{%x}", event->mask);
-                std::string targetFile(event->name);
-                WuKongUtil::GetInstance()->CopyFile(targetFile, crashDir, destDir);
-                DEBUG_LOG_STR("%s --- IN_CLOSE_WRITE\n", event->name);
-                Report::GetInstance()->ExceptionRecord(targetFile);
-            }
-            nread = nread + sizeof(struct inotify_event) + event->len;
-            len = len - sizeof(struct inotify_event) - event->len;
-        }
-    }
-    INFO_LOG("exit thread");
-    return;
+    return fd;
 }
 
-void StartCrashDirListen()
+void ProcessCrashEvents(int fd, char *buf, std::string &destDir)
 {
-    std::thread listenerThread(&ListenCrashDir);
+    ssize_t readLenght = read(fd, buf, BUFSIZ - 1);
+    if (readLenght <= 0) {
+        return;
+    }
+    uint32_t len = static_cast<uint32_t>(readLenght);
+    uint32_t nread = 0;
+    while (len > 0) {
+        char* bufPtr = &buf[nread];
+        void* middleType = static_cast<void *>(bufPtr);
+        struct inotify_event *event = static_cast<struct inotify_event *>(middleType);
+        if ((event->mask & IN_CLOSE_WRITE) && (event->len > 0)) {
+            DEBUG_LOG_STR("event->mask{%x}", event->mask);
+            std::string targetFile(event->name);
+            WuKongUtil::GetInstance()->CopyFile(targetFile, crashDir, destDir);
+            DEBUG_LOG_STR("%s --- IN_CLOSE_WRITE\n", event->name);
+            Report::GetInstance()->ExceptionRecord(targetFile);
+        }
+        nread = nread + sizeof(struct inotify_event) + event->len;
+        len = len - sizeof(struct inotify_event) - event->len;
+    }
+}
+
+void ListenCrashDir()
+{
+    int fd = InitCrashInotify();
+    if (fd < 0) {
+        return;
+    }
+    char buf[BUFSIZ];
+    buf[sizeof(buf) - 1] = 0;
+    std::string destDir = Report::GetInstance()->GetReportExceptionDir();
+    while (g_crashListenerRunning.load()) {
+        struct pollfd pfd = { .fd = fd, .events = POLLIN, .revents = 0 };
+        int pollRet = poll(&pfd, 1, 500); // 500ms timeout
+        if (pollRet <= 0) {
+            continue;
+        }
+        ProcessCrashEvents(fd, buf, destDir);
+    }
+    close(fd);
+    g_crashListenFd = -1;
+    INFO_LOG("exit thread");
+}
+
+void StartCrashDirListen(std::thread& thread)
+{
+    g_crashListenerRunning.store(true);
+    thread = std::thread(&ListenCrashDir);
     INFO_LOG("create listener thread");
-    listenerThread.detach();
-    INFO_LOG("thread detach");
 }
 }  // namespace
 using namespace OHOS::AAFwk;
@@ -130,7 +156,7 @@ void Report::EnvInit()
             ERROR_LOG("exception dir create fail");
         }
     }
-    StartCrashDirListen();
+    StartCrashDirListen(crashListenerThread_);
     // register crash catcher
     ExceptionManager::GetInstance()->StartCatching();
     if (dirp == nullptr) {
@@ -283,6 +309,7 @@ void Report::GroupFocusDataAndRecord(std::shared_ptr<InputedMsgObject> &inputedM
 
 Report::~Report()
 {
+    StopCrashListener();
 }
 
 void Report::SegmentedWriteCSV()
@@ -517,8 +544,21 @@ void Report::ExceptionRecord(const std::string &exceptionFilename)
     exceptionDataSet_->FilterData(data);
 }
 
+void Report::StopCrashListener()
+{
+    g_crashListenerRunning.store(false);
+    if (crashListenerThread_.joinable()) {
+        crashListenerThread_.join();
+    }
+    if (g_crashListenFd >= 0) {
+        close(g_crashListenFd);
+        g_crashListenFd = -1;
+    }
+}
+
 void Report::Finish()
 {
+    StopCrashListener();
     SegmentedWriteCSV();
     SegmentedWriteJson();
     if (is_focus_) {

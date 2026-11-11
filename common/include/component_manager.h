@@ -15,6 +15,9 @@
 #ifndef TEST_WUKONG_COMPONENT_MANAGER_H
 #define TEST_WUKONG_COMPONENT_MANAGER_H
 
+#include <atomic>
+#include <mutex>
+
 #include "accessibility_element_info.h"
 #include "component_tree.h"
 #include "wukong_define.h"
@@ -67,7 +70,7 @@ public:
 
     bool GetConnectStatus()
     {
-        return connected_;
+        return connected_.load();
     }
 
     /**
@@ -109,13 +112,14 @@ public:
     DECLARE_DELAYED_SINGLETON(ComponentManager);
 
 private:
-    bool connected_ = false;
+    std::atomic<bool> connected_{false};
 
     int32_t startX_ = -1;
     int32_t endX_ = -1;
     int32_t startY_ = -1;
     int32_t endY_ = -1;
 
+    std::mutex listenerMutex_;
     std::vector<std::shared_ptr<ComponentManagerListener>> listenerList_;
     std::map<int, std::function<ErrCode(Accessibility::AccessibilityElementInfo&)>> componentMap_;
 

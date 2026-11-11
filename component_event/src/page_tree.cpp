@@ -75,6 +75,10 @@ bool PageTree::SetNodeId()
 {
     nodeId_ = 0;
     auto componentTree = TreeManager::GetInstance()->GetNewComponents();
+    if (componentTree == nullptr) {
+        ERROR_LOG("GetNewComponents returned nullptr");
+        return false;
+    }
     if (componentTree->GetNodeId() == 0) {
         WARN_LOG("Component Tree is Empty");
         return false;

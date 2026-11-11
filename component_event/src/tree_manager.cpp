@@ -483,17 +483,22 @@ bool TreeManager::RemovePage()
     }
     uint32_t startIndex = componentNode->GetIndex();
     componentTreeList_[componentNodeIndex].reset();
-    uint32_t endIndex = startIndex + currentPageNode_->count_ - 1;
+    uint32_t eraseCount = currentPageNode_->count_;
+    if (eraseCount == 0) {
+        TRACK_LOG_END();
+        return true;
+    }
     uint32_t elementInfoListCount = elementInfoList_.size();
     DEBUG_LOG_STR(
-        "currentPageNode StartIndex (%u) EndIndex (%u) componentTreeList_ size (%u) elementInfoList_ size (%u)",
-        startIndex, endIndex, componentTreeListCount, elementInfoListCount);
-    if (startIndex >= elementInfoListCount || endIndex >= elementInfoListCount) {
-        ERROR_LOG_STR("currentPageNode StartIndex (%u) EndIndex (%u) more than elementInfoList_ size (%u)", startIndex,
-                      endIndex, elementInfoListCount);
+        "currentPageNode StartIndex (%u) eraseCount (%u) componentTreeList_ size (%u) elementInfoList_ size (%u)",
+        startIndex, eraseCount, componentTreeListCount, elementInfoListCount);
+    if (startIndex + eraseCount > elementInfoListCount) {
+        ERROR_LOG_STR("currentPageNode StartIndex (%u) + eraseCount (%u) more than elementInfoList_ size (%u)",
+                      startIndex, eraseCount, elementInfoListCount);
         return false;
     }
-    elementInfoList_.erase(elementInfoList_.begin() + startIndex, elementInfoList_.begin() + endIndex);
+    elementInfoList_.erase(elementInfoList_.begin() + startIndex,
+                           elementInfoList_.begin() + startIndex + eraseCount);
     TRACK_LOG_END();
     return true;
 }

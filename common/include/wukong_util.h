@@ -21,6 +21,7 @@
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <mutex>
 #include <climits>
 #include <fstream>
 #include <iostream>
@@ -542,6 +543,7 @@ private:
     bool isFirstStartApp_ = true;
     bool swipeEnablePause = false;
     std::vector<std::string> tempAllowList_;
+    std::mutex tempAllowListMutex_;
     std::vector<std::string> compIdBlockList_ = {};
     std::vector<std::string> compTypeBlockList_ = {"Divider"};
     std::string deviceType_ = "";

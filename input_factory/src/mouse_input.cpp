@@ -58,6 +58,10 @@ ErrCode MouseInput::RandomInput()
     if (result != OHOS::ERR_OK) {
         return result;
     }
+    if (screenWidth <= 0 || screenHeight <= 0) {
+        ERROR_LOG("screen size is invalid, skip mouse input");
+        return OHOS::ERR_NO_INIT;
+    }
 
     result = MouseAction(screenWidth, screenHeight);
 

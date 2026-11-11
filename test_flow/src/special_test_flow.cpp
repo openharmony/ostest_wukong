@@ -16,6 +16,7 @@
 #include "special_test_flow.h"
 
 #include <string>
+#include <regex>
 #include "ability_manager_client.h"
 #include "report.h"
 #include "string_ex.h"
@@ -337,8 +338,14 @@ ErrCode SpecialTestFlow::SetRunningParam(const int option)
 {
     ErrCode result = OHOS::ERR_OK;
     if (option == 'i') {
-        intervalArgs_ = std::stoi(optarg);
-        TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+        std::regex pattern("[0-9]+");
+        if (std::regex_match(optarg, pattern)) {
+            intervalArgs_ = std::stoi(optarg);
+            TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+        } else {
+            ERROR_LOG("Setting -i must follow an integer");
+            result = OHOS::ERR_INVALID_VALUE;
+        }
     } else if (option == 't') {
         SplitStr(optarg, ",", touchParam_);
         // check if param is valid
@@ -357,7 +364,7 @@ ErrCode SpecialTestFlow::SetRunningParam(const int option)
         result = WuKongUtil::GetInstance()->CheckArgumentList(bundleName_, true);
         g_commandCOMPONENTENABLE = true;
     }
-    return OHOS::ERR_OK;
+    return result;
 }
 
 ErrCode SpecialTestFlow::SetRunningIndicator(const int option)

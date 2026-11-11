@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include <mutex>
+#include <thread>
 
 #include "data_set.h"
 #include "input_msg_object.h"
@@ -129,6 +130,9 @@ private:
      */
     void ComponmentInfoArrange(const std::string &bundle, std::shared_ptr<ComponmentInputMsg> inputCompMsgPtr,
                                std::map<std::string, std::string> &data);
+
+    void StopCrashListener();
+
     // csv filename
     std::string reportCsvFileName_ = "";
     std::string reportJsonFileName_ = "";
@@ -162,6 +166,8 @@ private:
     std::vector<std::string> focus_input_vec_;
     // identify cur test is focus test
     bool is_focus_ = false;
+
+    std::thread crashListenerThread_;
 };
 }  // namespace WuKong
 }  // namespace OHOS

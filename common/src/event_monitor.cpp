@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+#include <chrono>
+#include <thread>
+
 #include "event_monitor.h"
 
 void EventMonitor::SetOnAbilityConnectCallback(std::function<void()> onConnectCb)
@@ -62,5 +65,12 @@ bool EventMonitor::WaitEventIdle(uint32_t idleThresholdMs, uint32_t timeoutMs)
         return true;
     }
     static constexpr auto sliceMs = 10;
-    return WaitEventIdle(idleThresholdMs, timeoutMs - sliceMs);
+    while (timeoutMs > sliceMs) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(sliceMs));
+        timeoutMs -= sliceMs;
+        if (currentMs - lastEventMillis_.load() >= idleThresholdMs) {
+            return true;
+        }
+    }
+    return false;
 }

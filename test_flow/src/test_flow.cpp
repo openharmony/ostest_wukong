@@ -15,13 +15,15 @@
 
 #include "test_flow.h"
 
+#include <atomic>
+
 #include "component_manager.h"
 #include "report.h"
 
 namespace OHOS {
 namespace WuKong {
 namespace {
-bool g_isPermissionBundle = false;
+std::atomic<bool> g_isPermissionBundle{false};
 }
 TestFlow::TestFlow(WuKongShellCommand &shellcommand)
     : shellcommand_(shellcommand),
@@ -103,10 +105,14 @@ ErrCode TestFlow::Run()
 
     // run test step, check test status, and control test step.
     while (!isFinished_) {
-        if (g_isPermissionBundle == true) {
+        bool expected = true;
+        if (g_isPermissionBundle.compare_exchange_strong(expected, false, std::memory_order_acq_rel,
+                                                         std::memory_order_acquire)) {
+            // Successfully claimed the permission flag; handle the permission dialog.
             result = ComponentManager::GetInstance()->PermoissionInput();
-            if (result == OHOS::ERR_OK) {
-                g_isPermissionBundle = false;
+            if (result != OHOS::ERR_OK) {
+                // Roll back: a new permission event may have arrived concurrently.
+                g_isPermissionBundle.store(true, std::memory_order_release);
             }
             DEBUG_LOG_STR("PermoissionInput Result: (%d)", result);
         } else {
