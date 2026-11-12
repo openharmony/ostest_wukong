@@ -16,6 +16,8 @@
 #ifndef TEST_WUKONG_TREE_MANAGER_H
 #define TEST_WUKONG_TREE_MANAGER_H
 
+#include <regex>
+
 #include "ability_tree.h"
 #include "accessibility_element_info.h"
 #include "component_tree.h"
@@ -128,7 +130,17 @@ public:
      */
     void SetFocusNum(const std::string & focusNum)
     {
-        focusNum_ = std::stoi(focusNum);
+        std::regex pattern("[0-9]+");
+        if (!std::regex_match(focusNum, pattern)) {
+            ERROR_LOG("Setting -n must follow an integer");
+            return;
+        }
+        try {
+            focusNum_ = static_cast<std::uint32_t>(std::stoi(focusNum));
+        } catch (const std::exception &e) {
+            ERROR_LOG_STR("Invalid focus number: %s", e.what());
+            return;
+        }
     }
 
     /**

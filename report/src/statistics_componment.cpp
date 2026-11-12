@@ -18,11 +18,32 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <limits>
+#include <regex>
 #include <sstream>
 #include <stdlib.h>
 
 namespace OHOS {
 namespace WuKong {
+namespace {
+bool ParseUnsignedInt(const std::string &str, uint32_t &value) {
+        static const std::regex pattern("[0-9]+");
+        if (!std::regex_match(str, pattern)) {
+            return false;
+        }
+        try {
+            unsigned long parsed = std::stoul(str);
+            if (parsed > std::numeric_limits<uint32_t>::max()) {
+                return false;
+            }
+            value = static_cast<uint32_t>(parsed);
+        } catch (const std::exception& e) {
+            return false;
+        }
+        return true;
+    }
+}
+
 void StatisticsComponment::StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
                                             std::map<std::string, std::shared_ptr<Table>> &destTables)
 {
@@ -97,8 +118,18 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
         // update record msg
         curComponmentStatisticsRecordPtr->componmentType_ = srcData["componment"];
         curComponmentStatisticsRecordPtr->execTimes_++;
-        curComponmentStatisticsRecordPtr->inputedTimes_ = (unsigned int)atoi(srcData["inputedTimes"].c_str());
-        curComponmentStatisticsRecordPtr->expectInputTimes_ = (unsigned int)atoi(srcData["componmentTotals"].c_str());
+        uint32_t inputedTimes = 0;
+        if (ParseUnsignedInt(srcData["inputedTimes"], inputedTimes)) {
+            curComponmentStatisticsRecordPtr->inputedTimes_ = inputedTimes;
+        } else {
+            WARN_LOG_STR("invalid inputedTimes{%s} in statistics data", srcData["inputedTimes"].c_str());
+        }
+        uint32_t componentTotals = 0;
+        if (ParseUnsignedInt(srcData["componmentTotals"], componentTotals)) {
+            curComponmentStatisticsRecordPtr->expectInputTimes_ = componentTotals;
+        } else {
+            WARN_LOG_STR("invalid componmentTotals{%s} in statistics data", srcData["componmentTotals"].c_str());
+        }
 
         if (curStatisticsMsgPtr->componmentTypeRecord_.size() > index) {
             curStatisticsMsgPtr->componmentTypeRecord_[index] = curComponmentStatisticsRecordPtr;

@@ -288,8 +288,13 @@ ErrCode FocusTestFlow::SetRunningParam(const int option)
     } else if (option == 'i') {
         std::regex pattern("[0-9]+");
         if (std::regex_match(optarg, pattern)) {
-            intervalArgs_ = std::stoi(optarg);
-            TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+            try {
+                intervalArgs_ = std::stoi(optarg);
+                TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+            } catch (std::exception &e) {
+                ERROR_LOG("Setting -i must follow an integer");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
         } else {
             ERROR_LOG("Setting -i must follow an integer");
             result = OHOS::ERR_INVALID_VALUE;
@@ -297,8 +302,13 @@ ErrCode FocusTestFlow::SetRunningParam(const int option)
     } else if (option == 's') {
         std::regex pattern("[0-9]+");
         if (std::regex_match(optarg, pattern)) {
-            seedArgs_ = std::stoi(optarg);
-            g_commandSEEDENABLE = true;
+            try {
+                seedArgs_ = std::stoi(optarg);
+                g_commandSEEDENABLE = true;
+            } catch (const std::exception &e) {
+                ERROR_LOG("Setting -s must follow an integer");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
         } else {
             ERROR_LOG("Setting -s must follow an integer");
             result = OHOS::ERR_INVALID_VALUE;

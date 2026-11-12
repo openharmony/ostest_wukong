@@ -108,6 +108,8 @@ bool ComponentEventMonitor::WaitEventIdle(uint32_t idleThresholdMs, uint32_t tim
     return true;
 }
 
+std::atomic<bool> ComponentManager::connected_{false};
+
 ComponentManager::ComponentManager()
 {
     componentMap_ = {
@@ -135,6 +137,7 @@ ComponentManager::ComponentManager()
 }
 ComponentManager::~ComponentManager()
 {
+    Disconnect();
 }
 
 bool ComponentManager::Connect()
@@ -150,7 +153,7 @@ bool ComponentManager::Connect()
     };
 
     g_monitorInstance_->SetOnAbilityConnectCallback(onConnectCallback);
-    auto onDisConnectCallback = [this]() {
+    auto onDisConnectCallback = []() {
         connected_.store(false);
         INFO_LOG("AAMS disconnected");
     };
