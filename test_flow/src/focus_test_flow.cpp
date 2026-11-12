@@ -291,7 +291,7 @@ ErrCode FocusTestFlow::SetRunningParam(const int option)
             try {
                 intervalArgs_ = std::stoi(optarg);
                 TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
-            } catch (std::exception &e) {
+            } catch (const std::exception &e) {
                 ERROR_LOG("Setting -i must follow an integer");
                 result = OHOS::ERR_INVALID_VALUE;
             }
@@ -314,7 +314,7 @@ ErrCode FocusTestFlow::SetRunningParam(const int option)
             result = OHOS::ERR_INVALID_VALUE;
         }
     } else if (option == 'n') {
-        TreeManager::GetInstance()->SetFocusNum(optarg);
+        result = TreeManager::GetInstance()->SetFocusNum(optarg);
     } else if (option == 'f') {
         TreeManager::GetInstance()->SetFocusTypeList(optarg);
     }

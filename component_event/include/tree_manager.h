@@ -128,19 +128,20 @@ public:
      * @brief set the component's every focused input number
      * @param totalNum the focus input number
      */
-    void SetFocusNum(const std::string & focusNum)
+    ErrCode SetFocusNum(const std::string & focusNum)
     {
         std::regex pattern("[0-9]+");
         if (!std::regex_match(focusNum, pattern)) {
             ERROR_LOG("Setting -n must follow an integer");
-            return;
+            return OHOS::ERR_INVALID_VALUE;
         }
         try {
             focusNum_ = static_cast<std::uint32_t>(std::stoi(focusNum));
         } catch (const std::exception &e) {
             ERROR_LOG_STR("Invalid focus number: %s", e.what());
-            return;
+            return OHOS::ERR_INVALID_VALUE;
         }
+        return OHOS::ERR_OK;
     }
 
     /**

@@ -26,22 +26,23 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-bool ParseUnsignedInt(const std::string &str, uint32_t &value) {
-        static const std::regex pattern("[0-9]+");
-        if (!std::regex_match(str, pattern)) {
-            return false;
-        }
-        try {
-            unsigned long parsed = std::stoul(str);
-            if (parsed > std::numeric_limits<uint32_t>::max()) {
-                return false;
-            }
-            value = static_cast<uint32_t>(parsed);
-        } catch (const std::exception& e) {
-            return false;
-        }
-        return true;
+bool ParseUnsignedInt(const std::string &str, uint32_t &value) 
+{
+    static const std::regex pattern("[0-9]+");
+    if (!std::regex_match(str, pattern)) {
+        return false;
     }
+    try {
+        unsigned long parsed = std::stoul(str);
+        if (parsed > std::numeric_limits<uint32_t>::max()) {
+            return false;
+        }
+        value = static_cast<uint32_t>(parsed);
+    } catch (const std::exception& e) {
+        return false;
+    }
+    return true;
+}
 }
 
 void StatisticsComponment::StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
