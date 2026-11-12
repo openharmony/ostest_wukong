@@ -91,14 +91,16 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
         DEBUG_LOG_STR("bundlename{%s} | componment{%s} | inputedTimes{%s} | componmentTotals{%s}",
                       srcData["bundleName"].c_str(), srcData["componment"].c_str(), srcData["inputedTimes"].c_str(),
                       srcData["componmentTotals"].c_str());
-        if (find(globalComponmentTypes_.begin(), globalComponmentTypes_.end(), srcData["componment"]) == globalComponmentTypes_.end()) {
+        if (find(globalComponmentTypes_.begin(), globalComponmentTypes_.end(), srcData["componment"]) ==
+            globalComponmentTypes_.end()) {
             DEBUG_LOG_STR("push componment{%s} to globalComponmentTypes_", srcData["componment"].c_str());
             globalComponmentTypes_.push_back(srcData["componment"]);
         }
 
         // check whether bundle is entered resolve create or reuse already exist  StatisticsMsgPtr
         std::shared_ptr<ComponmentStatisticsMsg> curStatisticsMsgPtr = std::make_shared<ComponmentStatisticsMsg>();
-        if (componmentStatisticsMsg_.find(srcData["bundleName"]) != componmentStatisticsMsg_.end()) {
+        if (componmentStatisticsMsg_.find(srcData["bundleName"]) !=
+            componmentStatisticsMsg_.end()) {
             DEBUG_LOG_STR("use inited curStatisticsMsgPtr by bundleName{%s}", srcData["bundleName"].c_str());
             curStatisticsMsgPtr = componmentStatisticsMsg_[srcData["bundleName"]];
         }
