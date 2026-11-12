@@ -99,8 +99,7 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
 
         // check whether bundle is entered resolve create or reuse already exist  StatisticsMsgPtr
         std::shared_ptr<ComponmentStatisticsMsg> curStatisticsMsgPtr = std::make_shared<ComponmentStatisticsMsg>();
-        if (componmentStatisticsMsg_.find(srcData["bundleName"]) !=
-            componmentStatisticsMsg_.end()) {
+        if (componmentStatisticsMsg_.find(srcData["bundleName"]) != componmentStatisticsMsg_.end()) {
             DEBUG_LOG_STR("use inited curStatisticsMsgPtr by bundleName{%s}", srcData["bundleName"].c_str());
             curStatisticsMsgPtr = componmentStatisticsMsg_[srcData["bundleName"]];
         }
