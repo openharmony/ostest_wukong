@@ -105,7 +105,8 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
             curStatisticsMsgPtr = componmentStatisticsMsg_[srcData["bundleName"]];
         }
         // check whether componmentType is entered resolve create or reuse already exist ComponmentStatisticsRecordPtr
-        std::shared_ptr<ComponmentStatisticsRecord> curComponmentStatisticsRecordPtr = std::make_shared<ComponmentStatisticsRecord>();
+        std::shared_ptr<ComponmentStatisticsRecord> curComponmentStatisticsRecordPtr =
+            std::make_shared<ComponmentStatisticsRecord>();
         uint32_t index = curStatisticsMsgPtr->ComponmentTypesIndex(srcData["componment"]);
         if (index != curStatisticsMsgPtr->componmentTypes_.size()) {
             curComponmentStatisticsRecordPtr = curStatisticsMsgPtr->componmentTypeRecord_[index];
