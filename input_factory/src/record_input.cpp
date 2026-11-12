@@ -132,7 +132,7 @@ ErrCode ReadEventLine(std::ifstream &inFile)
                 yPosi = std::stoi(caseInfo[1]);
                 interval = std::stoi(caseInfo[NUMBER_TWO]);
             } catch (const std::exception &e) {
-                ERROR_LOG_STR("invalid integer in recode line: %s", line.c_str());
+                ERROR_LOG_STR("invalid integer in record line: %s", line.c_str());
                 continue;
             }
             INFO_LOG_STR("Position: (%d,%d)  interval: %d", xPosi, yPosi, interval);

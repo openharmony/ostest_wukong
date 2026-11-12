@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace WuKong {
 namespace {
-bool ParseUnsignedInt(const std::string &str, uint32_t &value) 
+bool ParseUnsignedInt(const std::string &str, uint32_t &value)
 {
     static const std::regex pattern("[0-9]+");
     if (!std::regex_match(str, pattern)) {
@@ -38,7 +38,7 @@ bool ParseUnsignedInt(const std::string &str, uint32_t &value)
             return false;
         }
         value = static_cast<uint32_t>(parsed);
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         return false;
     }
     return true;
