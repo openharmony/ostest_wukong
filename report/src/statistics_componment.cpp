@@ -91,26 +91,20 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
         DEBUG_LOG_STR("bundlename{%s} | componment{%s} | inputedTimes{%s} | componmentTotals{%s}",
                       srcData["bundleName"].c_str(), srcData["componment"].c_str(), srcData["inputedTimes"].c_str(),
                       srcData["componmentTotals"].c_str());
-        std::vector<std::string>::iterator globalComponmentTypesIter =
-            find(globalComponmentTypes_.begin(), globalComponmentTypes_.end(), srcData["componment"]);
-        if (globalComponmentTypesIter == globalComponmentTypes_.end()) {
+        if (find(globalComponmentTypes_.begin(), globalComponmentTypes_.end(), srcData["componment"]) == globalComponmentTypes_.end()) {
             DEBUG_LOG_STR("push componment{%s} to globalComponmentTypes_", srcData["componment"].c_str());
             globalComponmentTypes_.push_back(srcData["componment"]);
         }
 
         // check whether bundle is entered resolve create or reuse already exist  StatisticsMsgPtr
         std::shared_ptr<ComponmentStatisticsMsg> curStatisticsMsgPtr = std::make_shared<ComponmentStatisticsMsg>();
-        std::map<std::string, std::shared_ptr<ComponmentStatisticsMsg>>::iterator componmentStatisticsMsgIter =
-            componmentStatisticsMsg_.find(srcData["bundleName"]);
-        if (componmentStatisticsMsgIter != componmentStatisticsMsg_.end()) {
+        if (componmentStatisticsMsg_.find(srcData["bundleName"]) != componmentStatisticsMsg_.end()) {
             DEBUG_LOG_STR("use inited curStatisticsMsgPtr by bundleName{%s}", srcData["bundleName"].c_str());
             curStatisticsMsgPtr = componmentStatisticsMsg_[srcData["bundleName"]];
         }
         // check whether componmentType is entered resolve create or reuse already exist ComponmentStatisticsRecordPtr
-        std::shared_ptr<ComponmentStatisticsRecord> curComponmentStatisticsRecordPtr =
-            std::make_shared<ComponmentStatisticsRecord>();
+        std::shared_ptr<ComponmentStatisticsRecord> curComponmentStatisticsRecordPtr = std::make_shared<ComponmentStatisticsRecord>();
         uint32_t index = curStatisticsMsgPtr->ComponmentTypesIndex(srcData["componment"]);
-        uint32_t curComponmentTypeTotal = curStatisticsMsgPtr->componmentTypeTotal_;
         if (index != curStatisticsMsgPtr->componmentTypes_.size()) {
             curComponmentStatisticsRecordPtr = curStatisticsMsgPtr->componmentTypeRecord_[index];
             DEBUG_LOG_STR("use inited curComponmentStatisticsRecordPtr in index{%d} | componment{%s}", index,
@@ -140,9 +134,8 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
             curStatisticsMsgPtr->componmentTypes_.push_back(srcData["componment"]);
         }
 
-        curComponmentTypeTotal++;
-        DEBUG_LOG_STR("curComponmentTypeTotal{%d}", curComponmentTypeTotal);
-        curStatisticsMsgPtr->componmentTypeTotal_ = curComponmentTypeTotal;
+        curStatisticsMsgPtr->componmentTypeTotal_++;
+        DEBUG_LOG_STR("curComponmentTypeTotal{%d}", curStatisticsMsgPtr->componmentTypeTotal_);
         componmentStatisticsMsg_[srcData["bundleName"]] = curStatisticsMsgPtr;
         execCount_++;
     }
