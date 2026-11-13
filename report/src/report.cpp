@@ -123,8 +123,8 @@ void StartCrashDirListen(std::thread& thread)
 using namespace OHOS::AAFwk;
 Report::Report()
 {
-    EnvInit();
     DataSetInit();
+    EnvInit();
 }
 
 void Report::EnvInit()

@@ -65,7 +65,7 @@ const struct option LONG_OPTIONS[] = {
 };
 bool g_commandSWAPENABLE = false;
 bool g_commandHELPENABLE = false;
-bool g_commandTIMEENABLE = false;
+std::atomic<bool> g_commandTIMEENABLE = false;
 bool g_commandTOUCHENABLE = false;
 bool g_commandPOWERENABLE = false;
 bool g_commandGOBACKENABLE = false;

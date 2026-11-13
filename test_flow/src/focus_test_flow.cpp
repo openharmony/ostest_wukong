@@ -110,7 +110,7 @@ const map<int, InputType> OPTION_INPUT_PERCENT = {
 
 bool g_commandSEEDENABLE = false;
 bool g_commandHELPENABLE = false;
-bool g_commandTIMEENABLE = false;
+std::atomic<bool> g_commandTIMEENABLE = false;
 bool g_commandCOUNTENABLE = false;
 bool g_isAppStarted = false;
 bool g_commandSCREENSHOTENABLE = false;
