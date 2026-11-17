@@ -65,7 +65,7 @@ const struct option LONG_OPTIONS[] = {
 };
 bool g_commandSWAPENABLE = false;
 bool g_commandHELPENABLE = false;
-bool g_commandTIMEENABLE = false;
+std::atomic<bool> g_commandTIMEENABLE = false;
 bool g_commandTOUCHENABLE = false;
 bool g_commandPOWERENABLE = false;
 bool g_commandGOBACKENABLE = false;
@@ -340,8 +340,13 @@ ErrCode SpecialTestFlow::SetRunningParam(const int option)
     if (option == 'i') {
         std::regex pattern("[0-9]+");
         if (std::regex_match(optarg, pattern)) {
-            intervalArgs_ = std::stoi(optarg);
-            TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+            try {
+                intervalArgs_ = std::stoi(optarg);
+                TEST_RUN_LOG(("Interval: " + std::to_string(intervalArgs_)).c_str());
+            } catch (const std::exception &e) {
+                ERROR_LOG("Setting -i must follow an integer");
+                result = OHOS::ERR_INVALID_VALUE;
+            }
         } else {
             ERROR_LOG("Setting -i must follow an integer");
             result = OHOS::ERR_INVALID_VALUE;

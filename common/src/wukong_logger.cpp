@@ -109,7 +109,10 @@ void WuKongLogger::Stop()
         std::cout << "Logger::Stop" << std::endl;
     }
     if (printerRunning_ && logPrinter_.IsRunning()) {
-        printerRunning_ = false;
+        {
+            std::lock_guard<std::mutex> lk(mtxQueue_);
+            printerRunning_ = false;
+        }
         cvWaitPrint_.notify_all();
         logPrinter_.NotifyExitSync();
     }
@@ -155,11 +158,15 @@ void WuKongLogger::Print(LOG_LEVEL level, const char *format, ...)
     }
 
     // push log to buffer queue.
-    mtxQueue_.lock();
-    if (bufferQueue_.size() < LOG_MAX_NUM) {
-        bufferQueue_.push(logInfo);
+    {
+        std::lock_guard<std::mutex> queueLock(mtxQueue_);
+        if (!printerRunning_) {
+            return;
+        }
+        if (bufferQueue_.size() < LOG_MAX_NUM) {
+            bufferQueue_.push(logInfo);
+        }
     }
-    mtxQueue_.unlock();
 
     // notify print log to printer thread.
     cvWaitPrint_.notify_all();

@@ -15,6 +15,7 @@
 #ifndef TEST_WUKONG_WUKONG_LOGGER_H
 #define TEST_WUKONG_WUKONG_LOGGER_H
 
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
@@ -101,7 +102,7 @@ private:
     std::queue<LogInfo> bufferQueue_;
 
     // log printer thread.
-    bool printerRunning_ = false;
+    std::atomic<bool> printerRunning_ = false;
     PrinterThread logPrinter_;
     std::mutex mtxThreadWait_;
     std::condition_variable cvWaitPrint_;

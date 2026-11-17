@@ -112,7 +112,7 @@ public:
     DECLARE_DELAYED_SINGLETON(ComponentManager);
 
 private:
-    std::atomic<bool> connected_{false};
+    static std::atomic<bool> connected_;
 
     int32_t startX_ = -1;
     int32_t endX_ = -1;

@@ -18,11 +18,33 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <limits>
+#include <regex>
 #include <sstream>
 #include <stdlib.h>
 
 namespace OHOS {
 namespace WuKong {
+namespace {
+bool ParseUnsignedInt(const std::string &str, uint32_t &value)
+{
+    static const std::regex pattern("[0-9]+");
+    if (!std::regex_match(str, pattern)) {
+        return false;
+    }
+    try {
+        unsigned long parsed = std::stoul(str);
+        if (parsed > std::numeric_limits<uint32_t>::max()) {
+            return false;
+        }
+        value = static_cast<uint32_t>(parsed);
+    } catch (const std::exception &e) {
+        return false;
+    }
+    return true;
+}
+}
+
 void StatisticsComponment::StatisticsDetail(std::vector<std::map<std::string, std::string>> srcDatas,
                                             std::map<std::string, std::shared_ptr<Table>> &destTables)
 {
@@ -69,18 +91,15 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
         DEBUG_LOG_STR("bundlename{%s} | componment{%s} | inputedTimes{%s} | componmentTotals{%s}",
                       srcData["bundleName"].c_str(), srcData["componment"].c_str(), srcData["inputedTimes"].c_str(),
                       srcData["componmentTotals"].c_str());
-        std::vector<std::string>::iterator globalComponmentTypesIter =
-            find(globalComponmentTypes_.begin(), globalComponmentTypes_.end(), srcData["componment"]);
-        if (globalComponmentTypesIter == globalComponmentTypes_.end()) {
+        if (find(globalComponmentTypes_.begin(), globalComponmentTypes_.end(), srcData["componment"]) ==
+            globalComponmentTypes_.end()) {
             DEBUG_LOG_STR("push componment{%s} to globalComponmentTypes_", srcData["componment"].c_str());
             globalComponmentTypes_.push_back(srcData["componment"]);
         }
 
         // check whether bundle is entered resolve create or reuse already exist  StatisticsMsgPtr
         std::shared_ptr<ComponmentStatisticsMsg> curStatisticsMsgPtr = std::make_shared<ComponmentStatisticsMsg>();
-        std::map<std::string, std::shared_ptr<ComponmentStatisticsMsg>>::iterator componmentStatisticsMsgIter =
-            componmentStatisticsMsg_.find(srcData["bundleName"]);
-        if (componmentStatisticsMsgIter != componmentStatisticsMsg_.end()) {
+        if (componmentStatisticsMsg_.find(srcData["bundleName"]) != componmentStatisticsMsg_.end()) {
             DEBUG_LOG_STR("use inited curStatisticsMsgPtr by bundleName{%s}", srcData["bundleName"].c_str());
             curStatisticsMsgPtr = componmentStatisticsMsg_[srcData["bundleName"]];
         }
@@ -88,7 +107,6 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
         std::shared_ptr<ComponmentStatisticsRecord> curComponmentStatisticsRecordPtr =
             std::make_shared<ComponmentStatisticsRecord>();
         uint32_t index = curStatisticsMsgPtr->ComponmentTypesIndex(srcData["componment"]);
-        uint32_t curComponmentTypeTotal = curStatisticsMsgPtr->componmentTypeTotal_;
         if (index != curStatisticsMsgPtr->componmentTypes_.size()) {
             curComponmentStatisticsRecordPtr = curStatisticsMsgPtr->componmentTypeRecord_[index];
             DEBUG_LOG_STR("use inited curComponmentStatisticsRecordPtr in index{%d} | componment{%s}", index,
@@ -97,8 +115,18 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
         // update record msg
         curComponmentStatisticsRecordPtr->componmentType_ = srcData["componment"];
         curComponmentStatisticsRecordPtr->execTimes_++;
-        curComponmentStatisticsRecordPtr->inputedTimes_ = (unsigned int)atoi(srcData["inputedTimes"].c_str());
-        curComponmentStatisticsRecordPtr->expectInputTimes_ = (unsigned int)atoi(srcData["componmentTotals"].c_str());
+        uint32_t inputedTimes = 0;
+        if (ParseUnsignedInt(srcData["inputedTimes"], inputedTimes)) {
+            curComponmentStatisticsRecordPtr->inputedTimes_ = inputedTimes;
+        } else {
+            WARN_LOG_STR("invalid inputedTimes{%s} in statistics data", srcData["inputedTimes"].c_str());
+        }
+        uint32_t componentTotals = 0;
+        if (ParseUnsignedInt(srcData["componmentTotals"], componentTotals)) {
+            curComponmentStatisticsRecordPtr->expectInputTimes_ = componentTotals;
+        } else {
+            WARN_LOG_STR("invalid componmentTotals{%s} in statistics data", srcData["componmentTotals"].c_str());
+        }
 
         if (curStatisticsMsgPtr->componmentTypeRecord_.size() > index) {
             curStatisticsMsgPtr->componmentTypeRecord_[index] = curComponmentStatisticsRecordPtr;
@@ -108,9 +136,8 @@ void StatisticsComponment::SrcDatasPretreatment(std::vector<std::map<std::string
             curStatisticsMsgPtr->componmentTypes_.push_back(srcData["componment"]);
         }
 
-        curComponmentTypeTotal++;
-        DEBUG_LOG_STR("curComponmentTypeTotal{%d}", curComponmentTypeTotal);
-        curStatisticsMsgPtr->componmentTypeTotal_ = curComponmentTypeTotal;
+        curStatisticsMsgPtr->componmentTypeTotal_++;
+        DEBUG_LOG_STR("curComponmentTypeTotal{%d}", curStatisticsMsgPtr->componmentTypeTotal_);
         componmentStatisticsMsg_[srcData["bundleName"]] = curStatisticsMsgPtr;
         execCount_++;
     }

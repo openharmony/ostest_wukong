@@ -46,31 +46,27 @@ ErrCode WatchKeyPressInput::RandomInput()
     ErrCode result = OHOS::ERR_OK;
     switch (eventIndex) {
         case F_ONE - 1:
-            // 电源键
             INFO_LOG("start press the power button.");
             result = multiInput->PowerKeySimulate();
             break;
         case F_ONE:
-            // 长按Dagger键，需要2秒以上
             INFO_LOG("start press the dagger button.");
-            result = multiInput->PowerKeySimulate();
+            multiInput->PowerKeySimulate();
             std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_DRAG_TOTAL_TIME_MS));
-            result = multiInput->LongPressKeySimulate(
+            multiInput->LongPressKeySimulate(
                 MMI::KeyEvent::KEYCODE_DAGGER_CLICK, DEFAULT_DRAG_TOTAL_TIME_MS * ONE_HALF);
             std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_DRAG_TOTAL_TIME_MS));
             result = multiInput->PowerKeySimulate();
             break;
         case F_TWO:
-            // 进多任务中心
             INFO_LOG("start enter the multitask center");
-            result = multiInput->DoublePowerKeySimulate();
+            multiInput->DoublePowerKeySimulate();
             std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_DRAG_TOTAL_TIME_MS));
             result = multiInput->PowerKeySimulate();
             break;
         case F_THREE:
-            // 长按电源键，需要4秒以上
             INFO_LOG("start press the power button for long time.");
-            result = multiInput->LongPressKeySimulate(
+            multiInput->LongPressKeySimulate(
                 MMI::KeyEvent::KEYCODE_POWER, DEFAULT_DRAG_TOTAL_TIME_MS * ONE_HALF * ONE_HALF);
             std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_KNUCKLE_INTERVAL_TIME_MS));
             result = multiInput->PowerKeySimulate();

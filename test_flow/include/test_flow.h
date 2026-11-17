@@ -16,6 +16,7 @@
 #ifndef TEST_WUKONG_TEST_FLOW_H
 #define TEST_WUKONG_TEST_FLOW_H
 
+#include <atomic>
 #include <string>
 #include <unistd.h>
 
@@ -104,7 +105,7 @@ protected:
     WuKongShellCommand &shellcommand_;
 
     // stop test flow
-    bool isFinished_;
+    std::atomic<bool> isFinished_;
 
     // default test time is 1 second.
     const int oneSecond_ = 1000;
